@@ -215,6 +215,10 @@
                 </div>
             </div>
         </div>
+        <div class="mt-4">
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Catatan Cedera / Kondisi Khusus Atlet</label>
+            <textarea id="fCatatanCedera" rows="2" class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-orange-400 focus:outline-none transition text-sm" placeholder="Contoh: Cedera lutut kanan, hamstring kiri kram, dll."></textarea>
+        </div>
 
         <div class="mt-6 flex flex-wrap gap-3">
             <button id="btnSave" onclick="saveAtlet()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-3 rounded-xl transition flex items-center gap-2 shadow-lg shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
@@ -253,6 +257,16 @@
                 <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Cabor</p><p id="dCabor" class="font-bold text-gray-800 text-sm">-</p></div>
                 <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Kelamin</p><p id="dKelamin" class="font-bold text-gray-800 text-sm">-</p></div>
                 <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Tanggal</p><p id="dTanggal" class="font-bold text-gray-800 text-sm">-</p></div>
+            </div>
+        </div>
+
+        <div id="cederaBox" class="hidden mt-3 bg-red-50 border border-red-200 rounded-xl p-4">
+            <div class="flex items-start gap-2">
+                <svg class="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <div>
+                    <p class="text-xs font-bold text-red-700 uppercase mb-1">Catatan Cedera / Kondisi Khusus</p>
+                    <p id="dCedera" class="text-sm text-red-800"></p>
+                </div>
             </div>
         </div>
 
@@ -531,7 +545,7 @@ var caborData = {
         normaUnder17: { "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Sprint 20 m": { mean: 3.8, sd: 0.4 }, "Bleep Test": { mean: 42, sd: 7 } },
         normaOver17: { "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Sprint 20 m": { mean: 3.2, sd: 0.3 }, "Bleep Test": { mean: 50, sd: 8 } },
         higherIsBetter: ["Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Bleep Test"],
-        catatan: "Fokus pada kekuatan dan power. Sprint 20m diukur dalam detik (lebih rendah lebih baik)."
+        catatan: "Fokus pada kekuatan dan power. Sprint 20m diukur dalam detik (lebih rendah lebih baik). Shoulder Mobility: hasil semakin kecil/pendek jarak antar tangan semakin bagus."
     },
     "Atletik": {
         items: ["Sit & Reach", "Push Up 1 Menit", "Sprint 30 m", "Standing Broad Jump", "Bleep Test"],
@@ -552,7 +566,7 @@ var caborData = {
         normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Stork Stand Kanan": { mean: 25, sd: 10 }, "Stork Stand Kiri": { mean: 25, sd: 10 }, "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "RAST Test": { mean: 7, sd: 2 }, "RAST Fatigue Index": { mean: 1.5, sd: 0.8 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Bleep Test": { mean: 42, sd: 7 } },
         normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Stork Stand Kanan": { mean: 40, sd: 12 }, "Stork Stand Kiri": { mean: 40, sd: 12 }, "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "RAST Test": { mean: 9, sd: 2.5 }, "RAST Fatigue Index": { mean: 1.8, sd: 0.9 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Bleep Test": { mean: 50, sd: 8 } },
         higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Stork Stand Kanan", "Stork Stand Kiri", "RAST Test", "Bleep Test"],
-        catatan: "Tes keseimbangan (Stork Stand Kanan & Kiri) diukur dalam menit:detik. Illinois Agility mengukur kelincahan."
+        catatan: "Tes keseimbangan (Stork Stand Kanan & Kiri) diukur dalam menit:detik. Illinois Agility mengukur kelincahan. Shoulder Mobility: hasil semakin kecil semakin bagus."
     },
     "Sambo": {
         items: ["Sit & Reach", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Hand Grip Kanan", "Hand Grip Kiri", "Core Stability 12 Level", "1RM Squat", "RAST Test", "RAST Fatigue Index", "Illinois Agility", "Stork Stand Kanan", "Stork Stand Kiri", "Bleep Test"],
@@ -580,14 +594,14 @@ var caborData = {
         normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "Vertical Jump": { mean: 45, sd: 10 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Hand Wall Toss Test": { mean: 18, sd: 6 }, "Stork Stand Kanan": { mean: 25, sd: 10 }, "Stork Stand Kiri": { mean: 25, sd: 10 }, "Bleep Test": { mean: 42, sd: 7 } },
         normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "Vertical Jump": { mean: 55, sd: 12 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Hand Wall Toss Test": { mean: 25, sd: 7 }, "Stork Stand Kanan": { mean: 40, sd: 12 }, "Stork Stand Kiri": { mean: 40, sd: 12 }, "Bleep Test": { mean: 50, sd: 8 } },
         higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "Vertical Jump", "Hand Wall Toss Test", "Stork Stand Kanan", "Stork Stand Kiri", "Bleep Test"],
-        catatan: "Fokus pada kelenturan, keseimbangan, dan kekuatan tubuh bagian atas."
+        catatan: "Fokus pada kelenturan, keseimbangan, dan kekuatan tubuh bagian atas. Shoulder Mobility: hasil semakin kecil semakin bagus."
     },
     "Angkat Besi": {
         items: ["Shoulder Mobility Kanan", "Shoulder Mobility Kiri", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Stork Stand Kanan", "Stork Stand Kiri", "Bleep Test"],
         normaUnder17: { "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Stork Stand Kanan": { mean: 25, sd: 10 }, "Stork Stand Kiri": { mean: 25, sd: 10 }, "Bleep Test": { mean: 42, sd: 7 } },
         normaOver17: { "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Stork Stand Kanan": { mean: 40, sd: 12 }, "Stork Stand Kiri": { mean: 40, sd: 12 }, "Bleep Test": { mean: 50, sd: 8 } },
         higherIsBetter: ["Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Stork Stand Kanan", "Stork Stand Kiri", "Bleep Test"],
-        catatan: "Kekuatan tubuh bagian atas dan core sangat dominan. 1RM Squat diukur dalam rasio berat badan."
+        catatan: "Kekuatan tubuh bagian atas dan core sangat dominan. 1RM Squat diukur dalam rasio berat badan. Shoulder Mobility: hasil semakin kecil semakin bagus."
     },
     "IBC MMA": {
         items: ["Sit & Reach", "Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "RAST Test", "RAST Fatigue Index", "Illinois Agility", "Bleep Test"],
@@ -611,11 +625,11 @@ var caborData = {
         catatan: "3 Hop Jump berbeda dari 10 Hop Jump. Hand Grip diukur per tangan (kanan & kiri)."
     },
     "Selam": {
-        items: ["Shoulder Mobility Kanan", "Shoulder Mobility Kiri", "Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri"],
-        normaUnder17: { "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 } },
-        normaOver17: { "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 } },
-        higherIsBetter: ["Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri"],
-        catatan: "Tidak ada Bleep Test untuk Selam. Fokus pada kekuatan upper body dan fleksibilitas bahu."
+        items: ["Shoulder Mobility Kanan", "Shoulder Mobility Kiri", "Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Beep Test"],
+        normaUnder17: { "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Beep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Beep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Beep Test"],
+        catatan: "Fokus pada kekuatan upper body dan fleksibilitas bahu. Shoulder Mobility: hasil semakin kecil semakin bagus."
     },
     "Arung Jeram": {
         items: ["Sit & Reach", "Push Up 1 Menit", "Back Up 2 Menit", "Wall Sit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Bleep Test"],
@@ -650,7 +664,7 @@ var caborData = {
         normaUnder17: { "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Hand Wall Toss Test": { mean: 18, sd: 6 }, "Stork Stand Kanan": { mean: 25, sd: 10 }, "Stork Stand Kiri": { mean: 25, sd: 10 }, "Bleep Test": { mean: 42, sd: 7 } },
         normaOver17: { "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Hand Wall Toss Test": { mean: 25, sd: 7 }, "Stork Stand Kanan": { mean: 40, sd: 12 }, "Stork Stand Kiri": { mean: 40, sd: 12 }, "Bleep Test": { mean: 50, sd: 8 } },
         higherIsBetter: ["Push Up 1 Menit", "Hand Grip Kanan", "Hand Grip Kiri", "Hand Wall Toss Test", "Stork Stand Kanan", "Stork Stand Kiri", "Bleep Test"],
-        catatan: "Kekuatan dan stabilitas tangan sangat penting untuk lemparan."
+        catatan: "Kekuatan dan stabilitas tangan sangat penting untuk lemparan. Shoulder Mobility: hasil semakin kecil semakin bagus."
     },
     "Tarung Derajat": {
         items: ["Sit & Reach", "Pull Up 1 Menit", "Sit Up 2 Menit", "Core Stability 12 Level", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Medicine Chest Pass 5 Kg", "RAST Test", "RAST Fatigue Index", "Zig Zag Run Test", "Bleep Test"],
@@ -956,6 +970,7 @@ function populateEditForm(a) {
             });
         }
     }, 100);
+    document.getElementById('fCatatanCedera').value = a.catatanCedera || '';
     document.getElementById('btnSave').disabled = false;
 }
 
@@ -1112,6 +1127,15 @@ function buildTestFields(cabor) {
                 '</div>' +
                 '<input type="hidden" data-test="' + item + '" value="">' +
                 '<p class="text-[10px] text-teal-600 mt-1">Total detik dihitung otomatis</p>' +
+            '</div>';
+        }
+
+        var isShoulderMobility = li.indexOf('shoulder mobility') >= 0;
+        if (isShoulderMobility) {
+            return '<div class="bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200 rounded-lg p-3">' +
+                '<label class="block text-xs font-semibold text-rose-700 mb-1">' + item + ' (' + unit + ')</label>' +
+                '<input type="number" step="any" data-test="' + item + '" placeholder="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm transition bg-white" oninput="checkFormReady()">' +
+                '<p class="text-[10px] text-rose-600 mt-1">Jarak antar tangan. Semakin kecil/pendek = semakin bagus.</p>' +
             '</div>';
         }
 
@@ -1305,6 +1329,13 @@ function renderDetail(a) {
     document.getElementById('dUsia').textContent = a.usia + ' tahun';
     document.getElementById('dKelamin').textContent = a.kelamin;
     document.getElementById('dTanggal').textContent = a.tanggal;
+    var cederaBox = document.getElementById('cederaBox');
+    if (a.catatanCedera) {
+        document.getElementById('dCedera').textContent = a.catatanCedera;
+        cederaBox.classList.remove('hidden');
+    } else {
+        cederaBox.classList.add('hidden');
+    }
     document.getElementById('dPerforma').textContent = ev.totalSkor.toFixed(1) + ' (' + ev.performa.toFixed(1) + '%)';
     var g = getCategory(ev.performa);
     document.getElementById('dKategori').innerHTML = '<span class="text-' + g.color + '-700 bg-' + g.color + '-100 px-2.5 py-0.5 rounded-full text-xs font-semibold">' + g.label + '</span>';
@@ -1479,8 +1510,9 @@ function saveAtlet() {
         alert('Isi minimal satu hasil tes!');
         return;
     }
+    var catatanCedera = document.getElementById('fCatatanCedera').value.trim();
     var newAtlet = {
-        id: 'a' + Date.now(), nama: nama, tempatLahir: tempatLahir, tanggalLahir: tanggalLahir, usia: usia, kelamin: kelamin, cabor: cabor, nomor: nomor, tanggal: tanggal, nilai: nilai,
+        id: 'a' + Date.now(), nama: nama, tempatLahir: tempatLahir, tanggalLahir: tanggalLahir, usia: usia, kelamin: kelamin, cabor: cabor, nomor: nomor, tanggal: tanggal, nilai: nilai, catatanCedera: catatanCedera,
         createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
     };
     if (editingId) {
@@ -1514,6 +1546,7 @@ function resetForm() {
     document.getElementById('testFieldsBox').classList.add('hidden');
     document.getElementById('testFields').innerHTML = '';
     document.getElementById('catatanBox').classList.add('hidden');
+    document.getElementById('fCatatanCedera').value = '';
     document.getElementById('btnSave').disabled = true;
 }
 
@@ -1684,13 +1717,13 @@ function exportCSV() {
         if (found) source = [found];
     }
     if (!source.length) { alert('Tidak ada data'); return; }
-    var csv = 'Nama,Tempat Lahir,Tanggal Lahir,Usia,Kelamin,Cabor,Nomor,Tanggal,';
+    var csv = 'Nama,Tempat Lahir,Tanggal Lahir,Usia,Kelamin,Cabor,Nomor,Tanggal,Catatan Cedera,';
     var allTests = new Set();
     source.forEach(function(a) { Object.keys(a.nilai || {}).forEach(function(k) { allTests.add(k); }); });
     csv += Array.from(allTests).join(',') + ',Performa,Kategori\n';
     source.forEach(function(a) {
         var ev = computeEvaluation(a);
-        csv += '"' + a.nama + '","' + (a.tempatLahir || '') + '","' + (a.tanggalLahir || '') + '",' + a.usia + ',' + a.kelamin + ',"' + a.cabor + '","' + (a.nomor || '') + '",' + a.tanggal + ',';
+        csv += '"' + a.nama + '","' + (a.tempatLahir || '') + '","' + (a.tanggalLahir || '') + '",' + a.usia + ',' + a.kelamin + ',"' + a.cabor + '","' + (a.nomor || '') + '",' + a.tanggal + ',"' + (a.catatanCedera || '') + '",';
         csv += Array.from(allTests).map(function(t) { return a.nilai[t] != null ? a.nilai[t] : ''; }).join(',') + ',' + ev.performa.toFixed(1) + ',' + ev.kategori + '\n';
     });
     var blob = new Blob([csv], { type: 'text/csv' });
@@ -1803,10 +1836,10 @@ function exportDashboardCSV() {
         return true;
     });
     if (!filtered.length) { alert('Tidak ada data untuk di-export'); return; }
-    var csv = 'No,Nama,Tempat Lahir,Tanggal Lahir,Cabor,Nomor,Usia,Kelamin,Tanggal,Jumlah Tes,Performa,Kategori\n';
+    var csv = 'No,Nama,Tempat Lahir,Tanggal Lahir,Cabor,Nomor,Usia,Kelamin,Tanggal,Catatan Cedera,Jumlah Tes,Performa,Kategori\n';
     filtered.forEach(function(a, i) {
         var ev = computeEvaluation(a);
-        csv += (i + 1) + ',"' + a.nama + '","' + (a.tempatLahir || '') + '","' + (a.tanggalLahir || '') + '","' + a.cabor + '","' + (a.nomor || '') + '",' + a.usia + ',' + a.kelamin + ',' + a.tanggal + ',' + ev.jumlahItem + ',' + ev.performa.toFixed(1) + ',' + ev.kategori + '\n';
+        csv += (i + 1) + ',"' + a.nama + '","' + (a.tempatLahir || '') + '","' + (a.tanggalLahir || '') + '","' + a.cabor + '","' + (a.nomor || '') + '",' + a.usia + ',' + a.kelamin + ',' + a.tanggal + ',"' + (a.catatanCedera || '') + '",' + ev.jumlahItem + ',' + ev.performa.toFixed(1) + ',' + ev.kategori + '\n';
     });
     var blob = new Blob([csv], { type: 'text/csv' });
     var url = URL.createObjectURL(blob);
