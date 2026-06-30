@@ -938,6 +938,14 @@ function populateEditForm(a) {
             Object.keys(a.nilai).forEach(function(k) {
                 var inp = document.querySelector('[data-test="' + k + '"]');
                 if (inp) inp.value = a.nilai[k];
+                var li = k.toLowerCase();
+                if (li.indexOf('wall sit') >= 0 && a.nilai[k] != null) {
+                    var totalDetik = parseInt(a.nilai[k]) || 0;
+                    var menitEl = document.querySelector('[data-wallsit-menit="' + k + '"]');
+                    var detikEl = document.querySelector('[data-wallsit-detik="' + k + '"]');
+                    if (menitEl) menitEl.value = Math.floor(totalDetik / 60);
+                    if (detikEl) detikEl.value = totalDetik % 60;
+                }
             });
         }
     }, 100);
@@ -1060,11 +1068,40 @@ function buildTestFields(cabor) {
             '</div>';
         }
 
+        var isWallSit = li.indexOf('wall sit') >= 0 && li.indexOf('single') < 0;
+        if (isWallSit) {
+            return '<div class="bg-gradient-to-r from-purple-50 to-violet-50 border border-purple-200 rounded-lg p-3">' +
+                '<label class="block text-xs font-semibold text-purple-700 mb-1">' + item + ' (Menit + Detik)</label>' +
+                '<div class="flex gap-2">' +
+                    '<div class="flex-1">' +
+                        '<input type="number" min="0" max="30" data-wallsit-menit="' + item + '" placeholder="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm transition bg-white" oninput="combineWallSit(\'' + item.replace(/'/g, "\\'") + '\')">' +
+                        '<p class="text-[10px] text-purple-500 mt-0.5">Menit</p>' +
+                    '</div>' +
+                    '<span class="text-purple-400 font-bold text-lg self-center">:</span>' +
+                    '<div class="flex-1">' +
+                        '<input type="number" min="0" max="59" data-wallsit-detik="' + item + '" placeholder="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm transition bg-white" oninput="combineWallSit(\'' + item.replace(/'/g, "\\'") + '\')">' +
+                        '<p class="text-[10px] text-purple-500 mt-0.5">Detik</p>' +
+                    '</div>' +
+                '</div>' +
+                '<input type="hidden" data-test="' + item + '" value="">' +
+                '<p class="text-[10px] text-purple-600 mt-1">Total detik dihitung otomatis</p>' +
+            '</div>';
+        }
+
         return '<div class="bg-gray-50 border border-gray-200 rounded-lg p-3">' +
             '<label class="block text-xs font-semibold text-gray-700 mb-1">' + item + (unit ? ' (' + unit + ')' : '') + '</label>' +
             '<input type="number" step="any" data-test="' + item + '" placeholder="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm transition" oninput="checkFormReady()">' +
             '</div>';
     }).join('');
+}
+
+function combineWallSit(itemName) {
+    var menit = parseInt(document.querySelector('[data-wallsit-menit="' + itemName + '"]').value) || 0;
+    var detik = parseInt(document.querySelector('[data-wallsit-detik="' + itemName + '"]').value) || 0;
+    var totalDetik = (menit * 60) + detik;
+    var hidden = document.querySelector('[data-test="' + itemName + '"]');
+    if (hidden) hidden.value = totalDetik > 0 ? totalDetik : '';
+    checkFormReady();
 }
 
 function hitungUsia() {
