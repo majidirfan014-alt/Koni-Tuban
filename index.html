@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KONI Tuban - Evaluasi Tes Fisik</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         body{font-family:'Inter',sans-serif}
@@ -20,9 +22,27 @@
         #appContent{display:none}#appContent.active{display:block}
         .login-shake{animation:shake .4s ease-in-out}
         @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+        .calc-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+        .calc-overlay.active{opacity:1;pointer-events:auto}
+        .calc-modal{background:#fff;border-radius:1rem;box-shadow:0 20px 60px rgba(0,0,0,.25);width:95%;max-width:500px;max-height:90vh;overflow-y:auto;padding:1.5rem;transform:translateY(20px);transition:transform .2s}
+        .calc-overlay.active .calc-modal{transform:translateY(0)}
+        .calc-result{background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;border-radius:.75rem;padding:1rem 1.25rem;margin-top:1rem}
+        .calc-result-value{font-size:1.75rem;font-weight:800;line-height:1.2}
+        .calc-sprint-table{width:100%;border-collapse:collapse;font-size:.8rem}
+        .calc-sprint-table th{background:#f1f5f9;padding:.4rem .5rem;text-align:left;font-weight:600;color:#475569;border-bottom:2px solid #e2e8f0}
+        .calc-sprint-table td{padding:.35rem .5rem;border-bottom:1px solid #f1f5f9}
+        .calc-sprint-table input{width:100%;padding:.3rem .5rem;border:1px solid #d1d5db;border-radius:.375rem;font-size:.8rem}
+        .calc-sprint-table input:focus{outline:none;ring:2px;ring-color:#3b82f6}
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+
+<!-- ========== LOADING SCREEN ========== -->
+<div id="loadingScreen" class="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center">
+    <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+    <p class="text-gray-600 font-semibold">Memuat data dari server...</p>
+    <p class="text-gray-400 text-sm mt-1">Mohon tunggu sebentar</p>
+</div>
 
 <!-- ========== LOGIN PAGE ========== -->
 <div id="loginPage" class="active min-h-screen items-center justify-center px-4">
@@ -154,6 +174,12 @@
                     <option value="">-- Pilih Cabor --</option>
                 </select>
             </div>
+            <div id="fNomorBox" class="hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Nomor Perlombaan</label>
+                <select id="fNomor" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition bg-white">
+                    <option value="">-- Pilih Nomor --</option>
+                </select>
+            </div>
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Tanggal Tes</label>
                 <input type="date" id="fTanggal" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition">
@@ -232,7 +258,7 @@
                 <h3 class="font-bold text-gray-800">Performa Keseluruhan</h3>
             </div>
             <div class="grid grid-cols-3 gap-4 mb-3">
-                <div><p class="text-[10px] font-semibold text-indigo-600 uppercase">Rata-rata</p><p id="dPerforma" class="text-2xl font-extrabold text-gray-800">-</p></div>
+                <div><p class="text-[10px] font-semibold text-indigo-600 uppercase">Total Skor</p><p id="dPerforma" class="text-2xl font-extrabold text-gray-800">-</p></div>
                 <div><p class="text-[10px] font-semibold text-indigo-600 uppercase">Kategori</p><p id="dKategori" class="font-bold text-sm">-</p></div>
                 <div><p class="text-[10px] font-semibold text-indigo-600 uppercase">Item</p><p id="dJumlahItem" class="text-sm font-semibold text-gray-600">-</p></div>
             </div>
@@ -383,6 +409,98 @@
 <footer class="text-center py-5 text-gray-400 text-xs no-print">&copy; 2026 KONI Kabupaten Tuban</footer>
 </div><!-- /appContent -->
 
+<!-- ========== MODAL: BLEEP TEST CALCULATOR ========== -->
+<div id="bleepCalcOverlay" class="calc-overlay" onclick="if(event.target===this)closeBleepCalc()">
+    <div class="calc-modal">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <div class="bg-green-100 text-green-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <h3 class="font-bold text-gray-800 text-lg">Bleep Test Calculator</h3>
+            </div>
+            <button onclick="closeBleepCalc()" class="text-gray-400 hover:text-gray-600 p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">Masukkan level dan shuttle (balikan) untuk menghitung VO2max</p>
+        <input type="hidden" id="bleepCalcItemName">
+        <div class="grid grid-cols-2 gap-3 mb-3">
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Level (1-21)</label>
+                <select id="bleepLevel" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm" onchange="previewBleepVO2()">
+                    <option value="">-- Pilih --</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Shuttle / Balikan</label>
+                <select id="bleepShuttle" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm" onchange="previewBleepVO2()">
+                    <option value="">-- Pilih --</option>
+                </select>
+            </div>
+        </div>
+        <div id="bleepPreviewResult" class="calc-result hidden">
+            <p class="text-blue-200 text-xs font-semibold uppercase mb-1">VO2max</p>
+            <div class="calc-result-value"><span id="bleepVO2val">-</span> <span class="text-sm font-semibold text-blue-200">ml/kg/min</span></div>
+            <p class="text-blue-200 text-xs mt-1" id="bleepFormula"></p>
+        </div>
+        <div class="flex gap-3 mt-4">
+            <button onclick="applyBleepResult()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl transition text-sm">Terapkan ke Formulir</button>
+            <button onclick="closeBleepCalc()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2.5 rounded-xl transition text-sm">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL: RAST TEST CALCULATOR ========== -->
+<div id="rastCalcOverlay" class="calc-overlay" onclick="if(event.target===this)closeRastCalc()">
+    <div class="calc-modal">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <div class="bg-orange-100 text-orange-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <h3 class="font-bold text-gray-800 text-lg">RAST Test Calculator</h3>
+            </div>
+            <button onclick="closeRastCalc()" class="text-gray-400 hover:text-gray-600 p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <p class="text-sm text-gray-500 mb-3">Masukkan berat badan dan waktu 6 sprint (35m) untuk menghitung Power & Fatigue Index</p>
+        <input type="hidden" id="rastCalcItemName">
+        <div class="mb-3">
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Berat Badan (kg)</label>
+            <input type="number" step="0.1" id="rastWeight" placeholder="Contoh: 70" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm" oninput="previewRastResult()">
+        </div>
+        <div class="mb-3">
+            <label class="block text-xs font-semibold text-gray-700 mb-2">Waktu Sprint (detik) - 6 x 35m</label>
+            <table class="calc-sprint-table">
+                <thead><tr><th>Sprint</th><th>Waktu (s)</th><th>Power (W)</th></tr></thead>
+                <tbody>
+                    <tr><td class="font-semibold">1</td><td><input type="number" step="0.01" id="rastT1" oninput="previewRastResult()"></td><td id="rastP1" class="text-gray-400">-</td></tr>
+                    <tr><td class="font-semibold">2</td><td><input type="number" step="0.01" id="rastT2" oninput="previewRastResult()"></td><td id="rastP2" class="text-gray-400">-</td></tr>
+                    <tr><td class="font-semibold">3</td><td><input type="number" step="0.01" id="rastT3" oninput="previewRastResult()"></td><td id="rastP3" class="text-gray-400">-</td></tr>
+                    <tr><td class="font-semibold">4</td><td><input type="number" step="0.01" id="rastT4" oninput="previewRastResult()"></td><td id="rastP4" class="text-gray-400">-</td></tr>
+                    <tr><td class="font-semibold">5</td><td><input type="number" step="0.01" id="rastT5" oninput="previewRastResult()"></td><td id="rastP5" class="text-gray-400">-</td></tr>
+                    <tr><td class="font-semibold">6</td><td><input type="number" step="0.01" id="rastT6" oninput="previewRastResult()"></td><td id="rastP6" class="text-gray-400">-</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="rastPreviewResult" class="calc-result hidden">
+            <p class="text-blue-200 text-xs font-semibold uppercase mb-2">Hasil RAST</p>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div><p class="text-blue-200 text-[10px] uppercase">Peak Power</p><p class="font-bold" id="rastPeakPower">-</p></div>
+                <div><p class="text-blue-200 text-[10px] uppercase">Min Power</p><p class="font-bold" id="rastMinPower">-</p></div>
+                <div><p class="text-blue-200 text-[10px] uppercase">Avg Power</p><p class="font-bold" id="rastAvgPower">-</p></div>
+                <div><p class="text-blue-200 text-[10px] uppercase">Fatigue Index</p><p class="font-bold" id="rastFIFinal">-</p></div>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-4">
+            <button onclick="applyRastResult()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl transition text-sm">Terapkan ke Formulir</button>
+            <button onclick="closeRastCalc()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2.5 rounded-xl transition text-sm">Batal</button>
+        </div>
+    </div>
+</div>
+
 <div class="fixed bottom-4 right-4 opacity-10 pointer-events-none no-print z-0">
     <img src="logo%20koni%20tuban.png" alt="" class="w-24 h-24 object-contain">
 </div>
@@ -512,12 +630,101 @@ var caborData = {
     }
 };
 
-var dashboardAthletes = JSON.parse(localStorage.getItem('koniDashboard') || '[]');
+var atletikNomor = {
+    "Lompat Tinggi": {
+        items: ["Sit & Reach", "Push Up 1 Menit", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Vertical Jump", "Wall Sit", "Core Stability", "Beep Test"],
+        normaUnder17: {
+            "Sit & Reach": { mean: 28, sd: 6 },
+            "Push Up 1 Menit": { mean: 25, sd: 9 },
+            "10 Hop Jump Kanan": { mean: 14, sd: 2.5 },
+            "10 Hop Jump Kiri": { mean: 13.5, sd: 2.5 },
+            "Vertical Jump": { mean: 45, sd: 10 },
+            "Wall Sit": { mean: 55, sd: 18 },
+            "Core Stability": { mean: 6, sd: 2.5 },
+            "Beep Test": { mean: 42, sd: 7 }
+        },
+        normaOver17: {
+            "Sit & Reach": { mean: 32, sd: 6 },
+            "Push Up 1 Menit": { mean: 35, sd: 11 },
+            "10 Hop Jump Kanan": { mean: 17, sd: 2.8 },
+            "10 Hop Jump Kiri": { mean: 16.5, sd: 2.8 },
+            "Vertical Jump": { mean: 55, sd: 12 },
+            "Wall Sit": { mean: 75, sd: 20 },
+            "Core Stability": { mean: 8, sd: 2.5 },
+            "Beep Test": { mean: 50, sd: 8 }
+        },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Vertical Jump", "Wall Sit", "Core Stability", "Beep Test"]
+    },
+    "5000m & 3000m": {
+        items: ["Sit & Reach", "Push Up 1 Menit", "Standing Board Jump", "Wall Sit", "Core Stability", "Beep Test"],
+        normaUnder17: {
+            "Sit & Reach": { mean: 28, sd: 6 },
+            "Push Up 1 Menit": { mean: 25, sd: 9 },
+            "Standing Board Jump": { mean: 2.0, sd: 0.35 },
+            "Wall Sit": { mean: 55, sd: 18 },
+            "Core Stability": { mean: 6, sd: 2.5 },
+            "Beep Test": { mean: 42, sd: 7 }
+        },
+        normaOver17: {
+            "Sit & Reach": { mean: 32, sd: 6 },
+            "Push Up 1 Menit": { mean: 35, sd: 11 },
+            "Standing Board Jump": { mean: 2.4, sd: 0.35 },
+            "Wall Sit": { mean: 75, sd: 20 },
+            "Core Stability": { mean: 8, sd: 2.5 },
+            "Beep Test": { mean: 50, sd: 8 }
+        },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Standing Board Jump", "Wall Sit", "Core Stability", "Beep Test"]
+    },
+    "Dasa Lomba": {
+        items: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Standing Board Jump", "1RM Squat", "Core Stability", "Sprint 30m", "Stork Stand", "Beep Test"],
+        normaUnder17: {
+            "Sit & Reach": { mean: 28, sd: 6 },
+            "Push Up 1 Menit": { mean: 25, sd: 9 },
+            "Sit Up 1 Menit": { mean: 30, sd: 10 },
+            "Standing Board Jump": { mean: 2.0, sd: 0.35 },
+            "1RM Squat": { mean: 1.3, sd: 0.3 },
+            "Core Stability": { mean: 6, sd: 2.5 },
+            "Sprint 30m": { mean: 5.0, sd: 0.5 },
+            "Stork Stand": { mean: 25, sd: 10 },
+            "Beep Test": { mean: 42, sd: 7 }
+        },
+        normaOver17: {
+            "Sit & Reach": { mean: 32, sd: 6 },
+            "Push Up 1 Menit": { mean: 35, sd: 11 },
+            "Sit Up 1 Menit": { mean: 40, sd: 12 },
+            "Standing Board Jump": { mean: 2.4, sd: 0.35 },
+            "1RM Squat": { mean: 1.6, sd: 0.35 },
+            "Core Stability": { mean: 8, sd: 2.5 },
+            "Sprint 30m": { mean: 4.3, sd: 0.4 },
+            "Stork Stand": { mean: 40, sd: 12 },
+            "Beep Test": { mean: 50, sd: 8 }
+        },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Standing Board Jump", "1RM Squat", "Core Stability", "Stork Stand", "Beep Test"]
+    }
+};
+
+// ========== FIREBASE CONFIG ==========
+// GANTI config di bawah dengan config Firebase project Anda!
+var firebaseConfig = {
+    apiKey: "AIzaSyAD3fuQXe0lO-Bv1i_iNNfGZOB3WfaUXYs",
+    authDomain: "koni-tuban.firebaseapp.com",
+    databaseURL: "https://koni-tuban-default-rtdb.firebaseio.com",
+    projectId: "koni-tuban",
+    storageBucket: "koni-tuban.firebasestorage.app",
+    messagingSenderId: "959144445628",
+    appId: "1:959144445628:web:ba0f6d882a13b2f95ef2b9"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.database();
+var dbRef = db.ref('koni-tuban/athletes');
+
+var dashboardAthletes = [];
 var currentId = null;
 var editingId = null;
+var dataLoaded = false;
 
 function saveDashboardData() {
-    localStorage.setItem('koniDashboard', JSON.stringify(dashboardAthletes));
+    dbRef.set(dashboardAthletes);
 }
 
 function populateCaborDropdown() {
@@ -610,7 +817,7 @@ function renderAthleteList() {
                 '<div>' +
                     '<p class="font-bold text-gray-800 text-sm">' + a.nama + '</p>' +
                     '<div class="flex items-center gap-2 mt-0.5">' +
-                        '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">' + a.cabor + '</span>' +
+                        '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">' + a.cabor + (a.nomor ? ' - ' + a.nomor : '') + '</span>' +
                         '<span class="text-gray-400 text-xs">' + a.usia + ' thn</span>' +
                         '<span class="text-gray-400 text-xs">' + a.kelamin + '</span>' +
                         '<span class="text-gray-400 text-xs">' + a.tanggal + '</span>' +
@@ -650,6 +857,18 @@ function populateEditForm(a) {
     document.getElementById('fKelamin').value = a.kelamin;
     document.getElementById('fCabor').value = a.cabor;
     document.getElementById('fTanggal').value = a.tanggal;
+    if (a.cabor === 'Atletik') {
+        document.getElementById('fNomorBox').classList.remove('hidden');
+        var nomorSel = document.getElementById('fNomor');
+        nomorSel.innerHTML = '<option value="">-- Pilih Nomor --</option>';
+        Object.keys(atletikNomor).sort().forEach(function(n) {
+            var o = document.createElement('option');
+            o.value = n;
+            o.textContent = n;
+            nomorSel.appendChild(o);
+        });
+        if (a.nomor) nomorSel.value = a.nomor;
+    }
     buildTestFields(a.cabor);
     setTimeout(function() {
         if (a.nilai) {
@@ -671,16 +890,33 @@ function buildTestFields(cabor) {
         return;
     }
     var d = caborData[cabor];
+    var items = d.items;
+    if (cabor === 'Atletik') {
+        var nomor = document.getElementById('fNomor').value;
+        if (nomor && atletikNomor[nomor]) {
+            items = atletikNomor[nomor].items;
+        } else {
+            box.classList.add('hidden');
+            fields.innerHTML = '<p class="text-sm text-gray-500 col-span-full">Pilih nomor perlombaan terlebih dahulu</p>';
+            return;
+        }
+    }
     box.classList.remove('hidden');
-    fields.innerHTML = d.items.map(function(item) {
+    fields.innerHTML = items.map(function(item) {
         var unit = '';
         var li = item.toLowerCase();
+        var isBleepTest = (li.indexOf('bleep test') >= 0 || li.indexOf('beep test') >= 0) && li.indexOf('shuttle') < 0;
+        var isRastTest = li.indexOf('rast') >= 0 && li.indexOf('fatique') < 0;
+        var isRastFI = li.indexOf('rast') >= 0 && li.indexOf('fatique') >= 0;
+
         if (li.indexOf('sprint') >= 0 || li.indexOf('t test') >= 0 || li.indexOf('single leg wall sit') >= 0 || li === 'stroke stand' || li === 'stork stand' || li.indexOf('zig zag') >= 0) {
             unit = 'detik';
         } else if (li.indexOf('push up') >= 0 || li.indexOf('sit up') >= 0 || li.indexOf('pull up') >= 0 || li.indexOf('back up') >= 0) {
             unit = 'kali';
         } else if (li.indexOf('vo2max') >= 0 || li.indexOf('vo2') >= 0) {
             unit = 'Ml/Kg/Min';
+        } else if (isBleepTest) {
+            unit = 'Ml/Kg/Min (VO2max)';
         } else if (li.indexOf('bleep test') >= 0 || li.indexOf('beep test') >= 0) {
             if (li.indexOf('shuttle') >= 0) unit = 'shuttle';
             else unit = 'level';
@@ -700,10 +936,10 @@ function buildTestFields(cabor) {
             unit = 'detik';
         } else if (li.indexOf('core stability') >= 0) {
             unit = 'level';
-        } else if (li.indexOf('rast') >= 0 && li.indexOf('fatique') >= 0) {
-            unit = '%';
-        } else if (li.indexOf('rast') >= 0) {
-            unit = 'Watt';
+        } else if (isRastFI) {
+            unit = 'Fatigue Index';
+        } else if (isRastTest) {
+            unit = 'Rata-rata Watt (auto)';
         } else if (li.indexOf('hand wall') >= 0) {
             unit = 'kali';
         } else if (li.indexOf('tinggi') >= 0) {
@@ -715,6 +951,43 @@ function buildTestFields(cabor) {
         } else if (li.indexOf('% performance') >= 0) {
             unit = '%';
         }
+
+        if (isBleepTest) {
+            return '<div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">' +
+                '<label class="block text-xs font-semibold text-green-700 mb-1">' + item + ' (' + unit + ')</label>' +
+                '<div class="flex gap-2">' +
+                    '<input type="number" step="any" data-test="' + item + '" placeholder="0" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm transition bg-white" oninput="checkFormReady()">' +
+                    '<button type="button" onclick="openBleepCalc(\'' + item.replace(/'/g, "\\'") + '\')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition whitespace-nowrap flex items-center gap-1">' +
+                        '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>' +
+                        'Kalkulator' +
+                    '</button>' +
+                '</div>' +
+                '<p class="text-[10px] text-green-600 mt-1">Input level & shuttle, VO2max otomatis</p>' +
+            '</div>';
+        }
+
+        if (isRastTest) {
+            return '<div class="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-3">' +
+                '<label class="block text-xs font-semibold text-orange-700 mb-1">' + item + ' (Rata-rata Watt)</label>' +
+                '<div class="flex gap-2">' +
+                    '<input type="number" step="any" data-test="' + item + '" placeholder="0" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm transition bg-white" oninput="checkFormReady()">' +
+                    '<button type="button" onclick="openRastCalc(\'' + item.replace(/'/g, "\\'") + '\')" class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition whitespace-nowrap flex items-center gap-1">' +
+                        '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>' +
+                        'Kalkulator' +
+                    '</button>' +
+                '</div>' +
+                '<p class="text-[10px] text-orange-600 mt-1">Input berat & 6 sprint time, power otomatis</p>' +
+            '</div>';
+        }
+
+        if (isRastFI) {
+            return '<div class="bg-gray-50 border border-gray-200 rounded-lg p-3">' +
+                '<label class="block text-xs font-semibold text-gray-700 mb-1">' + item + ' (Fatigue Index)</label>' +
+                '<input type="number" step="any" data-test="' + item + '" placeholder="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm transition bg-gray-100" oninput="checkFormReady()">' +
+                '<p class="text-[10px] text-gray-500 mt-1">Diisi otomatis dari Kalkulator RAST</p>' +
+            '</div>';
+        }
+
         return '<div class="bg-gray-50 border border-gray-200 rounded-lg p-3">' +
             '<label class="block text-xs font-semibold text-gray-700 mb-1">' + item + (unit ? ' (' + unit + ')' : '') + '</label>' +
             '<input type="number" step="any" data-test="' + item + '" placeholder="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm transition" oninput="checkFormReady()">' +
@@ -728,13 +1001,33 @@ function checkFormReady() {
     var testInputs = document.querySelectorAll('[data-test]');
     var hasValue = false;
     testInputs.forEach(function(inp) {
-        if (inp.value && parseFloat(inp.value) !== 0) hasValue = true;
+        if (inp.value !== '' && inp.value !== null) hasValue = true;
     });
     document.getElementById('btnSave').disabled = !(nama && cabor && hasValue);
 }
 
 document.getElementById('fCabor').addEventListener('change', function() {
+    var nomorBox = document.getElementById('fNomorBox');
+    var nomorSel = document.getElementById('fNomor');
+    if (this.value === 'Atletik') {
+        nomorBox.classList.remove('hidden');
+        nomorSel.innerHTML = '<option value="">-- Pilih Nomor --</option>';
+        Object.keys(atletikNomor).sort().forEach(function(n) {
+            var o = document.createElement('option');
+            o.value = n;
+            o.textContent = n;
+            nomorSel.appendChild(o);
+        });
+    } else {
+        nomorBox.classList.add('hidden');
+        nomorSel.value = '';
+    }
     buildTestFields(this.value);
+    checkFormReady();
+});
+
+document.getElementById('fNomor').addEventListener('change', function() {
+    buildTestFields('Atletik');
     checkFormReady();
 });
 
@@ -753,40 +1046,60 @@ function computeEvaluation(a) {
     var c = caborData[a.cabor];
     if (!c) return { items: [], performa: 0, kategori: 'Kurang Sekali', jumlahItem: 0 };
     var norma = a.usia <= 17 ? c.normaUnder17 : c.normaOver17;
+    var higherIsBetter = c.higherIsBetter;
+    var evalItems = c.items;
+    if (a.cabor === 'Atletik' && a.nomor && atletikNomor[a.nomor]) {
+        var nomorData = atletikNomor[a.nomor];
+        norma = a.usia <= 17 ? nomorData.normaUnder17 : nomorData.normaOver17;
+        higherIsBetter = nomorData.higherIsBetter;
+        evalItems = nomorData.items;
+    }
     var total = 0, cnt = 0;
     var items = [];
-    c.items.forEach(function(name) {
+    evalItems.forEach(function(name) {
         if (name === '% Performance' || name === 'Tinggi Badan' || name === 'Berat Badan' || name === 'IMT') return;
         var raw = parseFloat(a.nilai[name]);
-        if (isNaN(raw) || raw === 0) return;
+        if (isNaN(raw)) return;
+        var li = name.toLowerCase();
+        var isBleepTest = (li.indexOf('bleep test') >= 0 || li.indexOf('beep test') >= 0) && li.indexOf('shuttle') < 0;
+        if (isBleepTest && raw < 4 && raw > 0) {
+            var lvl = Math.floor(raw);
+            var shuttle = Math.round((raw - lvl) * 10);
+            var maxSh = Math.floor(lvl * 0.4325 + 7.0048);
+            shuttle = Math.min(shuttle, maxSh);
+            raw = 3.46 * (lvl + shuttle / maxSh) + 12.2;
+            raw = +raw.toFixed(1);
+        }
         var s = norma[name];
         if (!s) {
-            items.push({ name: name, raw: raw, std: 0, mean: 0, sd: 1, pct: 50, cat: getCategory(50) });
+            items.push({ name: name, raw: raw, threshold: 0, mean: 0, sd: 1, pct: 50, cat: getPctCategory(50) });
             total += 50;
             cnt++;
             return;
         }
-        var std = +(s.mean + (1.5 * s.sd)).toFixed(2);
-        var higher = c.higherIsBetter.indexOf(name) >= 0;
+        var threshold = +(s.mean + (1.5 * s.sd)).toFixed(2);
+        var higher = higherIsBetter.indexOf(name) >= 0;
         var z = s.sd > 0 ? (raw - s.mean) / s.sd : 0;
         var pct;
         if (higher) {
-            pct = ((z + 1.5) / 3) * 100;
+            pct = ((z + 2) / 4) * 100;
         } else {
-            pct = ((1.5 - z) / 3) * 100;
+            pct = ((2 - z) / 4) * 100;
         }
         pct = Math.min(Math.max(pct, 0), 100);
         pct = +pct.toFixed(1);
-        var cat = getCategory(pct);
-        items.push({ name: name, raw: raw, std: std, mean: s.mean, sd: s.sd, pct: pct, cat: cat });
+        var cat = getPctCategory(pct);
+        items.push({ name: name, raw: raw, threshold: threshold, mean: s.mean, sd: s.sd, pct: pct, cat: cat });
         total += pct;
         cnt++;
     });
-    var performa = cnt ? +(total / cnt).toFixed(1) : 0;
-    return { items: items, performa: performa, kategori: getCategory(performa).label, jumlahItem: cnt };
+    var maxPossible = cnt * 100;
+    var performaPct = maxPossible > 0 ? +((total / maxPossible) * 100).toFixed(1) : 0;
+    var kategori = getPctCategory(performaPct).label;
+    return { items: items, performa: performaPct, totalSkor: +total.toFixed(1), kategori: kategori, jumlahItem: cnt };
 }
 
-function getCategory(pct) {
+function getPctCategory(pct) {
     if (pct >= 90) return { label: 'Baik Sekali', color: 'emerald' };
     if (pct >= 75) return { label: 'Baik', color: 'blue' };
     if (pct >= 55) return { label: 'Cukup', color: 'amber' };
@@ -794,16 +1107,20 @@ function getCategory(pct) {
     return { label: 'Kurang Sekali', color: 'red' };
 }
 
+function getCategory(pct) {
+    return getPctCategory(pct);
+}
+
 function renderDetail(a) {
     if (!a) return;
     var ev = computeEvaluation(a);
     currentId = a.id;
     document.getElementById('dNama').textContent = a.nama;
-    document.getElementById('dCabor').textContent = a.cabor;
+    document.getElementById('dCabor').textContent = a.cabor + (a.nomor ? ' - ' + a.nomor : '');
     document.getElementById('dUsia').textContent = a.usia + ' tahun';
     document.getElementById('dKelamin').textContent = a.kelamin;
     document.getElementById('dTanggal').textContent = a.tanggal;
-    document.getElementById('dPerforma').textContent = ev.performa.toFixed(1) + '%';
+    document.getElementById('dPerforma').textContent = ev.totalSkor.toFixed(1) + ' (' + ev.performa.toFixed(1) + '%)';
     var g = getCategory(ev.performa);
     document.getElementById('dKategori').innerHTML = '<span class="text-' + g.color + '-700 bg-' + g.color + '-100 px-2.5 py-0.5 rounded-full text-xs font-semibold">' + g.label + '</span>';
     document.getElementById('dJumlahItem').textContent = ev.jumlahItem + ' item diukur';
@@ -955,21 +1272,26 @@ function saveAtlet() {
     var kelamin = document.getElementById('fKelamin').value;
     var cabor = document.getElementById('fCabor').value;
     var tanggal = document.getElementById('fTanggal').value;
+    var nomor = cabor === 'Atletik' ? document.getElementById('fNomor').value : '';
     if (!nama || !usia || !kelamin || !cabor || !tanggal) {
         alert('Lengkapi semua data atlet!');
+        return;
+    }
+    if (cabor === 'Atletik' && !nomor) {
+        alert('Pilih nomor perlombaan untuk Atletik!');
         return;
     }
     var nilai = {};
     document.querySelectorAll('[data-test]').forEach(function(inp) {
         var v = parseFloat(inp.value);
-        if (!isNaN(v) && v !== 0) nilai[inp.getAttribute('data-test')] = v;
+        if (!isNaN(v)) nilai[inp.getAttribute('data-test')] = v;
     });
     if (!Object.keys(nilai).length) {
         alert('Isi minimal satu hasil tes!');
         return;
     }
     var newAtlet = {
-        id: 'a' + Date.now(), nama: nama, usia: usia, kelamin: kelamin, cabor: cabor, tanggal: tanggal, nilai: nilai,
+        id: 'a' + Date.now(), nama: nama, usia: usia, kelamin: kelamin, cabor: cabor, nomor: nomor, tanggal: tanggal, nilai: nilai,
         createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
     };
     if (editingId) {
@@ -995,6 +1317,8 @@ function resetForm() {
     document.getElementById('fKelamin').value = '';
     document.getElementById('fCabor').value = '';
     document.getElementById('fTanggal').value = new Date().toISOString().split('T')[0];
+    document.getElementById('fNomorBox').classList.add('hidden');
+    document.getElementById('fNomor').value = '';
     document.getElementById('testFieldsBox').classList.add('hidden');
     document.getElementById('testFields').innerHTML = '';
     document.getElementById('btnSave').disabled = true;
@@ -1167,13 +1491,13 @@ function exportCSV() {
         if (found) source = [found];
     }
     if (!source.length) { alert('Tidak ada data'); return; }
-    var csv = 'Nama,Usia,Kelamin,Cabor,Tanggal,';
+    var csv = 'Nama,Usia,Kelamin,Cabor,Nomor,Tanggal,';
     var allTests = new Set();
     source.forEach(function(a) { Object.keys(a.nilai || {}).forEach(function(k) { allTests.add(k); }); });
     csv += Array.from(allTests).join(',') + ',Performa,Kategori\n';
     source.forEach(function(a) {
         var ev = computeEvaluation(a);
-        csv += '"' + a.nama + '",' + a.usia + ',' + a.kelamin + ',"' + a.cabor + '",' + a.tanggal + ',';
+        csv += '"' + a.nama + '",' + a.usia + ',' + a.kelamin + ',"' + a.cabor + '","' + (a.nomor || '') + '",' + a.tanggal + ',';
         csv += Array.from(allTests).map(function(t) { return a.nilai[t] != null ? a.nilai[t] : ''; }).join(',') + ',' + ev.performa.toFixed(1) + ',' + ev.kategori + '\n';
     });
     var blob = new Blob([csv], { type: 'text/csv' });
@@ -1263,7 +1587,7 @@ function renderDashboard() {
         return '<tr class="' + (i % 2 ? 'bg-gray-50' : '') + ' border-t border-gray-100 hover:bg-blue-50 transition">' +
             '<td class="px-3 py-2.5 font-semibold text-gray-500 text-xs">' + (i + 1) + '</td>' +
             '<td class="px-3 py-2.5 font-semibold text-gray-800 text-xs">' + a.nama + '</td>' +
-            '<td class="px-3 py-2.5 text-xs"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">' + a.cabor + '</span></td>' +
+            '<td class="px-3 py-2.5 text-xs"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">' + a.cabor + (a.nomor ? ' - ' + a.nomor : '') + '</span></td>' +
             '<td class="px-3 py-2.5 text-xs text-gray-600">' + a.usia + '</td>' +
             '<td class="px-3 py-2.5 text-xs text-gray-600">' + a.kelamin + '</td>' +
             '<td class="px-3 py-2.5 text-xs text-gray-600">' + a.tanggal + '</td>' +
@@ -1285,10 +1609,10 @@ function exportDashboardCSV() {
         return true;
     });
     if (!filtered.length) { alert('Tidak ada data untuk di-export'); return; }
-    var csv = 'No,Nama,Cabor,Usia,Kelamin,Tanggal,Jumlah Tes,Performa,Kategori\n';
+    var csv = 'No,Nama,Cabor,Nomor,Usia,Kelamin,Tanggal,Jumlah Tes,Performa,Kategori\n';
     filtered.forEach(function(a, i) {
         var ev = computeEvaluation(a);
-        csv += (i + 1) + ',"' + a.nama + '","' + a.cabor + '",' + a.usia + ',' + a.kelamin + ',' + a.tanggal + ',' + ev.jumlahItem + ',' + ev.performa.toFixed(1) + ',' + ev.kategori + '\n';
+        csv += (i + 1) + ',"' + a.nama + '","' + a.cabor + '","' + (a.nomor || '') + '",' + a.usia + ',' + a.kelamin + ',' + a.tanggal + ',' + ev.jumlahItem + ',' + ev.performa.toFixed(1) + ',' + ev.kategori + '\n';
     });
     var blob = new Blob([csv], { type: 'text/csv' });
     var url = URL.createObjectURL(blob);
@@ -1297,6 +1621,237 @@ function exportDashboardCSV() {
     link.download = 'dashboard_hasil_tes_koni.csv';
     link.click();
     URL.revokeObjectURL(url);
+}
+
+// ========== BLEEP TEST CALCULATOR ==========
+function openBleepCalc(itemName) {
+    document.getElementById('bleepCalcItemName').value = itemName;
+    var lvlSel = document.getElementById('bleepLevel');
+    var shutSel = document.getElementById('bleepShuttle');
+    if (lvlSel.options.length <= 1) {
+        for (var i = 1; i <= 21; i++) {
+            var o = document.createElement('option');
+            o.value = i;
+            o.textContent = 'Level ' + i;
+            lvlSel.appendChild(o);
+        }
+    }
+    if (shutSel.options.length <= 1) {
+        for (var j = 1; j <= 20; j++) {
+            var o2 = document.createElement('option');
+            o2.value = j;
+            o2.textContent = j;
+            shutSel.appendChild(o2);
+        }
+    }
+    lvlSel.value = '';
+    shutSel.value = '';
+    document.getElementById('bleepPreviewResult').classList.add('hidden');
+    document.getElementById('bleepCalcOverlay').classList.add('active');
+}
+
+function closeBleepCalc() {
+    document.getElementById('bleepCalcOverlay').classList.remove('active');
+}
+
+function calcBleepVO2max(level, shuttle) {
+    var maxShuttles = Math.floor(level * 0.4325 + 7.0048);
+    var continuousScore = level + (shuttle / maxShuttles);
+    var vo2max = 3.46 * continuousScore + 12.2;
+    return { vo2max: +vo2max.toFixed(1), maxShuttles: maxShuttles, continuousScore: +continuousScore.toFixed(3) };
+}
+
+function previewBleepVO2() {
+    var lvl = parseInt(document.getElementById('bleepLevel').value);
+    var shutSel = document.getElementById('bleepShuttle');
+    var resultBox = document.getElementById('bleepPreviewResult');
+
+    if (!lvl || isNaN(lvl)) {
+        shutSel.innerHTML = '<option value="">-- Pilih --</option>';
+        resultBox.classList.add('hidden');
+        return;
+    }
+
+    var maxShuttles = Math.floor(lvl * 0.4325 + 7.0048);
+    var prevShut = parseInt(shutSel.value);
+    shutSel.innerHTML = '<option value="">-- Pilih --</option>';
+    for (var j = 1; j <= maxShuttles; j++) {
+        var o = document.createElement('option');
+        o.value = j;
+        o.textContent = j;
+        shutSel.appendChild(o);
+    }
+    if (prevShut && prevShut <= maxShuttles) shutSel.value = prevShut;
+
+    var shut = parseInt(shutSel.value);
+    if (!shut || isNaN(shut)) {
+        resultBox.classList.add('hidden');
+        return;
+    }
+    var r = calcBleepVO2max(lvl, shut);
+    document.getElementById('bleepVO2val').textContent = r.vo2max;
+    document.getElementById('bleepFormula').textContent = 'Rumus: 3.46 × (' + lvl + ' + ' + shut + '/' + r.maxShuttles + ') + 12.2 = ' + r.vo2max + ' ml/kg/min';
+    resultBox.classList.remove('hidden');
+}
+
+function applyBleepResult() {
+    var itemName = document.getElementById('bleepCalcItemName').value;
+    var lvl = parseInt(document.getElementById('bleepLevel').value);
+    var shut = parseInt(document.getElementById('bleepShuttle').value);
+    if (!lvl || !shut || isNaN(lvl) || isNaN(shut)) {
+        alert('Pilih level dan shuttle terlebih dahulu!');
+        return;
+    }
+    var r = calcBleepVO2max(lvl, shut);
+    var inp = document.querySelector('[data-test="' + itemName + '"]');
+    if (inp) {
+        inp.value = r.vo2max;
+        inp.dispatchEvent(new Event('input'));
+    }
+    closeBleepCalc();
+    checkFormReady();
+}
+
+// ========== RAST TEST CALCULATOR ==========
+function openRastCalc(itemName) {
+    document.getElementById('rastCalcItemName').value = itemName;
+    document.getElementById('rastWeight').value = '';
+    for (var i = 1; i <= 6; i++) {
+        document.getElementById('rastT' + i).value = '';
+        document.getElementById('rastP' + i).textContent = '-';
+        document.getElementById('rastP' + i).className = 'text-gray-400';
+    }
+    document.getElementById('rastPreviewResult').classList.add('hidden');
+    document.getElementById('rastCalcOverlay').classList.add('active');
+}
+
+function closeRastCalc() {
+    document.getElementById('rastCalcOverlay').classList.remove('active');
+}
+
+function calcSingleRastPower(weight, time) {
+    if (!weight || !time || weight <= 0 || time <= 0) return 0;
+    return weight * (35 * 35) / (time * time * time);
+}
+
+function previewRastResult() {
+    var weight = parseFloat(document.getElementById('rastWeight').value);
+    var times = [];
+    var powers = [];
+    var allFilled = weight > 0;
+
+    for (var i = 1; i <= 6; i++) {
+        var t = parseFloat(document.getElementById('rastT' + i).value);
+        times.push(t);
+        if (isNaN(t) || t <= 0) {
+            allFilled = false;
+            document.getElementById('rastP' + i).textContent = '-';
+            document.getElementById('rastP' + i).className = 'text-gray-400';
+            powers.push(0);
+        } else {
+            var p = calcSingleRastPower(weight, t);
+            powers.push(p);
+            document.getElementById('rastP' + i).textContent = p.toFixed(1) + ' W';
+            document.getElementById('rastP' + i).className = 'font-bold text-gray-800';
+        }
+    }
+
+    var resultBox = document.getElementById('rastPreviewResult');
+    if (!allFilled) {
+        resultBox.classList.add('hidden');
+        return;
+    }
+
+    var validPowers = powers.filter(function(p) { return p > 0; });
+    if (validPowers.length < 6) {
+        resultBox.classList.add('hidden');
+        return;
+    }
+
+    var peakPower = Math.max.apply(null, validPowers);
+    var minPower = Math.min.apply(null, validPowers);
+    var avgPower = validPowers.reduce(function(a, b) { return a + b; }, 0) / 6;
+    var totalTime = times.reduce(function(a, b) { return a + b; }, 0);
+    var fatigueIndex = totalTime > 0 ? (peakPower - minPower) / totalTime : 0;
+
+    document.getElementById('rastPeakPower').textContent = peakPower.toFixed(1) + ' W';
+    document.getElementById('rastMinPower').textContent = minPower.toFixed(1) + ' W';
+    document.getElementById('rastAvgPower').textContent = avgPower.toFixed(1) + ' W';
+    document.getElementById('rastFIFinal').textContent = fatigueIndex.toFixed(2);
+    resultBox.classList.remove('hidden');
+}
+
+function applyRastResult() {
+    var itemName = document.getElementById('rastCalcItemName').value;
+    var weight = parseFloat(document.getElementById('rastWeight').value);
+    var times = [];
+    var powers = [];
+
+    for (var i = 1; i <= 6; i++) {
+        var t = parseFloat(document.getElementById('rastT' + i).value);
+        times.push(t);
+        if (!isNaN(t) && t > 0 && weight > 0) {
+            powers.push(calcSingleRastPower(weight, t));
+        }
+    }
+
+    if (powers.length < 6) {
+        alert('Lengkapi berat badan dan semua waktu sprint!');
+        return;
+    }
+
+    var peakPower = Math.max.apply(null, powers);
+    var minPower = Math.min.apply(null, powers);
+    var avgPower = powers.reduce(function(a, b) { return a + b; }, 0) / 6;
+    var totalTime = times.reduce(function(a, b) { return a + b; }, 0);
+    var fatigueIndex = totalTime > 0 ? (peakPower - minPower) / totalTime : 0;
+
+    var rastInp = document.querySelector('[data-test="RAST Test"]');
+    if (rastInp) {
+        rastInp.value = +avgPower.toFixed(1);
+        rastInp.dispatchEvent(new Event('input'));
+    }
+    var fiInp = document.querySelector('[data-test="RAST Fatique Index"]');
+    if (fiInp) {
+        fiInp.value = +fatigueIndex.toFixed(2);
+        fiInp.dispatchEvent(new Event('input'));
+    }
+
+    closeRastCalc();
+    checkFormReady();
+}
+
+// ========== FIREBASE REALTIME LISTENER ==========
+dbRef.on('value', function(snapshot) {
+    var data = snapshot.val();
+    if (data) {
+        dashboardAthletes = data;
+    } else {
+        dashboardAthletes = [];
+    }
+    dataLoaded = true;
+    document.getElementById('loadingScreen').classList.add('hidden');
+    if (typeof refreshCurrentView === 'function') refreshCurrentView();
+}, function(error) {
+    console.error('Firebase read error:', error);
+    dataLoaded = true;
+    document.getElementById('loadingScreen').classList.add('hidden');
+    alert('Gagal memuat data dari server. Data kosong digunakan sementara.');
+});
+
+setTimeout(function() {
+    if (!dataLoaded) {
+        dataLoaded = true;
+        document.getElementById('loadingScreen').classList.add('hidden');
+    }
+}, 10000);
+
+function refreshCurrentView() {
+    if (document.getElementById('listView').classList.contains('active')) {
+        renderAthleteList();
+    } else if (document.getElementById('dashboardView').classList.contains('active')) {
+        renderDashboard();
+    }
 }
 
 checkAuth();
