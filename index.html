@@ -672,7 +672,7 @@ var atletikNomor = {
             "Vertical Jump": { mean: 45, sd: 10 },
             "Wall Sit": { mean: 55, sd: 18 },
             "Core Stability": { mean: 6, sd: 2.5 },
-            "Beep Test": { mean: 42, sd: 7 }
+            "Beep Test": { mean: 38, sd: 7 }
         },
         normaOver17: {
             "Sit & Reach": { mean: 32, sd: 6 },
@@ -682,7 +682,7 @@ var atletikNomor = {
             "Vertical Jump": { mean: 55, sd: 12 },
             "Wall Sit": { mean: 75, sd: 20 },
             "Core Stability": { mean: 8, sd: 2.5 },
-            "Beep Test": { mean: 50, sd: 8 }
+            "Beep Test": { mean: 44, sd: 8 }
         },
         higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Vertical Jump", "Wall Sit", "Core Stability", "Beep Test"]
     },
@@ -694,7 +694,7 @@ var atletikNomor = {
             "Standing Board Jump": { mean: 2.0, sd: 0.35 },
             "Wall Sit": { mean: 55, sd: 18 },
             "Core Stability": { mean: 6, sd: 2.5 },
-            "Beep Test": { mean: 42, sd: 7 }
+            "Beep Test": { mean: 38, sd: 7 }
         },
         normaOver17: {
             "Sit & Reach": { mean: 32, sd: 6 },
@@ -702,7 +702,7 @@ var atletikNomor = {
             "Standing Board Jump": { mean: 2.4, sd: 0.35 },
             "Wall Sit": { mean: 75, sd: 20 },
             "Core Stability": { mean: 8, sd: 2.5 },
-            "Beep Test": { mean: 50, sd: 8 }
+            "Beep Test": { mean: 44, sd: 8 }
         },
         higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Standing Board Jump", "Wall Sit", "Core Stability", "Beep Test"]
     },
@@ -717,7 +717,7 @@ var atletikNomor = {
             "Core Stability 12 Level": { mean: 6, sd: 2.5 },
             "Sprint 30 m": { mean: 5.0, sd: 0.5 },
             "Stork Stand": { mean: 25, sd: 10 },
-            "Beep Test": { mean: 42, sd: 7 }
+            "Beep Test": { mean: 38, sd: 7 }
         },
         normaOver17: {
             "Sit & Reach": { mean: 32, sd: 6 },
@@ -728,7 +728,7 @@ var atletikNomor = {
             "Core Stability 12 Level": { mean: 8, sd: 2.5 },
             "Sprint 30 m": { mean: 4.3, sd: 0.4 },
             "Stork Stand": { mean: 40, sd: 12 },
-            "Beep Test": { mean: 50, sd: 8 }
+            "Beep Test": { mean: 44, sd: 8 }
         },
         higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Standing Board Jump", "1RM Squat", "Core Stability 12 Level", "Stork Stand", "Beep Test"]
     },
@@ -741,7 +741,7 @@ var atletikNomor = {
             "Core Stability 12 Level": { mean: 6, sd: 2.5 },
             "Medicine Overhead Throw": { mean: 6, sd: 2 },
             "Sprint 20 m": { mean: 3.8, sd: 0.4 },
-            "Beep Test": { mean: 42, sd: 7 }
+            "Beep Test": { mean: 38, sd: 7 }
         },
         normaOver17: {
             "Sit & Reach": { mean: 32, sd: 6 },
@@ -750,7 +750,7 @@ var atletikNomor = {
             "Core Stability 12 Level": { mean: 8, sd: 2.5 },
             "Medicine Overhead Throw": { mean: 8, sd: 2.5 },
             "Sprint 20 m": { mean: 3.2, sd: 0.3 },
-            "Beep Test": { mean: 50, sd: 8 }
+            "Beep Test": { mean: 44, sd: 8 }
         },
         higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Core Stability 12 Level", "Medicine Overhead Throw", "Beep Test"]
     }
@@ -1209,7 +1209,7 @@ function computeEvaluation(a) {
         if (isNaN(raw)) return;
         var li = name.toLowerCase();
         var isBleepTest = (li.indexOf('bleep test') >= 0 || li.indexOf('beep test') >= 0) && li.indexOf('shuttle') < 0;
-        if (isBleepTest && raw < 4 && raw > 0) {
+        if (isBleepTest && raw > 0 && raw < 22) {
             var lvl = Math.floor(raw);
             var shuttle = Math.round((raw - lvl) * 10);
             var maxSh = Math.floor(lvl * 0.4325 + 7.0048);
@@ -1861,9 +1861,10 @@ function applyBleepResult() {
         return;
     }
     var r = calcBleepVO2max(lvl, shut);
+    var compoundVal = parseFloat(lvl + '.' + shut);
     var inp = document.querySelector('[data-test="' + itemName + '"]');
     if (inp) {
-        inp.value = r.vo2max;
+        inp.value = compoundVal;
         inp.dispatchEvent(new Event('input'));
     }
     closeBleepCalc();
