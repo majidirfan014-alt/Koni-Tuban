@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         body{font-family:'Inter',sans-serif}
@@ -768,12 +769,17 @@ var firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 var db = firebase.database();
+var auth = firebase.auth();
 var dbRef = db.ref('koni-tuban/athletes');
 
 var dashboardAthletes = [];
 var currentId = null;
 var editingId = null;
 var dataLoaded = false;
+
+auth.signInAnonymously().catch(function(err) {
+    console.warn('Anonymous auth failed:', err.message);
+});
 
 function saveDashboardData() {
     dbRef.set(dashboardAthletes);
