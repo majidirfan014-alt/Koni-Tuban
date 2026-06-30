@@ -782,7 +782,11 @@ auth.signInAnonymously().catch(function(err) {
 });
 
 function saveDashboardData() {
-    dbRef.set(dashboardAthletes);
+    return dbRef.set(dashboardAthletes).catch(function(err) {
+        console.error('Firebase write error:', err);
+        localStorage.setItem('koniDashboard', JSON.stringify(dashboardAthletes));
+        alert('Gagal menyimpan ke server. Data disimpan di browser lokal.');
+    });
 }
 
 function populateCaborDropdown() {
@@ -1394,10 +1398,11 @@ function saveAtlet() {
     } else {
         dashboardAthletes.push(newAtlet);
     }
-    saveDashboardData();
-    editingId = null;
-    resetForm();
-    navigateTo('dashboard');
+    saveDashboardData().then(function() {
+        editingId = null;
+        resetForm();
+        navigateTo('dashboard');
+    });
 }
 
 function resetForm() {
