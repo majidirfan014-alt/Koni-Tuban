@@ -1240,7 +1240,7 @@ function computeEvaluation(a) {
     var total = 0, cnt = 0;
     var items = [];
     evalItems.forEach(function(name) {
-        if (name === '% Performance' || name === 'Tinggi Badan' || name === 'Berat Badan' || name === 'IMT') return;
+        if (name === '% Performance' || name === 'Tinggi Badan' || name === 'Berat Badan' || name === 'IMT' || name === 'RAST Fatigue Index') return;
         var raw = parseFloat(a.nilai[name]);
         if (isNaN(raw)) return;
         var li = name.toLowerCase();
