@@ -1163,7 +1163,6 @@ function computeEvaluation(a) {
         }
         var s = norma[name];
         if (!s) {
-            console.warn('[Eval] Norma tidak ditemukan untuk:', name, '| keys available:', Object.keys(norma));
             items.push({ name: name, raw: raw, threshold: 0, mean: 0, sd: 1, pct: 50, cat: getPctCategory(50) });
             total += 50;
             cnt++;
@@ -1178,9 +1177,8 @@ function computeEvaluation(a) {
         } else {
             pct = ((2 - z) / 4) * 100;
         }
-        pct = Math.min(Math.max(pct, 0), 100);
+        pct = Math.min(Math.max(pct, 5), 100);
         pct = +pct.toFixed(1);
-        console.log('[Eval]', name, '| raw:', raw, '| mean:', s.mean, '| sd:', s.sd, '| z:', z.toFixed(2), '| pct:', pct, '| higher:', higher);
         var cat = getPctCategory(pct);
         items.push({ name: name, raw: raw, threshold: threshold, mean: s.mean, sd: s.sd, pct: pct, cat: cat });
         total += pct;
