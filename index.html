@@ -205,6 +205,15 @@
             </div>
             <div id="testFields" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
+        <div id="catatanBox" class="hidden mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div class="flex items-start gap-2">
+                <svg class="w-5 h-5 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div>
+                    <p class="text-xs font-bold text-amber-700 uppercase mb-1">Catatan Tambahan</p>
+                    <p id="catatanText" class="text-sm text-amber-800"></p>
+                </div>
+            </div>
+        </div>
 
         <div class="mt-6 flex flex-wrap gap-3">
             <button id="btnSave" onclick="saveAtlet()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-3 rounded-xl transition flex items-center gap-2 shadow-lg shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
@@ -517,125 +526,137 @@
 <script>
 var caborData = {
     "Angkat Berat": {
-        items: ["Set & Reach", "Push Up 1 Menit", "Back Up 2 Menit", "1RM Squat", "Medicine Chest Pass 5Kg", "Core Stability"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 2 Menit": { mean: 35, sd: 12 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Core Stability": { mean: 6, sd: 2.5 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 2 Menit": { mean: 48, sd: 14 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Core Stability": { mean: 8, sd: 2.5 } },
-        higherIsBetter: ["Set & Reach", "Push Up 1 Menit", "Back Up 2 Menit", "1RM Squat", "Medicine Chest Pass 5Kg", "Core Stability"]
+        items: ["Shoulder Mobility", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Sprint 20 m", "Bleep Test"],
+        normaUnder17: { "Shoulder Mobility": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Sprint 20 m": { mean: 3.8, sd: 0.4 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Shoulder Mobility": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Sprint 20 m": { mean: 3.2, sd: 0.3 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Shoulder Mobility", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Bleep Test"],
+        catatan: "Fokus pada kekuatan dan power. Sprint 20m diukur dalam detik (lebih rendah lebih baik)."
     },
     "Atletik": {
-        items: ["Set & Reach", "Push Up 1 Menit", "Sprint 30m", "Standing Broad Jump", "Beep Test"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Sprint 30m": { mean: 5.0, sd: 0.5 }, "Standing Broad Jump": { mean: 2.0, sd: 0.35 }, "Beep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Sprint 30m": { mean: 4.3, sd: 0.4 }, "Standing Broad Jump": { mean: 2.4, sd: 0.35 }, "Beep Test": { mean: 50, sd: 8 } },
-        higherIsBetter: ["Set & Reach", "Push Up 1 Menit", "Standing Broad Jump", "Beep Test"]
-    },
-    "Gulat": {
-        items: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Medicine Chest Pass 5Kg", "Core Stability", "Wall Sit", "Beep Test"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 2 Menit": { mean: 35, sd: 12 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Core Stability": { mean: 6, sd: 2.5 }, "Wall Sit": { mean: 55, sd: 18 }, "Beep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 2 Menit": { mean: 48, sd: 14 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Core Stability": { mean: 8, sd: 2.5 }, "Wall Sit": { mean: 75, sd: 20 }, "Beep Test": { mean: 50, sd: 8 } },
-        higherIsBetter: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Medicine Chest Pass 5Kg", "Core Stability", "Wall Sit", "Beep Test"]
+        items: ["Sit & Reach", "Push Up 1 Menit", "Sprint 30 m", "Standing Broad Jump", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Sprint 30 m": { mean: 5.0, sd: 0.5 }, "Standing Broad Jump": { mean: 2.0, sd: 0.35 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Sprint 30 m": { mean: 4.3, sd: 0.4 }, "Standing Broad Jump": { mean: 2.4, sd: 0.35 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Standing Broad Jump", "Bleep Test"],
+        catatan: "Data fallback untuk Atletik. Gunakan nomor perlombaan untuk tes spesifik."
     },
     "Judo": {
-        items: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Medicine Chest Pass 5Kg", "Core Stability", "Wall Sit", "Beep Test"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 2 Menit": { mean: 35, sd: 12 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Core Stability": { mean: 6, sd: 2.5 }, "Wall Sit": { mean: 55, sd: 18 }, "Beep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 2 Menit": { mean: 48, sd: 14 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Core Stability": { mean: 8, sd: 2.5 }, "Wall Sit": { mean: 75, sd: 20 }, "Beep Test": { mean: 50, sd: 8 } },
-        higherIsBetter: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Medicine Chest Pass 5Kg", "Core Stability", "Wall Sit", "Beep Test"]
+        items: ["Sit & Reach", "Push Up 1 Menit", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Expanding Push & Pull", "Core Stability 12 Level", "1RM Squat", "RAST Test", "Illinois Agility", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Expanding Push & Pull": { mean: 22, sd: 7 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "RAST Test": { mean: 7, sd: 2 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Expanding Push & Pull": { mean: 30, sd: 8 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "RAST Test": { mean: 9, sd: 2.5 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Expanding Push & Pull", "Core Stability 12 Level", "1RM Squat", "RAST Test", "Bleep Test"],
+        catatan: "Kombinasi kekuatan, daya tahan, dan kelincahan. RAST Test menggunakan kalkulator otomatis."
+    },
+    "Gulat": {
+        items: ["Sit & Reach", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Stork Stand", "Shoulder Mobility", "RAST Test", "Illinois Agility", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Stork Stand": { mean: 25, sd: 10 }, "Shoulder Mobility": { mean: 28, sd: 6 }, "RAST Test": { mean: 7, sd: 2 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Stork Stand": { mean: 40, sd: 12 }, "Shoulder Mobility": { mean: 33, sd: 6 }, "RAST Test": { mean: 9, sd: 2.5 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Stork Stand", "Shoulder Mobility", "RAST Test", "Bleep Test"],
+        catatan: "Tes keseimbangan (Stork Stand) diukur dalam detik. Illinois Agility mengukur kelincahan."
     },
     "Sambo": {
-        items: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Medicine Chest Pass 5Kg", "Core Stability", "Wall Sit", "Beep Test"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 2 Menit": { mean: 35, sd: 12 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Core Stability": { mean: 6, sd: 2.5 }, "Wall Sit": { mean: 55, sd: 18 }, "Beep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 2 Menit": { mean: 48, sd: 14 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Core Stability": { mean: 8, sd: 2.5 }, "Wall Sit": { mean: 75, sd: 20 }, "Beep Test": { mean: 50, sd: 8 } },
-        higherIsBetter: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Medicine Chest Pass 5Kg", "Core Stability", "Wall Sit", "Beep Test"]
-    },
-    "Pencak Silat": {
-        items: ["Set & Reach", "Pull Up 1 Menit", "RAST Test", "RAST Fatique Index", "Illinois Agility", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Medicine Chest Pass 5Kg", "Beep Test", "Core Stability"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "RAST Test": { mean: 7, sd: 2 }, "RAST Fatique Index": { mean: 28, sd: 8 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "10 Hop Jump Kanan": { mean: 14, sd: 2.5 }, "10 Hop Jump Kiri": { mean: 13.5, sd: 2.5 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Beep Test": { mean: 42, sd: 7 }, "Core Stability": { mean: 6, sd: 2.5 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "RAST Test": { mean: 9, sd: 2.5 }, "RAST Fatique Index": { mean: 22, sd: 7 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "10 Hop Jump Kanan": { mean: 17, sd: 2.8 }, "10 Hop Jump Kiri": { mean: 16.5, sd: 2.8 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Beep Test": { mean: 50, sd: 8 }, "Core Stability": { mean: 8, sd: 2.5 } },
-        higherIsBetter: ["Set & Reach", "Pull Up 1 Menit", "RAST Test", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Medicine Chest Pass 5Kg", "Beep Test", "Core Stability"]
-    },
-    "Selam": {
-        items: ["Set & Reach", "Shoulder Mobility Kiri", "Shoulder Mobility Kanan", "Pull Up 1 Menit", "Standing Broad Jump", "Core Stability"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Standing Broad Jump": { mean: 2.0, sd: 0.35 }, "Core Stability": { mean: 6, sd: 2.5 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Standing Broad Jump": { mean: 2.4, sd: 0.35 }, "Core Stability": { mean: 8, sd: 2.5 } },
-        higherIsBetter: ["Set & Reach", "Shoulder Mobility Kiri", "Shoulder Mobility Kanan", "Pull Up 1 Menit", "Standing Broad Jump", "Core Stability"]
-    },
-    "Arung Jeram": {
-        items: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Medicine Chest Pass 5Kg", "Wall Sit"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 2 Menit": { mean: 35, sd: 12 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Wall Sit": { mean: 55, sd: 18 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 2 Menit": { mean: 48, sd: 14 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Wall Sit": { mean: 75, sd: 20 } },
-        higherIsBetter: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Medicine Chest Pass 5Kg", "Wall Sit"]
-    },
-    "Balap Sepeda": {
-        items: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Beep Test", "Wall Sit", "Core Stability", "Hand Wall Tos Test"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 2 Menit": { mean: 35, sd: 12 }, "10 Hop Jump Kanan": { mean: 14, sd: 2.5 }, "10 Hop Jump Kiri": { mean: 13.5, sd: 2.5 }, "Beep Test": { mean: 42, sd: 7 }, "Wall Sit": { mean: 55, sd: 18 }, "Core Stability": { mean: 6, sd: 2.5 }, "Hand Wall Tos Test": { mean: 18, sd: 6 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 2 Menit": { mean: 48, sd: 14 }, "10 Hop Jump Kanan": { mean: 17, sd: 2.8 }, "10 Hop Jump Kiri": { mean: 16.5, sd: 2.8 }, "Beep Test": { mean: 50, sd: 8 }, "Wall Sit": { mean: 75, sd: 20 }, "Core Stability": { mean: 8, sd: 2.5 }, "Hand Wall Tos Test": { mean: 25, sd: 7 } },
-        higherIsBetter: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Beep Test", "Wall Sit", "Core Stability", "Hand Wall Tos Test"]
-    },
-
-    "Panahan": {
-        items: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Expanding Pull & Push", "Medicine Chest Pass 5Kg", "Beep Test", "Core Stability"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Expanding Pull & Push": { mean: 22, sd: 7 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Beep Test": { mean: 42, sd: 7 }, "Core Stability": { mean: 6, sd: 2.5 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Expanding Pull & Push": { mean: 30, sd: 8 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Beep Test": { mean: 50, sd: 8 }, "Core Stability": { mean: 8, sd: 2.5 } },
-        higherIsBetter: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Expanding Pull & Push", "Medicine Chest Pass 5Kg", "Beep Test", "Core Stability"]
-    },
-    "Paralayang": {
-        items: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Expanding Pull & Push", "Medicine Chest Pass 5Kg", "Beep Test", "Core Stability", "Wall Sit"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Expanding Pull & Push": { mean: 22, sd: 7 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Beep Test": { mean: 42, sd: 7 }, "Core Stability": { mean: 6, sd: 2.5 }, "Wall Sit": { mean: 55, sd: 18 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Expanding Pull & Push": { mean: 30, sd: 8 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Beep Test": { mean: 50, sd: 8 }, "Core Stability": { mean: 8, sd: 2.5 }, "Wall Sit": { mean: 75, sd: 20 } },
-        higherIsBetter: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Expanding Pull & Push", "Medicine Chest Pass 5Kg", "Beep Test", "Core Stability", "Wall Sit"]
-    },
-    "Petanque": {
-        items: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Expanding Pull & Push", "Core Stability", "Stork Stand"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Expanding Pull & Push": { mean: 22, sd: 7 }, "Core Stability": { mean: 6, sd: 2.5 }, "Stork Stand": { mean: 25, sd: 10 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Expanding Pull & Push": { mean: 30, sd: 8 }, "Core Stability": { mean: 8, sd: 2.5 }, "Stork Stand": { mean: 40, sd: 12 } },
-        higherIsBetter: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Expanding Pull & Push", "Core Stability", "Stork Stand"]
-    },
-    "Senam Gymnastic": {
-        items: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Core Stability", "Wall Sit", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Beep Test"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 2 Menit": { mean: 35, sd: 12 }, "Core Stability": { mean: 6, sd: 2.5 }, "Wall Sit": { mean: 55, sd: 18 }, "10 Hop Jump Kanan": { mean: 14, sd: 2.5 }, "10 Hop Jump Kiri": { mean: 13.5, sd: 2.5 }, "Beep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 2 Menit": { mean: 48, sd: 14 }, "Core Stability": { mean: 8, sd: 2.5 }, "Wall Sit": { mean: 75, sd: 20 }, "10 Hop Jump Kanan": { mean: 17, sd: 2.8 }, "10 Hop Jump Kiri": { mean: 16.5, sd: 2.8 }, "Beep Test": { mean: 50, sd: 8 } },
-        higherIsBetter: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Core Stability", "Wall Sit", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Beep Test"]
-    },
-    "Tarung Derajat": {
-        items: ["Set & Reach", "Pull Up 1 Menit", "RAST Test", "RAST Fatique Index", "Zig Zag Run Test", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Medicine Chest Pass 5Kg", "Beep Test", "Sit Up 2 Menit", "Core Stability"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "RAST Test": { mean: 7, sd: 2 }, "RAST Fatique Index": { mean: 28, sd: 8 }, "Zig Zag Run Test": { mean: 12, sd: 2 }, "10 Hop Jump Kanan": { mean: 14, sd: 2.5 }, "10 Hop Jump Kiri": { mean: 13.5, sd: 2.5 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Beep Test": { mean: 42, sd: 7 }, "Sit Up 2 Menit": { mean: 45, sd: 15 }, "Core Stability": { mean: 6, sd: 2.5 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "RAST Test": { mean: 9, sd: 2.5 }, "RAST Fatique Index": { mean: 22, sd: 7 }, "Zig Zag Run Test": { mean: 10, sd: 1.5 }, "10 Hop Jump Kanan": { mean: 17, sd: 2.8 }, "10 Hop Jump Kiri": { mean: 16.5, sd: 2.8 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Beep Test": { mean: 50, sd: 8 }, "Sit Up 2 Menit": { mean: 60, sd: 18 }, "Core Stability": { mean: 8, sd: 2.5 } },
-        higherIsBetter: ["Set & Reach", "Pull Up 1 Menit", "RAST Test", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Medicine Chest Pass 5Kg", "Beep Test", "Sit Up 2 Menit", "Core Stability"]
+        items: ["Sit & Reach", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Hand Grip Kanan", "Hand Grip Kiri", "Core Stability 12 Level", "1RM Squat", "RAST Test", "Illinois Agility", "Stork Stand", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "RAST Test": { mean: 7, sd: 2 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Stork Stand": { mean: 25, sd: 10 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "RAST Test": { mean: 9, sd: 2.5 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Stork Stand": { mean: 40, sd: 12 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Hand Grip Kanan", "Hand Grip Kiri", "Core Stability 12 Level", "1RM Squat", "RAST Test", "Stork Stand", "Bleep Test"],
+        catatan: "Mirip dengan Gulat dan Judo. Hand Grip diukur dalam kg per tangan."
     },
     "Tenis Meja": {
-        items: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Core Stability", "Wall Sit", "Beep Test"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 2 Menit": { mean: 35, sd: 12 }, "Core Stability": { mean: 6, sd: 2.5 }, "Wall Sit": { mean: 55, sd: 18 }, "Beep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 2 Menit": { mean: 48, sd: 14 }, "Core Stability": { mean: 8, sd: 2.5 }, "Wall Sit": { mean: 75, sd: 20 }, "Beep Test": { mean: 50, sd: 8 } },
-        higherIsBetter: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Core Stability", "Wall Sit", "Beep Test"]
-    },
-    "Angkat Besi": {
-        items: ["Set & Reach", "Push Up 1 Menit", "Back Up 2 Menit", "1RM Squat", "Medicine Chest Pass 5Kg", "Core Stability"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 2 Menit": { mean: 35, sd: 12 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Core Stability": { mean: 6, sd: 2.5 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 2 Menit": { mean: 48, sd: 14 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Core Stability": { mean: 8, sd: 2.5 } },
-        higherIsBetter: ["Set & Reach", "Push Up 1 Menit", "Back Up 2 Menit", "1RM Squat", "Medicine Chest Pass 5Kg", "Core Stability"]
-    },
-    "Billiard": {
-        items: ["Set & Reach", "Pull Up 1 Menit", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Expanding Pull & Push", "Beep Test", "Core Stability", "Wall Sit"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Expanding Pull & Push": { mean: 22, sd: 7 }, "Beep Test": { mean: 42, sd: 7 }, "Core Stability": { mean: 6, sd: 2.5 }, "Wall Sit": { mean: 55, sd: 18 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Expanding Pull & Push": { mean: 30, sd: 8 }, "Beep Test": { mean: 50, sd: 8 }, "Core Stability": { mean: 8, sd: 2.5 }, "Wall Sit": { mean: 75, sd: 20 } },
-        higherIsBetter: ["Set & Reach", "Pull Up 1 Menit", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Expanding Pull & Push", "Beep Test", "Core Stability", "Wall Sit"]
-    },
-    "IBC MMA": {
-        items: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Medicine Chest Pass 5Kg", "Core Stability", "Wall Sit", "Beep Test"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 2 Menit": { mean: 35, sd: 12 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Core Stability": { mean: 6, sd: 2.5 }, "Wall Sit": { mean: 55, sd: 18 }, "Beep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 2 Menit": { mean: 48, sd: 14 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Core Stability": { mean: 8, sd: 2.5 }, "Wall Sit": { mean: 75, sd: 20 }, "Beep Test": { mean: 50, sd: 8 } },
-        higherIsBetter: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Medicine Chest Pass 5Kg", "Core Stability", "Wall Sit", "Beep Test"]
-    },
-    "Kempo": {
-        items: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Medicine Chest Pass 5Kg", "Core Stability", "Wall Sit", "Beep Test"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 2 Menit": { mean: 35, sd: 12 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Core Stability": { mean: 6, sd: 2.5 }, "Wall Sit": { mean: 55, sd: 18 }, "Beep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 2 Menit": { mean: 48, sd: 14 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Core Stability": { mean: 8, sd: 2.5 }, "Wall Sit": { mean: 75, sd: 20 }, "Beep Test": { mean: 50, sd: 8 } },
-        higherIsBetter: ["Set & Reach", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "Push Up 1 Menit", "Back Up 2 Menit", "Medicine Chest Pass 5Kg", "Core Stability", "Wall Sit", "Beep Test"]
+        items: ["Sit & Reach", "Push Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "Wall Sit", "Hand Grip Kanan", "Hand Grip Kiri", "Stork Stand", "RAST Test", "Hand Wall Toss Test", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "Wall Sit": { mean: 55, sd: 18 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Stork Stand": { mean: 25, sd: 10 }, "RAST Test": { mean: 7, sd: 2 }, "Hand Wall Toss Test": { mean: 18, sd: 6 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "Wall Sit": { mean: 75, sd: 20 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Stork Stand": { mean: 40, sd: 12 }, "RAST Test": { mean: 9, sd: 2.5 }, "Hand Wall Toss Test": { mean: 25, sd: 7 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "Wall Sit", "Hand Grip Kanan", "Hand Grip Kiri", "Stork Stand", "RAST Test", "Hand Wall Toss Test", "Bleep Test"],
+        catatan: "Fokus pada kekuatan genggaman dan keseimbangan. Hand Wall Toss Test diukur dalam kali."
     },
     "Tinju": {
-        items: ["Set & Reach", "Pull Up 1 Menit", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "RAST Test", "RAST Fatique Index", "Zig Zag Run Test", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Medicine Chest Pass 5Kg", "Beep Test", "Sit Up 2 Menit", "Core Stability"],
-        normaUnder17: { "Set & Reach": { mean: 28, sd: 6 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Handgrip Strength Kanan": { mean: 32, sd: 9 }, "Handgrip Strength Kiri": { mean: 29, sd: 8 }, "RAST Test": { mean: 7, sd: 2 }, "RAST Fatique Index": { mean: 28, sd: 8 }, "Zig Zag Run Test": { mean: 12, sd: 2 }, "10 Hop Jump Kanan": { mean: 14, sd: 2.5 }, "10 Hop Jump Kiri": { mean: 13.5, sd: 2.5 }, "Medicine Chest Pass 5Kg": { mean: 5.5, sd: 1.5 }, "Beep Test": { mean: 42, sd: 7 }, "Sit Up 2 Menit": { mean: 45, sd: 15 }, "Core Stability": { mean: 6, sd: 2.5 } },
-        normaOver17: { "Set & Reach": { mean: 32, sd: 6 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Handgrip Strength Kanan": { mean: 42, sd: 11 }, "Handgrip Strength Kiri": { mean: 38, sd: 10 }, "RAST Test": { mean: 9, sd: 2.5 }, "RAST Fatique Index": { mean: 22, sd: 7 }, "Zig Zag Run Test": { mean: 10, sd: 1.5 }, "10 Hop Jump Kanan": { mean: 17, sd: 2.8 }, "10 Hop Jump Kiri": { mean: 16.5, sd: 2.8 }, "Medicine Chest Pass 5Kg": { mean: 7, sd: 1.8 }, "Beep Test": { mean: 50, sd: 8 }, "Sit Up 2 Menit": { mean: 60, sd: 18 }, "Core Stability": { mean: 8, sd: 2.5 } },
-        higherIsBetter: ["Set & Reach", "Pull Up 1 Menit", "Handgrip Strength Kanan", "Handgrip Strength Kiri", "RAST Test", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Medicine Chest Pass 5Kg", "Beep Test", "Sit Up 2 Menit", "Core Stability"]
+        items: ["Sit & Reach", "Pull Up 1 Menit", "Sit Up 1 Menit", "Back Up 1 Menit", "Hand Grip Kanan", "Hand Grip Kiri", "Core Stability 12 Level", "1RM Squat", "Sprint 20 m", "Zig Zag Run Test", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Sit Up 1 Menit": { mean: 30, sd: 10 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Sprint 20 m": { mean: 3.8, sd: 0.4 }, "Zig Zag Run Test": { mean: 12, sd: 2 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Sit Up 1 Menit": { mean: 40, sd: 12 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Sprint 20 m": { mean: 3.2, sd: 0.3 }, "Zig Zag Run Test": { mean: 10, sd: 1.5 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Pull Up 1 Menit", "Sit Up 1 Menit", "Back Up 1 Menit", "Hand Grip Kanan", "Hand Grip Kiri", "Core Stability 12 Level", "1RM Squat", "Bleep Test"],
+        catatan: "Power dan kelincahan sangat penting. Zig Zag Run diukur dalam detik."
+    },
+    "Senam Gymnastic": {
+        items: ["Sit & Reach", "Shoulder Mobility", "Push Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "Vertical Jump", "Illinois Agility", "Hand Wall Toss Test", "Stork Stand", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Shoulder Mobility": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "Vertical Jump": { mean: 45, sd: 10 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Hand Wall Toss Test": { mean: 18, sd: 6 }, "Stork Stand": { mean: 25, sd: 10 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Shoulder Mobility": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "Vertical Jump": { mean: 55, sd: 12 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Hand Wall Toss Test": { mean: 25, sd: 7 }, "Stork Stand": { mean: 40, sd: 12 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Shoulder Mobility", "Push Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "Vertical Jump", "Hand Wall Toss Test", "Stork Stand", "Bleep Test"],
+        catatan: "Fokus pada kelenturan, keseimbangan, dan kekuatan tubuh bagian atas."
+    },
+    "Angkat Besi": {
+        items: ["Shoulder Mobility", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Stork Stand", "Bleep Test"],
+        normaUnder17: { "Shoulder Mobility": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Stork Stand": { mean: 25, sd: 10 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Shoulder Mobility": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Stork Stand": { mean: 40, sd: 12 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Shoulder Mobility", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Stork Stand", "Bleep Test"],
+        catatan: "Kekuatan tubuh bagian atas dan core sangat dominan. 1RM Squat diukur dalam rasio berat badan."
+    },
+    "IBC MMA": {
+        items: ["Sit & Reach", "Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "RAST Test", "Illinois Agility", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "RAST Test": { mean: 7, sd: 2 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "RAST Test": { mean: 9, sd: 2.5 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "RAST Test", "Bleep Test"],
+        catatan: "Cabor bela diri MMA. RAST Test menggunakan kalkulator otomatis."
+    },
+    "Kempo": {
+        items: ["Sit & Reach", "Push Up 1 Menit", "Pull Up 1 Menit", "Plank", "Wall Sit", "Standing Broad Jump", "Sprint 20 m", "Shuttle Run", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Plank": { mean: 45, sd: 15 }, "Wall Sit": { mean: 55, sd: 18 }, "Standing Broad Jump": { mean: 2.0, sd: 0.35 }, "Sprint 20 m": { mean: 3.8, sd: 0.4 }, "Shuttle Run": { mean: 12, sd: 2 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Plank": { mean: 60, sd: 18 }, "Wall Sit": { mean: 75, sd: 20 }, "Standing Broad Jump": { mean: 2.4, sd: 0.35 }, "Sprint 20 m": { mean: 3.2, sd: 0.3 }, "Shuttle Run": { mean: 10, sd: 1.5 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Pull Up 1 Menit", "Plank", "Wall Sit", "Standing Broad Jump", "Bleep Test"],
+        catatan: "Plank diukur dalam detik. Shuttle Run mengukur kelincahan berubah arah."
+    },
+    "Pencak Silat": {
+        items: ["Pull Up 1 Menit", "Core Stability 12 Level", "3 Hop Jump Kanan", "3 Hop Jump Kiri", "Medicine Chest Pass 5 Kg", "Hand Grip Strength", "RAST Test", "Zig Zag Run Test", "Stork Stand", "Hand Wall Toss Test", "Bleep Test"],
+        normaUnder17: { "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "3 Hop Jump Kanan": { mean: 5.5, sd: 1 }, "3 Hop Jump Kiri": { mean: 5.2, sd: 1 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "Hand Grip Strength": { mean: 32, sd: 9 }, "RAST Test": { mean: 7, sd: 2 }, "Zig Zag Run Test": { mean: 12, sd: 2 }, "Stork Stand": { mean: 25, sd: 10 }, "Hand Wall Toss Test": { mean: 18, sd: 6 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "3 Hop Jump Kanan": { mean: 6.5, sd: 1.2 }, "3 Hop Jump Kiri": { mean: 6.2, sd: 1.2 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "Hand Grip Strength": { mean: 42, sd: 11 }, "RAST Test": { mean: 9, sd: 2.5 }, "Zig Zag Run Test": { mean: 10, sd: 1.5 }, "Stork Stand": { mean: 40, sd: 12 }, "Hand Wall Toss Test": { mean: 25, sd: 7 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Pull Up 1 Menit", "Core Stability 12 Level", "3 Hop Jump Kanan", "3 Hop Jump Kiri", "Medicine Chest Pass 5 Kg", "Hand Grip Strength", "RAST Test", "Stork Stand", "Hand Wall Toss Test", "Bleep Test"],
+        catatan: "3 Hop Jump berbeda dari 10 Hop Jump. Hand Grip Strength digabung jadi satu input."
+    },
+    "Selam": {
+        items: ["Shoulder Mobility", "Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri"],
+        normaUnder17: { "Shoulder Mobility": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 } },
+        normaOver17: { "Shoulder Mobility": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 } },
+        higherIsBetter: ["Shoulder Mobility", "Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri"],
+        catatan: "Tidak ada Bleep Test untuk Selam. Fokus pada kekuatan upper body dan fleksibilitas bahu."
+    },
+    "Arung Jeram": {
+        items: ["Sit & Reach", "Push Up 1 Menit", "Back Up 2 Menit", "Wall Sit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Back Up 2 Menit": { mean: 35, sd: 12 }, "Wall Sit": { mean: 55, sd: 18 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Back Up 2 Menit": { mean: 48, sd: 14 }, "Wall Sit": { mean: 75, sd: 20 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Back Up 2 Menit", "Wall Sit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Bleep Test"],
+        catatan: "Back Up 2 Menit diukur dalam jumlah kali. Kekuatan genggaman penting untuk dayung."
+    },
+    "Balap Sepeda": {
+        items: ["Sit & Reach", "Push Up 1 Menit", "Wall Sit", "Core Stability 12 Level", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Hand Wall Toss Test", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Wall Sit": { mean: 55, sd: 18 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "10 Hop Jump Kanan": { mean: 14, sd: 2.5 }, "10 Hop Jump Kiri": { mean: 13.5, sd: 2.5 }, "Hand Wall Toss Test": { mean: 18, sd: 6 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Wall Sit": { mean: 75, sd: 20 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "10 Hop Jump Kanan": { mean: 17, sd: 2.8 }, "10 Hop Jump Kiri": { mean: 16.5, sd: 2.8 }, "Hand Wall Toss Test": { mean: 25, sd: 7 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Wall Sit", "Core Stability 12 Level", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Hand Wall Toss Test", "Bleep Test"],
+        catatan: "Endurance dan power kaki diutamakan. Wall Sit diukur dalam detik."
+    },
+    "Panahan": {
+        items: ["Sit & Reach", "Back Up 1 Menit", "Sit Up 1 Menit", "Core Stability 12 Level", "Hand Grip Kanan", "Hand Grip Kiri", "Stork Stand", "Hand Wall Toss Test", "Sprint 30 m", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Sit Up 1 Menit": { mean: 30, sd: 10 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Stork Stand": { mean: 25, sd: 10 }, "Hand Wall Toss Test": { mean: 18, sd: 6 }, "Sprint 30 m": { mean: 5.0, sd: 0.5 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Sit Up 1 Menit": { mean: 40, sd: 12 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Stork Stand": { mean: 40, sd: 12 }, "Hand Wall Toss Test": { mean: 25, sd: 7 }, "Sprint 30 m": { mean: 4.3, sd: 0.4 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Back Up 1 Menit", "Sit Up 1 Menit", "Core Stability 12 Level", "Hand Grip Kanan", "Hand Grip Kiri", "Stork Stand", "Hand Wall Toss Test", "Bleep Test"],
+        catatan: "Kekuatan core dan keseimbangan sangat penting untuk menahan bow. Sprint 30m diukur dalam detik."
+    },
+    "Paralayang": {
+        items: ["Sit & Reach", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Expanding Push & Pull", "Wall Sit", "Hand Grip", "Bleep Test"],
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "Expanding Push & Pull": { mean: 22, sd: 7 }, "Wall Sit": { mean: 55, sd: 18 }, "Hand Grip": { mean: 32, sd: 9 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "Expanding Push & Pull": { mean: 30, sd: 8 }, "Wall Sit": { mean: 75, sd: 20 }, "Hand Grip": { mean: 42, sd: 11 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Sit & Reach", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Expanding Push & Pull", "Wall Sit", "Hand Grip", "Bleep Test"],
+        catatan: "Hand Grip digabung jadi satu input. Fokus pada kekuatan upper body."
+    },
+    "Petanque": {
+        items: ["Shoulder Mobility", "Push Up 1 Menit", "Hand Grip Kanan", "Hand Grip Kiri", "Hand Wall Toss Test", "Stork Stand", "Bleep Test"],
+        normaUnder17: { "Shoulder Mobility": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Hand Wall Toss Test": { mean: 18, sd: 6 }, "Stork Stand": { mean: 25, sd: 10 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Shoulder Mobility": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Hand Wall Toss Test": { mean: 25, sd: 7 }, "Stork Stand": { mean: 40, sd: 12 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Shoulder Mobility", "Push Up 1 Menit", "Hand Grip Kanan", "Hand Grip Kiri", "Hand Wall Toss Test", "Stork Stand", "Bleep Test"],
+        catatan: "Kekuatan dan stabilitas tangan sangat penting untuk lemparan."
+    },
+    "Tarung Derajat": {
+        items: ["Pull Up 1 Menit", "Sit Up 2 Menit", "Core Stability 12 Level", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Medicine Chest Pass 5 Kg", "RAST Test", "Zig Zag Run Test", "Bleep Test"],
+        normaUnder17: { "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Sit Up 2 Menit": { mean: 45, sd: 15 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "10 Hop Jump Kanan": { mean: 14, sd: 2.5 }, "10 Hop Jump Kiri": { mean: 13.5, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "RAST Test": { mean: 7, sd: 2 }, "Zig Zag Run Test": { mean: 12, sd: 2 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Sit Up 2 Menit": { mean: 60, sd: 18 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "10 Hop Jump Kanan": { mean: 17, sd: 2.8 }, "10 Hop Jump Kiri": { mean: 16.5, sd: 2.8 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "RAST Test": { mean: 9, sd: 2.5 }, "Zig Zag Run Test": { mean: 10, sd: 1.5 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Pull Up 1 Menit", "Sit Up 2 Menit", "Core Stability 12 Level", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Medicine Chest Pass 5 Kg", "RAST Test", "Bleep Test"],
+        catatan: "Sit Up 2 Menit diukur dalam jumlah kali. RAST Test menggunakan kalkulator otomatis."
     }
 };
 
@@ -685,15 +706,15 @@ var atletikNomor = {
         higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Standing Board Jump", "Wall Sit", "Core Stability", "Beep Test"]
     },
     "Dasa Lomba": {
-        items: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Standing Board Jump", "1RM Squat", "Core Stability", "Sprint 30m", "Stork Stand", "Beep Test"],
+        items: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Standing Board Jump", "1RM Squat", "Core Stability 12 Level", "Sprint 30 m", "Stork Stand", "Beep Test"],
         normaUnder17: {
             "Sit & Reach": { mean: 28, sd: 6 },
             "Push Up 1 Menit": { mean: 25, sd: 9 },
             "Sit Up 1 Menit": { mean: 30, sd: 10 },
             "Standing Board Jump": { mean: 2.0, sd: 0.35 },
             "1RM Squat": { mean: 1.3, sd: 0.3 },
-            "Core Stability": { mean: 6, sd: 2.5 },
-            "Sprint 30m": { mean: 5.0, sd: 0.5 },
+            "Core Stability 12 Level": { mean: 6, sd: 2.5 },
+            "Sprint 30 m": { mean: 5.0, sd: 0.5 },
             "Stork Stand": { mean: 25, sd: 10 },
             "Beep Test": { mean: 42, sd: 7 }
         },
@@ -703,12 +724,34 @@ var atletikNomor = {
             "Sit Up 1 Menit": { mean: 40, sd: 12 },
             "Standing Board Jump": { mean: 2.4, sd: 0.35 },
             "1RM Squat": { mean: 1.6, sd: 0.35 },
-            "Core Stability": { mean: 8, sd: 2.5 },
-            "Sprint 30m": { mean: 4.3, sd: 0.4 },
+            "Core Stability 12 Level": { mean: 8, sd: 2.5 },
+            "Sprint 30 m": { mean: 4.3, sd: 0.4 },
             "Stork Stand": { mean: 40, sd: 12 },
             "Beep Test": { mean: 50, sd: 8 }
         },
-        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Standing Board Jump", "1RM Squat", "Core Stability", "Stork Stand", "Beep Test"]
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Standing Board Jump", "1RM Squat", "Core Stability 12 Level", "Stork Stand", "Beep Test"]
+    },
+    "Lempar Lembing": {
+        items: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Core Stability 12 Level", "Medicine Overhead Throw", "Sprint 20 m", "Beep Test"],
+        normaUnder17: {
+            "Sit & Reach": { mean: 28, sd: 6 },
+            "Push Up 1 Menit": { mean: 25, sd: 9 },
+            "Sit Up 1 Menit": { mean: 30, sd: 10 },
+            "Core Stability 12 Level": { mean: 6, sd: 2.5 },
+            "Medicine Overhead Throw": { mean: 6, sd: 2 },
+            "Sprint 20 m": { mean: 3.8, sd: 0.4 },
+            "Beep Test": { mean: 42, sd: 7 }
+        },
+        normaOver17: {
+            "Sit & Reach": { mean: 32, sd: 6 },
+            "Push Up 1 Menit": { mean: 35, sd: 11 },
+            "Sit Up 1 Menit": { mean: 40, sd: 12 },
+            "Core Stability 12 Level": { mean: 8, sd: 2.5 },
+            "Medicine Overhead Throw": { mean: 8, sd: 2.5 },
+            "Sprint 20 m": { mean: 3.2, sd: 0.3 },
+            "Beep Test": { mean: 50, sd: 8 }
+        },
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Core Stability 12 Level", "Medicine Overhead Throw", "Beep Test"]
     }
 };
 
@@ -894,13 +937,22 @@ function populateEditForm(a) {
 function buildTestFields(cabor) {
     var box = document.getElementById('testFieldsBox');
     var fields = document.getElementById('testFields');
+    var catBox = document.getElementById('catatanBox');
+    var catText = document.getElementById('catatanText');
     if (!cabor || !caborData[cabor]) {
         box.classList.add('hidden');
         fields.innerHTML = '';
+        catBox.classList.add('hidden');
         return;
     }
     var d = caborData[cabor];
     var items = d.items;
+    if (d.catatan) {
+        catText.textContent = d.catatan;
+        catBox.classList.remove('hidden');
+    } else {
+        catBox.classList.add('hidden');
+    }
     if (cabor === 'Atletik') {
         var nomor = document.getElementById('fNomor').value;
         if (nomor && atletikNomor[nomor]) {
@@ -919,7 +971,7 @@ function buildTestFields(cabor) {
         var isRastTest = li.indexOf('rast') >= 0 && li.indexOf('fatique') < 0;
         var isRastFI = li.indexOf('rast') >= 0 && li.indexOf('fatique') >= 0;
 
-        if (li.indexOf('sprint') >= 0 || li.indexOf('t test') >= 0 || li.indexOf('single leg wall sit') >= 0 || li === 'stroke stand' || li === 'stork stand' || li.indexOf('zig zag') >= 0) {
+        if (li.indexOf('sprint') >= 0 || li.indexOf('t test') >= 0 || li.indexOf('single leg wall sit') >= 0 || li === 'stroke stand' || li === 'stork stand' || li.indexOf('zig zag') >= 0 || li.indexOf('shuttle run') >= 0 || li.indexOf('plank') >= 0 || li.indexOf('illinois') >= 0) {
             unit = 'detik';
         } else if (li.indexOf('push up') >= 0 || li.indexOf('sit up') >= 0 || li.indexOf('pull up') >= 0 || li.indexOf('back up') >= 0) {
             unit = 'kali';
@@ -934,11 +986,11 @@ function buildTestFields(cabor) {
             unit = 'cm';
         } else if (li.indexOf('standing board') >= 0 || li.indexOf('standing broad') >= 0) {
             unit = 'meter';
-        } else if (li.indexOf('medicine ball') >= 0 || li.indexOf('chest pass') >= 0) {
+        } else if (li.indexOf('medicine') >= 0 || li.indexOf('chest pass') >= 0) {
             unit = 'meter';
         } else if (li.indexOf('sit & reach') >= 0) {
             unit = 'cm';
-        } else if (li.indexOf('handgrip') >= 0 || li.indexOf('expanding') >= 0 || li.indexOf('1rm') >= 0) {
+        } else if (li.indexOf('handgrip') >= 0 || li.indexOf('hand grip') >= 0 || li.indexOf('expanding') >= 0 || li.indexOf('1rm') >= 0) {
             unit = 'kg';
         } else if (li.indexOf('hop jump') >= 0) {
             unit = 'meter';
@@ -1356,6 +1408,7 @@ function resetForm() {
     document.getElementById('fNomor').value = '';
     document.getElementById('testFieldsBox').classList.add('hidden');
     document.getElementById('testFields').innerHTML = '';
+    document.getElementById('catatanBox').classList.add('hidden');
     document.getElementById('btnSave').disabled = true;
 }
 
