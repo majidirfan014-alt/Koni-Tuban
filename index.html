@@ -151,14 +151,22 @@
             <h2 id="formTitle" class="text-xl font-bold text-gray-800">Tambah Atlet Baru</h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Atlet</label>
                 <input type="text" id="fNama" placeholder="Nama lengkap" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition">
             </div>
             <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Tempat Lahir</label>
+                <input type="text" id="fTempatLahir" placeholder="Kota/Kabupaten" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Tanggal Lahir</label>
+                <input type="date" id="fTglLahir" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition" onchange="hitungUsia()">
+            </div>
+            <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Usia (Tahun)</label>
-                <input type="number" id="fUsia" placeholder="10-60" min="10" max="60" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition">
+                <input type="number" id="fUsia" placeholder="Otomatis" readonly class="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-100 text-gray-600 font-semibold cursor-not-allowed">
             </div>
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Jenis Kelamin</label>
@@ -228,10 +236,11 @@
         </div>
 
         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-5 mb-5">
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
                 <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Nama</p><p id="dNama" class="font-bold text-gray-800 text-sm">-</p></div>
-                <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Cabor</p><p id="dCabor" class="font-bold text-gray-800 text-sm">-</p></div>
+                <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Tempat, Tanggal Lahir</p><p id="dTTL" class="font-bold text-gray-800 text-sm">-</p></div>
                 <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Usia</p><p id="dUsia" class="font-bold text-gray-800 text-sm">-</p></div>
+                <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Cabor</p><p id="dCabor" class="font-bold text-gray-800 text-sm">-</p></div>
                 <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Kelamin</p><p id="dKelamin" class="font-bold text-gray-800 text-sm">-</p></div>
                 <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Tanggal</p><p id="dTanggal" class="font-bold text-gray-800 text-sm">-</p></div>
             </div>
@@ -384,10 +393,10 @@
                     <thead><tr class="bg-gray-100">
                         <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs w-10">No</th>
                         <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Nama</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Tempat, Tgl Lahir</th>
                         <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Cabor</th>
                         <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Usia</th>
                         <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Kelamin</th>
-                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Tanggal</th>
                         <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Jml Tes</th>
                         <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Performa</th>
                         <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Kategori</th>
@@ -818,9 +827,8 @@ function renderAthleteList() {
                     '<p class="font-bold text-gray-800 text-sm">' + a.nama + '</p>' +
                     '<div class="flex items-center gap-2 mt-0.5">' +
                         '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">' + a.cabor + (a.nomor ? ' - ' + a.nomor : '') + '</span>' +
-                        '<span class="text-gray-400 text-xs">' + a.usia + ' thn</span>' +
-                        '<span class="text-gray-400 text-xs">' + a.kelamin + '</span>' +
-                        '<span class="text-gray-400 text-xs">' + a.tanggal + '</span>' +
+                        '<span class="text-gray-400 text-xs">' + (a.tempatLahir || '') + ' ' + (a.tanggalLahir ? formatTanggal(a.tanggalLahir) : '') + '</span>' +
+                        '<span class="text-gray-500 text-xs font-semibold">' + a.usia + ' thn</span>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -853,6 +861,8 @@ function editCurrentAtlet() {
 function populateEditForm(a) {
     document.getElementById('formTitle').textContent = 'Edit Atlet: ' + a.nama;
     document.getElementById('fNama').value = a.nama;
+    document.getElementById('fTempatLahir').value = a.tempatLahir || '';
+    document.getElementById('fTglLahir').value = a.tanggalLahir || '';
     document.getElementById('fUsia').value = a.usia;
     document.getElementById('fKelamin').value = a.kelamin;
     document.getElementById('fCabor').value = a.cabor;
@@ -995,6 +1005,25 @@ function buildTestFields(cabor) {
     }).join('');
 }
 
+function hitungUsia() {
+    var tglLahir = document.getElementById('fTglLahir').value;
+    var usiaInput = document.getElementById('fUsia');
+    if (!tglLahir) { usiaInput.value = ''; return; }
+    var lahir = new Date(tglLahir);
+    var hari = new Date();
+    var usia = hari.getFullYear() - lahir.getFullYear();
+    var bulan = hari.getMonth() - lahir.getMonth();
+    if (bulan < 0 || (bulan === 0 && hari.getDate() < lahir.getDate())) usia--;
+    usiaInput.value = usia >= 0 ? usia : '';
+}
+
+function formatTanggal(tgl) {
+    if (!tgl) return '-';
+    var d = new Date(tgl);
+    var bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    return d.getDate() + ' ' + bulan[d.getMonth()] + ' ' + d.getFullYear();
+}
+
 function checkFormReady() {
     var nama = document.getElementById('fNama').value.trim();
     var cabor = document.getElementById('fCabor').value;
@@ -1116,6 +1145,8 @@ function renderDetail(a) {
     var ev = computeEvaluation(a);
     currentId = a.id;
     document.getElementById('dNama').textContent = a.nama;
+    var ttl = (a.tempatLahir || '-') + ', ' + (a.tanggalLahir ? formatTanggal(a.tanggalLahir) : '-');
+    document.getElementById('dTTL').textContent = ttl;
     document.getElementById('dCabor').textContent = a.cabor + (a.nomor ? ' - ' + a.nomor : '');
     document.getElementById('dUsia').textContent = a.usia + ' tahun';
     document.getElementById('dKelamin').textContent = a.kelamin;
@@ -1268,12 +1299,14 @@ function drawSpider(items) {
 function saveAtlet() {
     if (isPelatih()) { alert('Anda tidak memiliki akses untuk menyimpan data.'); return; }
     var nama = document.getElementById('fNama').value.trim();
+    var tempatLahir = document.getElementById('fTempatLahir').value.trim();
+    var tanggalLahir = document.getElementById('fTglLahir').value;
     var usia = parseInt(document.getElementById('fUsia').value);
     var kelamin = document.getElementById('fKelamin').value;
     var cabor = document.getElementById('fCabor').value;
     var tanggal = document.getElementById('fTanggal').value;
     var nomor = cabor === 'Atletik' ? document.getElementById('fNomor').value : '';
-    if (!nama || !usia || !kelamin || !cabor || !tanggal) {
+    if (!nama || !tempatLahir || !tanggalLahir || !usia || !kelamin || !cabor || !tanggal) {
         alert('Lengkapi semua data atlet!');
         return;
     }
@@ -1291,7 +1324,7 @@ function saveAtlet() {
         return;
     }
     var newAtlet = {
-        id: 'a' + Date.now(), nama: nama, usia: usia, kelamin: kelamin, cabor: cabor, nomor: nomor, tanggal: tanggal, nilai: nilai,
+        id: 'a' + Date.now(), nama: nama, tempatLahir: tempatLahir, tanggalLahir: tanggalLahir, usia: usia, kelamin: kelamin, cabor: cabor, nomor: nomor, tanggal: tanggal, nilai: nilai,
         createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
     };
     if (editingId) {
@@ -1313,6 +1346,8 @@ function resetForm() {
     editingId = null;
     document.getElementById('formTitle').textContent = 'Tambah Atlet Baru';
     document.getElementById('fNama').value = '';
+    document.getElementById('fTempatLahir').value = '';
+    document.getElementById('fTglLahir').value = '';
     document.getElementById('fUsia').value = '';
     document.getElementById('fKelamin').value = '';
     document.getElementById('fCabor').value = '';
@@ -1491,13 +1526,13 @@ function exportCSV() {
         if (found) source = [found];
     }
     if (!source.length) { alert('Tidak ada data'); return; }
-    var csv = 'Nama,Usia,Kelamin,Cabor,Nomor,Tanggal,';
+    var csv = 'Nama,Tempat Lahir,Tanggal Lahir,Usia,Kelamin,Cabor,Nomor,Tanggal,';
     var allTests = new Set();
     source.forEach(function(a) { Object.keys(a.nilai || {}).forEach(function(k) { allTests.add(k); }); });
     csv += Array.from(allTests).join(',') + ',Performa,Kategori\n';
     source.forEach(function(a) {
         var ev = computeEvaluation(a);
-        csv += '"' + a.nama + '",' + a.usia + ',' + a.kelamin + ',"' + a.cabor + '","' + (a.nomor || '') + '",' + a.tanggal + ',';
+        csv += '"' + a.nama + '","' + (a.tempatLahir || '') + '","' + (a.tanggalLahir || '') + '",' + a.usia + ',' + a.kelamin + ',"' + a.cabor + '","' + (a.nomor || '') + '",' + a.tanggal + ',';
         csv += Array.from(allTests).map(function(t) { return a.nilai[t] != null ? a.nilai[t] : ''; }).join(',') + ',' + ev.performa.toFixed(1) + ',' + ev.kategori + '\n';
     });
     var blob = new Blob([csv], { type: 'text/csv' });
@@ -1587,6 +1622,7 @@ function renderDashboard() {
         return '<tr class="' + (i % 2 ? 'bg-gray-50' : '') + ' border-t border-gray-100 hover:bg-blue-50 transition">' +
             '<td class="px-3 py-2.5 font-semibold text-gray-500 text-xs">' + (i + 1) + '</td>' +
             '<td class="px-3 py-2.5 font-semibold text-gray-800 text-xs">' + a.nama + '</td>' +
+            '<td class="px-3 py-2.5 text-xs text-gray-600">' + (a.tempatLahir || '-') + ', ' + (a.tanggalLahir ? formatTanggal(a.tanggalLahir) : '-') + '</td>' +
             '<td class="px-3 py-2.5 text-xs"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">' + a.cabor + (a.nomor ? ' - ' + a.nomor : '') + '</span></td>' +
             '<td class="px-3 py-2.5 text-xs text-gray-600">' + a.usia + '</td>' +
             '<td class="px-3 py-2.5 text-xs text-gray-600">' + a.kelamin + '</td>' +
@@ -1609,10 +1645,10 @@ function exportDashboardCSV() {
         return true;
     });
     if (!filtered.length) { alert('Tidak ada data untuk di-export'); return; }
-    var csv = 'No,Nama,Cabor,Nomor,Usia,Kelamin,Tanggal,Jumlah Tes,Performa,Kategori\n';
+    var csv = 'No,Nama,Tempat Lahir,Tanggal Lahir,Cabor,Nomor,Usia,Kelamin,Tanggal,Jumlah Tes,Performa,Kategori\n';
     filtered.forEach(function(a, i) {
         var ev = computeEvaluation(a);
-        csv += (i + 1) + ',"' + a.nama + '","' + a.cabor + '","' + (a.nomor || '') + '",' + a.usia + ',' + a.kelamin + ',' + a.tanggal + ',' + ev.jumlahItem + ',' + ev.performa.toFixed(1) + ',' + ev.kategori + '\n';
+        csv += (i + 1) + ',"' + a.nama + '","' + (a.tempatLahir || '') + '","' + (a.tanggalLahir || '') + '","' + a.cabor + '","' + (a.nomor || '') + '",' + a.usia + ',' + a.kelamin + ',' + a.tanggal + ',' + ev.jumlahItem + ',' + ev.performa.toFixed(1) + ',' + ev.kategori + '\n';
     });
     var blob = new Blob([csv], { type: 'text/csv' });
     var url = URL.createObjectURL(blob);
