@@ -1269,6 +1269,17 @@ function computeEvaluation(a) {
             raw = 3.46 * (lvl + shuttle / maxSh) + 12.2;
             raw = +raw.toFixed(1);
         }
+        var isShoulderMobility = li.indexOf('shoulder mobility') >= 0;
+        if (isShoulderMobility) {
+            var brockportScore = getBrockportScore(raw);
+            var pct = (brockportScore / 3) * 100;
+            pct = +pct.toFixed(1);
+            var cat = getPctCategory(pct);
+            items.push({ name: name, raw: raw, brockport: brockportScore, pct: pct, cat: cat });
+            total += pct;
+            cnt++;
+            return;
+        }
         var s = norma[name];
         if (!s) {
             items.push({ name: name, raw: raw, threshold: 0, mean: 0, sd: 1, pct: 50, cat: getPctCategory(50) });
@@ -1276,19 +1287,11 @@ function computeEvaluation(a) {
             cnt++;
             return;
         }
-        var threshold = +(s.mean + (1.5 * s.sd)).toFixed(2);
         var higher = higherIsBetter.indexOf(name) >= 0;
-        var z = s.sd > 0 ? (raw - s.mean) / s.sd : 0;
-        var pct;
-        if (higher) {
-            pct = ((z + 2) / 4) * 100;
-        } else {
-            pct = ((2 - z) / 4) * 100;
-        }
-        pct = Math.min(Math.max(pct, 5), 100);
+        var pct = calcItemPct(name, raw, s.mean, s.sd, higher);
         pct = +pct.toFixed(1);
         var cat = getPctCategory(pct);
-        items.push({ name: name, raw: raw, threshold: threshold, mean: s.mean, sd: s.sd, pct: pct, cat: cat });
+        items.push({ name: name, raw: raw, mean: s.mean, sd: s.sd, pct: pct, cat: cat });
         total += pct;
         cnt++;
     });
@@ -1296,6 +1299,40 @@ function computeEvaluation(a) {
     var performaPct = maxPossible > 0 ? +((total / maxPossible) * 100).toFixed(1) : 0;
     var kategori = getPctCategory(performaPct).label;
     return { items: items, performa: performaPct, totalSkor: +total.toFixed(1), kategori: kategori, jumlahItem: cnt };
+}
+
+function calcItemPct(name, raw, mean, sd, higherIsBetter) {
+    if (sd <= 0) return 50;
+    var z = (raw - mean) / sd;
+    var pct;
+    if (higherIsBetter) {
+        if (z >= 3) pct = 100;
+        else if (z >= 2) pct = 90 + ((z - 2) * 10);
+        else if (z >= 1) pct = 75 + ((z - 1) * 15);
+        else if (z >= 0) pct = 55 + (z * 20);
+        else if (z >= -1) pct = 35 + ((z + 1) * 20);
+        else if (z >= -2) pct = 15 + ((z + 2) * 20);
+        else pct = Math.max(0, 5 + ((z + 3) * 10));
+    } else {
+        if (z <= -3) pct = 100;
+        else if (z <= -2) pct = 90 + ((-2 - z) * 10);
+        else if (z <= -1) pct = 75 + ((-1 - z) * 15);
+        else if (z <= 0) pct = 55 + (-z * 20);
+        else if (z <= 1) pct = 35 + ((1 - z) * 20);
+        else if (z <= 2) pct = 15 + ((2 - z) * 20);
+        else pct = Math.max(0, 5 + ((3 - z) * 10));
+    }
+    return Math.min(Math.max(pct, 0), 100);
+}
+
+function getBrockportScore(distanceCm) {
+    if (distanceCm === 0) return 3;
+    if (distanceCm <= 5) return 2.5;
+    if (distanceCm <= 10) return 2;
+    if (distanceCm <= 15) return 1.5;
+    if (distanceCm <= 20) return 1;
+    if (distanceCm <= 25) return 0.5;
+    return 0;
 }
 
 function getPctCategory(pct) {
@@ -1340,10 +1377,24 @@ function renderDetail(a) {
         var gc = getCategory(it.pct);
         var barW = Math.min(it.pct, 100);
         var unit = getItemUnit(it.name);
-        var rawDisplay = it.raw + (unit ? ' ' + unit : '');
+        var li = it.name.toLowerCase();
+        var isShoulderMobility = li.indexOf('shoulder mobility') >= 0;
+        var rawDisplay;
+        if (isShoulderMobility && it.brockport !== undefined) {
+            rawDisplay = it.raw + ' cm (Skor: ' + it.brockport + '/3)';
+        } else {
+            rawDisplay = it.raw + (unit ? ' ' + unit : '');
+        }
+        var refInfo = '';
+        if (it.mean !== undefined && it.mean !== 0) {
+            refInfo = '<p class="text-[10px] text-gray-400 mt-0.5">Rata-rata: ' + it.mean + (unit ? ' ' + unit : '') + '</p>';
+        }
+        if (isShoulderMobility) {
+            refInfo = '<p class="text-[10px] text-gray-400 mt-0.5">0cm=Sempurna, 5cm=Baik, 10cm=Cukup, 20cm=Perlu Perbaikan</p>';
+        }
         return '<tr class="' + (i % 2 ? 'bg-gray-50' : '') + ' border-t border-gray-100 hover:bg-blue-50 transition">' +
             '<td class="px-3 py-2.5 font-semibold text-gray-500 text-xs">' + (i + 1) + '</td>' +
-            '<td class="px-3 py-2.5 font-semibold text-gray-800 text-xs">' + it.name + '</td>' +
+            '<td class="px-3 py-2.5 font-semibold text-gray-800 text-xs">' + it.name + refInfo + '</td>' +
             '<td class="px-3 py-2.5 text-xs"><span class="font-mono font-bold text-gray-900">' + rawDisplay + '</span></td>' +
             '<td class="px-3 py-2.5 text-xs min-w-[180px]">' +
                 '<div class="flex items-center gap-2">' +
