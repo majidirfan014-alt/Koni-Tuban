@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KONI Tuban - Evaluasi Tes Fisik</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -21,6 +22,7 @@
         .tab-inactive{background:#f1f5f9;color:#64748b}.tab-inactive:hover{background:#e2e8f0}
         #loginPage{display:none}#loginPage.active{display:flex}
         #appContent{display:none}#appContent.active{display:block}
+        #landingPage{display:none}#landingPage.active{display:block}
         .login-shake{animation:shake .4s ease-in-out}
         @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
         .calc-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -34,6 +36,16 @@
         .calc-sprint-table td{padding:.35rem .5rem;border-bottom:1px solid #f1f5f9}
         .calc-sprint-table input{width:100%;padding:.3rem .5rem;border:1px solid #d1d5db;border-radius:.375rem;font-size:.8rem}
         .calc-sprint-table input:focus{outline:none;ring:2px;ring-color:#3b82f6}
+        .lp-nav{position:sticky;top:0;z-index:50;background:#fff;box-shadow:0 4px 24px rgba(15,23,42,.08)}
+        .lp-cta{background:linear-gradient(135deg,#fbbf24,#f97316);color:#1f2937}
+        .lp-cta:hover{background:linear-gradient(135deg,#f59e0b,#ea580c);transform:translateY(-1px);box-shadow:0 8px 20px rgba(249,115,22,.35)}
+        .lp-cta-white{background:#fff;color:#1d4ed8}
+        .lp-cta-white:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.18)}
+        .lp-float{position:absolute;background:#fff;color:#1e3a5f;font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.14);white-space:nowrap;animation:lpbob 3.2s ease-in-out infinite}
+        @keyframes lpbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+        .lp-mock{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px)}
+        .lp-menu a{transition:color .2s}
+        .lp-menu a:hover{color:#2563eb}
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -45,8 +57,174 @@
     <p class="text-gray-400 text-sm mt-1">Mohon tunggu sebentar</p>
 </div>
 
+<!-- ========== LANDING PAGE (PUBLIK) ========== -->
+<div id="landingPage" class="active min-h-screen bg-white">
+    <nav class="lp-nav">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-[72px] flex items-center justify-between gap-4">
+            <a href="#beranda" class="flex items-center gap-2.5 shrink-0">
+                <span class="bg-blue-50 p-1.5 rounded-xl overflow-hidden shadow-sm">
+                    <img src="logo%20koni%20tuban.png" alt="KONI Tuban" class="w-8 h-8 object-contain">
+                </span>
+                <span class="leading-tight">
+                    <span class="block font-extrabold text-gray-900 text-lg sm:text-xl">KONI Tuban</span>
+                    <span class="block text-[10px] sm:text-xs text-gray-400 font-semibold">Sistem Evaluasi Tes Fisik Khusus</span>
+                </span>
+            </a>
+            <div class="lp-menu hidden md:flex items-center gap-7 text-sm font-semibold text-gray-600">
+                <a href="#beranda" class="hover:text-blue-600">Beranda</a>
+                <a href="#statistik" class="hover:text-blue-600">Statistik</a>
+                <a href="#tentang" class="hover:text-blue-600">Tentang Sistem</a>
+            </div>
+            <button onclick="showLoginPage()" class="lp-cta shrink-0 font-bold px-5 sm:px-6 py-2.5 rounded-full transition text-sm flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                </svg>
+                Login
+            </button>
+        </div>
+    </nav>
+
+    <section id="beranda" class="gradient-header text-white fade-in">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+                <div class="order-2 lg:order-1">
+                    <span class="inline-block bg-white/15 border border-white/25 text-blue-100 text-xs font-bold px-4 py-1.5 rounded-full mb-5 tracking-wide">
+                        KONI KABUPATEN TUBAN
+                    </span>
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight">
+                        Sistem Evaluasi Tes Fisik Khusus Atlet KONI Tuban
+                    </h1>
+                    <p class="mt-4 text-blue-100/90 text-sm sm:text-base max-w-xl leading-relaxed">
+                        Data agregat tes fisik atlet tanpa menampilkan identitas atlet.
+                    </p>
+                    <div class="mt-7 flex flex-wrap items-center gap-3">
+                        <button onclick="showLoginPage()" class="lp-cta font-bold px-7 py-3.5 rounded-full text-sm transition">
+                            Login ke Sistem
+                        </button>
+                        <a href="#statistik" class="border border-white/40 hover:bg-white/10 text-white font-semibold px-6 py-3.5 rounded-full text-sm transition">
+                            Lihat Statistik
+                        </a>
+                    </div>
+
+                    <div class="relative mt-10 sm:mt-12 max-w-md">
+                        <div class="lp-mock rounded-3xl p-4 sm:p-5 space-y-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-white/25 flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2V7a2 2 0 012-2h2a2 2 0 012 2v6a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="h-2.5 w-28 bg-white/40 rounded-full"></div>
+                                    <div class="h-2 w-40 bg-white/20 rounded-full mt-2"></div>
+                                </div>
+                                <span class="text-xs font-bold bg-emerald-400/90 text-emerald-950 px-2.5 py-1 rounded-full">Baik</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="bg-white/15 rounded-xl h-14"></div>
+                                <div class="bg-white/15 rounded-xl h-14"></div>
+                                <div class="bg-white/15 rounded-xl h-14"></div>
+                            </div>
+                            <div class="bg-white/15 rounded-xl h-10 flex items-center px-3 gap-2">
+                                <span class="block h-2 rounded-full bg-blue-300" style="width:62%"></span>
+                            </div>
+                        </div>
+                        <span class="lp-float" style="top:-14px;left:8%;animation-delay:0s">Tes Fisik</span>
+                        <span class="lp-float" style="top:18%;right:-8px;animation-delay:.5s">Data Atlet</span>
+                        <span class="lp-float" style="bottom:28%;left:-12px;animation-delay:1s">Cabor</span>
+                        <span class="lp-float" style="bottom:-12px;left:22%;animation-delay:1.4s">Sesi Tes</span>
+                        <span class="lp-float" style="bottom:8%;right:6%;animation-delay:1.8s">Laporan</span>
+                    </div>
+                </div>
+
+                <div id="statistik" class="order-1 lg:order-2 scroll-mt-24">
+                    <div class="bg-white text-gray-800 rounded-[28px] shadow-[0_20px_60px_rgba(15,23,42,.18)] p-6 sm:p-8 transition hover:shadow-[0_24px_64px_rgba(15,23,42,.22)]">
+                        <p class="text-xs font-bold text-blue-600 uppercase tracking-wider">Ringkasan Live</p>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-gray-900 mt-1">Statistik Evaluasi Tes Fisik</h2>
+                        <p class="text-xs sm:text-sm text-gray-400 mt-1.5">Data agregat tanpa menampilkan identitas atlet.</p>
+
+                        <div class="grid grid-cols-3 gap-2.5 sm:gap-3 mt-5">
+                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-3 sm:p-4">
+                                <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </div>
+                                <p class="text-[10px] sm:text-xs text-gray-400 font-semibold leading-tight">Atlet Dites</p>
+                                <p id="landingTotalAtlet" class="text-xl sm:text-2xl font-extrabold text-gray-900 mt-0.5">0</p>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-3 sm:p-4">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                </div>
+                                <p class="text-[10px] sm:text-xs text-gray-400 font-semibold leading-tight">Total Cabor</p>
+                                <p id="landingTotalCabor" class="text-xl sm:text-2xl font-extrabold text-gray-900 mt-0.5">0</p>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-3 sm:p-4">
+                                <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center mb-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                </div>
+                                <p class="text-[10px] sm:text-xs text-gray-400 font-semibold leading-tight">Sesi Tes</p>
+                                <p id="landingTotalSesi" class="text-xl sm:text-2xl font-extrabold text-gray-900 mt-0.5">0</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 border-t border-gray-100 pt-4">
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="bg-blue-100 text-blue-700 p-1.5 rounded-lg">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 2 0 01.707.293l5.414 5.414a1 2 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                </div>
+                                <h3 class="text-sm font-extrabold text-gray-900">Jumlah Atlet Dites per Tanggal</h3>
+                            </div>
+                            <div id="landingStatsDates" class="space-y-2.5 max-h-48 overflow-y-auto pr-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tentang" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 scroll-mt-24">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1">
+                <p class="text-xs font-bold text-blue-600 uppercase tracking-wider">Tentang Sistem</p>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2 leading-snug">Evaluasi tes fisik yang rapi, terukur, dan privat</h2>
+                <p class="text-sm text-gray-500 mt-3 leading-relaxed">
+                    Landing page ini hanya menampilkan angka ringkasan. Detail atlet dan hasil tes hanya dapat diakses setelah login.
+                </p>
+            </div>
+            <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-gray-50 border border-gray-100 rounded-3xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition">
+                    <div class="w-11 h-11 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center mb-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-sm">Data Aman</h3>
+                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">Identitas atlet tidak tampil di halaman publik.</p>
+                </div>
+                <div class="bg-gray-50 border border-gray-100 rounded-3xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition">
+                    <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 2 0 01.707.293l5.414 5.414a1 2 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-sm">Statistik Real-time</h3>
+                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">Jumlah atlet, cabor, dan sesi tes diperbarui otomatis.</p>
+                </div>
+                <div class="bg-gray-50 border border-gray-100 rounded-3xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition">
+                    <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mb-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-sm">Fokus Cabor</h3>
+                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">Mendukung berbagai cabang olahraga binaan KONI Tuban.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="border-t border-gray-100 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
+            <p>&copy; 2026 KONI Kabupaten Tuban</p>
+            <p>By.Majid</p>
+        </div>
+    </footer>
+</div>
+
 <!-- ========== LOGIN PAGE ========== -->
-<div id="loginPage" class="active min-h-screen items-center justify-center px-4">
+<div id="loginPage" class="min-h-screen items-center justify-center px-4">
     <div class="w-full max-w-md">
         <div class="bg-white rounded-2xl shadow-2xl p-8">
             <div class="text-center mb-8">
@@ -71,6 +249,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                     </svg>
                     Masuk
+                </button>
+                <button type="button" onclick="showLandingPage()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h14"/>
+                    </svg>
+                    Kembali ke Beranda
                 </button>
             </div>
             <p class="text-center text-gray-300 text-xs mt-6">&copy; 2026 KONI Kabupaten Tuban</p>
@@ -112,6 +296,7 @@
 <div class="no-print flex gap-2 bg-white rounded-xl card-shadow p-2">
     <button onclick="navigateTo('list')" id="tabList" class="flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Daftar Atlet</button>
     <button onclick="navigateTo('dashboard')" id="tabDashboard" class="flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Dashboard Hasil Tes Fisik</button>
+    <button onclick="navigateTo('comparison')" id="tabComparison" class="flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Data Comparison</button>
 </div>
 
 <!-- ========== VIEW: DAFTAR ATLET ========== -->
@@ -426,6 +611,116 @@
                 <p class="text-gray-400 font-semibold">Belum ada data tes fisik</p>
                 <p class="text-gray-300 text-sm mt-1">Tambah atlet terlebih dahulu</p>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== VIEW: DATA COMPARISON ========== -->
+<div id="comparisonView" class="view">
+    <div class="space-y-6">
+        <div class="bg-white rounded-2xl card-shadow p-5">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="bg-blue-100 text-blue-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2V7a2 2 0 012-2h2a2 2 0 012 2v6a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+                <h3 class="font-bold text-gray-800">Filter Perbandingan</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Dari Tanggal Tes</label>
+                    <input type="date" id="cmpFilterFrom" onchange="renderComparison()" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Sampai Tanggal Tes</label>
+                    <input type="date" id="cmpFilterTo" onchange="renderComparison()" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Cabor</label>
+                    <select id="cmpFilterCabor" onchange="renderComparison()" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">Semua Cabor</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Atlet</label>
+                    <select id="cmpFilterNama" onchange="renderComparison()" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">-- Pilih Atlet --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="cmpInfoBox" class="bg-blue-50 border border-blue-200 text-blue-700 text-sm rounded-xl px-4 py-3 hidden"></div>
+
+        <div id="cmpCompareCard" class="hidden bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div>
+                    <p class="text-xs font-semibold text-blue-600 uppercase">Atlet</p>
+                    <h3 id="cmpAthleteName" class="text-lg font-bold text-gray-800">-</h3>
+                </div>
+                <div id="cmpAthleteMeta" class="text-right text-xs text-gray-500 font-semibold"></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                    <p class="text-[10px] font-semibold text-gray-500 uppercase mb-1">Sesi Sebelumnya</p>
+                    <p id="cmpPrevDate" class="text-xs text-gray-400 mb-2">-</p>
+                    <p id="cmpPrevScore" class="text-2xl font-extrabold text-gray-800">-</p>
+                    <span id="cmpPrevCat" class="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold">-</span>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <p class="text-[10px] font-semibold text-blue-600 uppercase mb-1">Sesi Terbaru</p>
+                    <p id="cmpLastDate" class="text-xs text-gray-400 mb-2">-</p>
+                    <p id="cmpLastScore" class="text-2xl font-extrabold text-blue-700">-</p>
+                    <span id="cmpLastCat" class="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold">-</span>
+                </div>
+                <div id="cmpDeltaBox" class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                    <p class="text-[10px] font-semibold text-gray-500 uppercase mb-1">Selisih (Terbaru - Sebelumnya)</p>
+                    <p id="cmpDeltaDate" class="text-xs text-gray-400 mb-2">vs sesi sebelumnya</p>
+                    <p id="cmpDeltaScore" class="text-2xl font-extrabold text-gray-800">-</p>
+                    <span id="cmpDeltaBadge" class="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="cmpChartCard" class="hidden bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="bg-indigo-100 text-indigo-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 3h18v18H3V3z"/></svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800">Tren Seluruh Riwayat Tes</h3>
+                    <p class="text-xs text-gray-400">Sumbu X: tanggal tes &middot; Sumbu Y: skor %</p>
+                </div>
+            </div>
+            <div class="relative" style="height:320px">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+
+        <div id="cmpTableCard" class="hidden bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="bg-emerald-100 text-emerald-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </div>
+                <h3 class="font-bold text-gray-800">Riwayat &amp; Selisih Skor</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead><tr class="bg-gray-100">
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs w-10">No</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Tanggal Tes</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Skor %</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Kategori</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs rounded-r-xl">Selisih vs Sesi Sebelumnya</th>
+                    </tr></thead>
+                    <tbody id="cmpTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="cmpEmpty" class="bg-white rounded-2xl card-shadow p-10 text-center">
+            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 2 0 01.707.293l5.414 5.414a1 2 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <p class="text-gray-400 font-semibold">Pilih atlet untuk melihat perbandingan antar sesi tes</p>
+            <p class="text-gray-300 text-sm mt-1">Data diambil dari hasil tes yang sudah tersimpan</p>
         </div>
     </div>
 </div>
@@ -861,6 +1156,9 @@ function navigateTo(view) {
     }
     if (view === 'dashboard') {
         renderDashboard();
+    }
+    if (view === 'comparison') {
+        renderComparison();
     }
     if (view === 'form') {
         populateCaborDropdown();
@@ -1639,6 +1937,302 @@ var USERS = [
 ];
 var currentUser = JSON.parse(localStorage.getItem('koniCurrentUser') || 'null');
 
+// ========== LANDING PAGE ==========
+function showLoginPage() {
+    document.getElementById('landingPage').classList.remove('active');
+    document.getElementById('loginPage').classList.add('active');
+    document.getElementById('appContent').classList.remove('active');
+}
+
+function showLandingPage() {
+    document.getElementById('loginPage').classList.remove('active');
+    document.getElementById('appContent').classList.remove('active');
+    document.getElementById('landingPage').classList.add('active');
+    renderLandingStats();
+}
+
+function renderLandingStats() {
+    var byDate = {};
+    var uniqueAtlet = {};
+    dashboardAthletes.forEach(function(a) {
+        var d = a.tanggal || (a.createdAt ? String(a.createdAt).slice(0, 10) : '');
+        if (!d) d = '-';
+        if (!byDate[d]) byDate[d] = {};
+        var key = (a.nama || a.id || '');
+        byDate[d][key] = true;
+        uniqueAtlet[key] = true;
+    });
+    document.getElementById('landingTotalAtlet').textContent = Object.keys(uniqueAtlet).length;
+    document.getElementById('landingTotalCabor').textContent = Object.keys(caborData).length;
+    document.getElementById('landingTotalSesi').textContent = dashboardAthletes.length;
+
+    var dates = Object.keys(byDate).sort().reverse();
+    var box = document.getElementById('landingStatsDates');
+    if (!dates.length) {
+        box.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">Belum ada data tes yang tercatat.</p>';
+        return;
+    }
+    var maxCount = 1;
+    var rows = dates.map(function(d) {
+        var count = Object.keys(byDate[d]).length;
+        if (count > maxCount) maxCount = count;
+        return { d: d, count: count };
+    });
+    box.innerHTML = rows.map(function(r) {
+        var pct = Math.max(4, Math.round((r.count / maxCount) * 100));
+        return '<div class="flex items-center gap-3">' +
+            '<span class="text-xs font-semibold text-gray-600 w-28 shrink-0">' + (r.d === '-' ? 'Tanpa tanggal' : formatTanggal(r.d)) + '</span>' +
+            '<div class="flex-1 bg-gray-200 rounded-full h-5 overflow-hidden">' +
+                '<div class="bg-blue-500 h-full rounded-full transition-all flex items-center justify-end pr-2" style="width:' + pct + '%">' +
+                    (pct > 12 ? '<span class="text-[10px] font-bold text-white">' + r.count + '</span>' : '') +
+                '</div>' +
+            '</div>' +
+            '<span class="text-xs font-bold text-gray-500 w-12 text-right">' + r.count + ' atlet</span>' +
+        '</div>';
+    }).join('');
+}
+
+// ========== DATA COMPARISON ==========
+var comparisonChart = null;
+
+function populateComparisonFilters() {
+    var sel = document.getElementById('cmpFilterCabor');
+    var current = sel.value;
+    sel.innerHTML = '<option value="">Semua Cabor</option>';
+    if (isPelatih()) {
+        var opt = document.createElement('option');
+        opt.value = getUserCabor();
+        opt.textContent = getUserCabor();
+        sel.appendChild(opt);
+        sel.value = getUserCabor();
+        sel.disabled = true;
+    } else {
+        sel.disabled = false;
+        var cabors = {};
+        dashboardAthletes.forEach(function(a) { if (a.cabor) cabors[a.cabor] = true; });
+        Object.keys(caborData).forEach(function(name) { cabors[name] = true; });
+        Object.keys(cabors).sort().forEach(function(name) {
+            var o = document.createElement('option');
+            o.value = name;
+            o.textContent = name;
+            sel.appendChild(o);
+        });
+        if (current) sel.value = current;
+    }
+    populateComparisonAthletes();
+}
+
+function getComparisonPool() {
+    var from = document.getElementById('cmpFilterFrom').value;
+    var to = document.getElementById('cmpFilterTo').value;
+    var filterCabor = document.getElementById('cmpFilterCabor').value;
+    return dashboardAthletes.filter(function(a) {
+        if (isPelatih() && a.cabor !== getUserCabor()) return false;
+        if (filterCabor && a.cabor !== filterCabor) return false;
+        var d = a.tanggal || (a.createdAt ? String(a.createdAt).slice(0, 10) : '');
+        if (from && d && d < from) return false;
+        if (to && d && d > to) return false;
+        return true;
+    });
+}
+
+function getAthleteHistory(pool, key) {
+    return pool.filter(function(a) { return buildAthleteKey(a) === key; })
+        .sort(function(x, y) {
+            var dx = x.tanggal || (x.createdAt || '');
+            var dy = y.tanggal || (y.createdAt || '');
+            if (dx === dy) return String(x.createdAt || '').localeCompare(String(y.createdAt || ''));
+            return String(dx).localeCompare(String(dy));
+        });
+}
+
+function buildAthleteKey(a) {
+    return [a.nama || '', a.cabor || '', a.nomor || '', a.tempatLahir || '', a.tanggalLahir || ''].join('|');
+}
+
+function populateComparisonAthletes() {
+    var pool = getComparisonPool();
+    var sel = document.getElementById('cmpFilterNama');
+    var current = sel.value;
+    var seen = {};
+    var options = [];
+    pool.forEach(function(a) {
+        var key = buildAthleteKey(a);
+        if (seen[key]) return;
+        seen[key] = true;
+        options.push({ key: key, label: (a.nama || '-') + (a.cabor ? ' — ' + a.cabor : '') });
+    });
+    options.sort(function(x, y) { return x.label.localeCompare(y.label); });
+    sel.innerHTML = '<option value="">-- Pilih Atlet --</option>' + options.map(function(o) {
+        return '<option value="' + o.key.replace(/"/g, '&quot;') + '">' + o.label + '</option>';
+    }).join('');
+    if (current && seen[current]) sel.value = current;
+    else if (options.length) sel.value = options[0].key;
+}
+
+function renderComparison() {
+    populateComparisonFilters();
+    var empty = document.getElementById('cmpEmpty');
+    var info = document.getElementById('cmpInfoBox');
+    var compareCard = document.getElementById('cmpCompareCard');
+    var chartCard = document.getElementById('cmpChartCard');
+    var tableCard = document.getElementById('cmpTableCard');
+    var key = document.getElementById('cmpFilterNama').value;
+
+    if (comparisonChart) {
+        comparisonChart.destroy();
+        comparisonChart = null;
+    }
+    compareCard.classList.add('hidden');
+    chartCard.classList.add('hidden');
+    tableCard.classList.add('hidden');
+    info.classList.add('hidden');
+
+    if (!key) {
+        empty.classList.remove('hidden');
+        var emptyPs = empty.querySelectorAll('p');
+        emptyPs[0].textContent = 'Pilih atlet untuk melihat perbandingan antar sesi tes';
+        emptyPs[1].textContent = 'Data diambil dari hasil tes yang sudah tersimpan';
+        return;
+    }
+
+    var pool = getComparisonPool();
+    var history = getAthleteHistory(pool, key);
+    if (!history.length) {
+        empty.classList.remove('hidden');
+        var emptyPs2 = empty.querySelectorAll('p');
+        emptyPs2[0].textContent = 'Tidak ada data tes untuk atlet pada filter yang dipilih';
+        emptyPs2[1].textContent = 'Coba longgarkan rentang tanggal atau filter cabor';
+        return;
+    }
+
+    empty.classList.add('hidden');
+    var first = history[0];
+    document.getElementById('cmpAthleteName').textContent = first.nama || '-';
+    document.getElementById('cmpAthleteMeta').textContent = (first.cabor || '-') + (first.nomor ? ' — ' + first.nomor : '') + ' · ' + history.length + ' sesi';
+
+    if (history.length === 1) {
+        info.textContent = 'Atlet ini baru memiliki 1 data tes (' + formatTanggal(history[0].tanggal || '-') + '). Belum ada sesi pembanding — perbandingan akan tersedia setelah tes ulang dicatat.';
+        info.classList.remove('hidden');
+    }
+
+    var rowsHtml = '';
+    var prevEv = null;
+    history.forEach(function(a, i) {
+        var ev = computeEvaluation(a);
+        var cat = getCategory(ev.performa);
+        var deltaHtml = '<span class="text-gray-300 text-xs font-semibold">—</span>';
+        if (prevEv) {
+            var delta = +(ev.performa - prevEv.performa).toFixed(1);
+            if (delta > 0) {
+                deltaHtml = '<span class="text-emerald-600 font-bold text-xs">▲ +' + delta.toFixed(1) + '% (naik)</span>';
+            } else if (delta < 0) {
+                deltaHtml = '<span class="text-red-500 font-bold text-xs">▼ ' + delta.toFixed(1) + '% (turun)</span>';
+            } else {
+                deltaHtml = '<span class="text-gray-500 font-bold text-xs">— 0% (tetap)</span>';
+            }
+        }
+        rowsHtml += '<tr class="border-b border-gray-100 fade-in">' +
+            '<td class="px-3 py-2.5 text-xs text-gray-500 font-semibold">' + (i + 1) + '</td>' +
+            '<td class="px-3 py-2.5 text-xs text-gray-700 font-semibold">' + (a.tanggal ? formatTanggal(a.tanggal) : '-') + '</td>' +
+            '<td class="px-3 py-2.5 text-sm font-extrabold text-' + cat.color + '-600">' + ev.performa.toFixed(1) + '%</td>' +
+            '<td class="px-3 py-2.5"><span class="bg-' + cat.color + '-100 text-' + cat.color + '-700 px-2 py-0.5 rounded-full font-semibold text-[10px]">' + cat.label + '</span></td>' +
+            '<td class="px-3 py-2.5">' + deltaHtml + '</td>' +
+        '</tr>';
+        prevEv = ev;
+    });
+    document.getElementById('cmpTableBody').innerHTML = rowsHtml;
+    tableCard.classList.remove('hidden');
+
+    if (history.length >= 2) {
+        compareCard.classList.remove('hidden');
+        var prev = history[history.length - 2];
+        var last = history[history.length - 1];
+        var evPrev = computeEvaluation(prev);
+        var evLast = computeEvaluation(last);
+        var catPrev = getCategory(evPrev.performa);
+        var catLast = getCategory(evLast.performa);
+
+        document.getElementById('cmpPrevDate').textContent = prev.tanggal ? formatTanggal(prev.tanggal) : '-';
+        document.getElementById('cmpPrevScore').textContent = evPrev.performa.toFixed(1) + '%';
+        var prevCatEl = document.getElementById('cmpPrevCat');
+        prevCatEl.textContent = catPrev.label;
+        prevCatEl.className = 'inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-' + catPrev.color + '-100 text-' + catPrev.color + '-700';
+
+        document.getElementById('cmpLastDate').textContent = last.tanggal ? formatTanggal(last.tanggal) : '-';
+        document.getElementById('cmpLastScore').textContent = evLast.performa.toFixed(1) + '%';
+        var lastCatEl = document.getElementById('cmpLastCat');
+        lastCatEl.textContent = catLast.label;
+        lastCatEl.className = 'inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-' + catLast.color + '-100 text-' + catLast.color + '-700';
+
+        var delta = +(evLast.performa - evPrev.performa).toFixed(1);
+        document.getElementById('cmpDeltaScore').textContent = (delta > 0 ? '+' : '') + delta.toFixed(1) + '%';
+        var deltaBadge = document.getElementById('cmpDeltaBadge');
+        if (delta > 0) {
+            document.getElementById('cmpDeltaScore').className = 'text-2xl font-extrabold text-emerald-600';
+            deltaBadge.textContent = 'Naik';
+            deltaBadge.className = 'inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700';
+        } else if (delta < 0) {
+            document.getElementById('cmpDeltaScore').className = 'text-2xl font-extrabold text-red-500';
+            deltaBadge.textContent = 'Turun';
+            deltaBadge.className = 'inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-600';
+        } else {
+            document.getElementById('cmpDeltaScore').className = 'text-2xl font-extrabold text-gray-800';
+            deltaBadge.textContent = 'Tetap';
+            deltaBadge.className = 'inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-600';
+        }
+    }
+
+    if (history.length > 2 && typeof Chart !== 'undefined') {
+        chartCard.classList.remove('hidden');
+        var labels = history.map(function(a) { return a.tanggal ? formatTanggal(a.tanggal) : '-'; });
+        var scores = history.map(function(a) { return computeEvaluation(a).performa; });
+        var ctx = document.getElementById('comparisonChart').getContext('2d');
+        comparisonChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Skor %',
+                    data: scores,
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37,99,235,.12)',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#2563eb',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) { return ' Skor: ' + ctx.parsed.y.toFixed(1) + '%'; }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: { display: true, text: 'Skor %' },
+                        grid: { color: '#e2e8f0' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Tanggal Tes' },
+                        grid: { color: '#f1f5f9' }
+                    }
+                }
+            }
+        });
+    }
+}
+
 function doLogin() {
     var username = document.getElementById('loginUsername').value.trim();
     var password = document.getElementById('loginPassword').value.trim();
@@ -1678,15 +2272,17 @@ function doLogout() {
     if (!confirm('Yakin ingin keluar?')) return;
     currentUser = null;
     localStorage.removeItem('koniCurrentUser');
-    document.getElementById('loginPage').classList.add('active');
+    document.getElementById('loginPage').classList.remove('active');
     document.getElementById('appContent').classList.remove('active');
     document.getElementById('loginUsername').value = '';
     document.getElementById('loginPassword').value = '';
     document.getElementById('loginError').classList.add('hidden');
+    showLandingPage();
 }
 
 function showApp() {
     try {
+        document.getElementById('landingPage').classList.remove('active');
         document.getElementById('loginPage').classList.remove('active');
         document.getElementById('appContent').classList.add('active');
 
@@ -1738,8 +2334,9 @@ function checkAuth() {
     if (currentUser) {
         showApp();
     } else {
-        document.getElementById('loginPage').classList.add('active');
+        document.getElementById('loginPage').classList.remove('active');
         document.getElementById('appContent').classList.remove('active');
+        showLandingPage();
     }
 }
 
@@ -2128,10 +2725,16 @@ setTimeout(function() {
 }, 10000);
 
 function refreshCurrentView() {
+    if (document.getElementById('landingPage').classList.contains('active')) {
+        renderLandingStats();
+        return;
+    }
     if (document.getElementById('listView').classList.contains('active')) {
         renderAthleteList();
     } else if (document.getElementById('dashboardView').classList.contains('active')) {
         renderDashboard();
+    } else if (document.getElementById('comparisonView').classList.contains('active')) {
+        renderComparison();
     }
 }
 
