@@ -297,6 +297,7 @@
     <button onclick="navigateTo('list')" id="tabList" class="flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Daftar Atlet</button>
     <button onclick="navigateTo('dashboard')" id="tabDashboard" class="flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Dashboard Hasil Tes Fisik</button>
     <button onclick="navigateTo('comparison')" id="tabComparison" class="flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Data Comparison</button>
+    <button onclick="openAdminView()" id="tabAdmin" class="hidden flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Cabor &amp; Item Tes</button>
 </div>
 
 <!-- ========== VIEW: DAFTAR ATLET ========== -->
@@ -725,6 +726,122 @@
     </div>
 </div>
 
+<!-- ========== VIEW: ADMIN CABOR & ITEM TES FISIK ========== -->
+<div id="adminView" class="view">
+    <div class="space-y-6">
+
+        <!-- A. TAMBAH CABOR -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-blue-100 text-blue-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Tambah Cabor Baru</h2>
+                    <p class="text-gray-400 text-xs">Cabor baru otomatis muncul di pilihan Cabang Olahraga pada form atlet dan statistik.</p>
+                </div>
+            </div>
+            <div id="adminCaborError" class="hidden bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-3"></div>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input type="text" id="adminCaborNama" placeholder="Nama cabor (contoh: Bola Voli)" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                <button onclick="addCabor()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm shadow-lg shadow-blue-200 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Tambah Cabor
+                </button>
+            </div>
+            <div class="mt-5">
+                <p class="text-xs font-bold text-gray-500 uppercase mb-2">Daftar Cabor Terdaftar</p>
+                <div id="adminCaborList" class="flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+
+        <!-- B. MASTER ITEM TES FISIK -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-green-100 text-green-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Master Item Tes Fisik</h2>
+                    <p class="text-gray-400 text-xs">Kumpulan seluruh item tes yang dapat dipilih untuk tiap cabor.</p>
+                </div>
+            </div>
+            <div id="adminItemError" class="hidden bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-3"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+                <div class="lg:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Item Tes</label>
+                    <input type="text" id="adminItemNama" placeholder="Contoh: Lari 100 m" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Satuan</label>
+                    <input type="text" id="adminItemSatuan" placeholder="Otomatis" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                </div>
+                <button onclick="addMasterItem()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm shadow-lg shadow-emerald-200">
+                    Tambah Item
+                </button>
+            </div>
+            <div class="mt-5">
+                <p class="text-xs font-bold text-gray-500 uppercase mb-2">Item Tambahan (diinput admin)</p>
+                <div id="adminCustomItemList" class="space-y-2"></div>
+                <p class="text-xs font-bold text-gray-500 uppercase mt-4 mb-2">Item Bawaan Sistem</p>
+                <div id="adminBuiltinItemList" class="flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+
+        <!-- C. ITEM TES PER CABOR -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-purple-100 text-purple-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Pengaturan Item Tes per Cabor</h2>
+                    <p class="text-gray-400 text-xs">Centang item tes yang dipakai cabor tersebut, lalu simpan.</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end mb-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Pilih Cabor</label>
+                    <select id="adminCaborSelect" onchange="onAdminCaborChange()" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition bg-white text-sm">
+                        <option value="">-- Pilih Cabor --</option>
+                    </select>
+                </div>
+                <div id="adminCaborInfo" class="text-xs text-gray-500"></div>
+            </div>
+            <div id="adminItemChecklistWrap" class="hidden">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <p class="text-xs font-bold text-gray-500 uppercase">Daftar Item Tes Fisik</p>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="relative">
+                            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                            <input type="text" id="adminItemSearch" oninput="filterCaborItems()" placeholder="Cari item tes fisik..." class="w-52 sm:w-60 pl-9 pr-8 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm">
+                            <button type="button" id="adminItemSearchClear" onclick="clearItemSearch()" aria-label="Kosongkan pencarian" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                        <button type="button" onclick="toggleAllCaborItems()" class="text-xs font-semibold text-blue-600 hover:text-blue-800 underline">Pilih / Lepas Semua</button>
+                    </div>
+                </div>
+                <p id="adminItemSearchInfo" class="text-xs text-gray-400 mb-2"></p>
+                <div id="adminItemChecklist" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"></div>
+                <div id="adminItemNoResult" class="hidden text-center text-sm text-gray-400 bg-gray-50 border border-dashed border-gray-200 rounded-xl py-6 mt-2">Item tes tidak ditemukan</div>
+                <div id="adminSaveMsg" class="hidden mt-4 text-sm rounded-xl px-4 py-3"></div>
+                <div class="mt-4 flex items-center gap-3">
+                    <button onclick="saveCaborItems()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm shadow-lg shadow-blue-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Simpan Pilihan Item
+                    </button>
+                    <span class="text-xs text-gray-400">Item yang tersimpan dipakai pada form "Daftar Atlet".</span>
+                </div>
+            </div>
+            <div id="adminItemEmpty" class="hidden bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-xl px-4 py-3">
+                Pilih cabor terlebih dahulu untuk mengatur item tes fisiknya.
+            </div>
+        </div>
+
+    </div>
+</div>
+
 </main>
 <footer class="text-center py-5 text-gray-400 text-xs no-print">&copy; 2026 KONI Kabupaten Tuban</footer>
 </div><!-- /appContent -->
@@ -914,10 +1031,10 @@ var caborData = {
         catatan: "3 Hop Jump berbeda dari 10 Hop Jump. Hand Grip diukur per tangan (kanan & kiri)."
     },
     "Selam": {
-        items: ["Shoulder Mobility Kanan", "Shoulder Mobility Kiri", "Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Beep Test"],
-        normaUnder17: { "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Beep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Beep Test": { mean: 50, sd: 8 } },
-        higherIsBetter: ["Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Beep Test"],
+        items: ["Shoulder Mobility Kanan", "Shoulder Mobility Kiri", "Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Bleep Test"],
+        normaUnder17: { "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Bleep Test": { mean: 50, sd: 8 } },
+        higherIsBetter: ["Push Up 1 Menit", "Core Stability 12 Level", "Medicine Chest Pass 5 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Bleep Test"],
         catatan: "Fokus pada kekuatan upper body dan fleksibilitas bahu. Shoulder Mobility: hasil semakin kecil semakin bagus."
     },
     "Arung Jeram": {
@@ -973,7 +1090,7 @@ var caborData = {
 
 var atletikNomor = {
     "Lompat Tinggi": {
-        items: ["Sit & Reach", "Push Up 1 Menit", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Vertical Jump", "Wall Sit", "Core Stability", "Beep Test"],
+        items: ["Sit & Reach", "Push Up 1 Menit", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Vertical Jump", "Wall Sit", "Core Stability 12 Level", "Bleep Test"],
         normaUnder17: {
             "Sit & Reach": { mean: 28, sd: 6 },
             "Push Up 1 Menit": { mean: 25, sd: 9 },
@@ -981,8 +1098,8 @@ var atletikNomor = {
             "10 Hop Jump Kiri": { mean: 13.5, sd: 2.5 },
             "Vertical Jump": { mean: 45, sd: 10 },
             "Wall Sit": { mean: 55, sd: 18 },
-            "Core Stability": { mean: 6, sd: 2.5 },
-            "Beep Test": { mean: 38, sd: 7 }
+            "Core Stability 12 Level": { mean: 6, sd: 2.5 },
+            "Bleep Test": { mean: 38, sd: 7 }
         },
         normaOver17: {
             "Sit & Reach": { mean: 32, sd: 6 },
@@ -991,59 +1108,59 @@ var atletikNomor = {
             "10 Hop Jump Kiri": { mean: 16.5, sd: 2.8 },
             "Vertical Jump": { mean: 55, sd: 12 },
             "Wall Sit": { mean: 75, sd: 20 },
-            "Core Stability": { mean: 8, sd: 2.5 },
-            "Beep Test": { mean: 44, sd: 8 }
+            "Core Stability 12 Level": { mean: 8, sd: 2.5 },
+            "Bleep Test": { mean: 44, sd: 8 }
         },
-        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Vertical Jump", "Wall Sit", "Core Stability", "Beep Test"]
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "10 Hop Jump Kanan", "10 Hop Jump Kiri", "Vertical Jump", "Wall Sit", "Core Stability 12 Level", "Bleep Test"]
     },
     "5000m & 3000m": {
-        items: ["Sit & Reach", "Push Up 1 Menit", "Standing Board Jump", "Wall Sit", "Core Stability", "Beep Test"],
+        items: ["Sit & Reach", "Push Up 1 Menit", "Standing Broad Jump", "Wall Sit", "Core Stability 12 Level", "Bleep Test"],
         normaUnder17: {
             "Sit & Reach": { mean: 28, sd: 6 },
             "Push Up 1 Menit": { mean: 25, sd: 9 },
-            "Standing Board Jump": { mean: 2.0, sd: 0.35 },
+            "Standing Broad Jump": { mean: 2.0, sd: 0.35 },
             "Wall Sit": { mean: 55, sd: 18 },
-            "Core Stability": { mean: 6, sd: 2.5 },
-            "Beep Test": { mean: 38, sd: 7 }
+            "Core Stability 12 Level": { mean: 6, sd: 2.5 },
+            "Bleep Test": { mean: 38, sd: 7 }
         },
         normaOver17: {
             "Sit & Reach": { mean: 32, sd: 6 },
             "Push Up 1 Menit": { mean: 35, sd: 11 },
-            "Standing Board Jump": { mean: 2.4, sd: 0.35 },
+            "Standing Broad Jump": { mean: 2.4, sd: 0.35 },
             "Wall Sit": { mean: 75, sd: 20 },
-            "Core Stability": { mean: 8, sd: 2.5 },
-            "Beep Test": { mean: 44, sd: 8 }
+            "Core Stability 12 Level": { mean: 8, sd: 2.5 },
+            "Bleep Test": { mean: 44, sd: 8 }
         },
-        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Standing Board Jump", "Wall Sit", "Core Stability", "Beep Test"]
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Standing Broad Jump", "Wall Sit", "Core Stability 12 Level", "Bleep Test"]
     },
     "Dasa Lomba": {
-        items: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Standing Board Jump", "1RM Squat", "Core Stability 12 Level", "Sprint 30 m", "Stork Stand Kanan", "Stork Stand Kiri", "Beep Test"],
+        items: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Standing Broad Jump", "1RM Squat", "Core Stability 12 Level", "Sprint 30 m", "Stork Stand Kanan", "Stork Stand Kiri", "Bleep Test"],
         normaUnder17: {
             "Sit & Reach": { mean: 28, sd: 6 },
             "Push Up 1 Menit": { mean: 25, sd: 9 },
             "Sit Up 1 Menit": { mean: 30, sd: 10 },
-            "Standing Board Jump": { mean: 2.0, sd: 0.35 },
+            "Standing Broad Jump": { mean: 2.0, sd: 0.35 },
             "1RM Squat": { mean: 1.3, sd: 0.3 },
             "Core Stability 12 Level": { mean: 6, sd: 2.5 },
             "Sprint 30 m": { mean: 5.0, sd: 0.5 },
             "Stork Stand Kanan": { mean: 25, sd: 10 }, "Stork Stand Kiri": { mean: 25, sd: 10 },
-            "Beep Test": { mean: 38, sd: 7 }
+            "Bleep Test": { mean: 38, sd: 7 }
         },
         normaOver17: {
             "Sit & Reach": { mean: 32, sd: 6 },
             "Push Up 1 Menit": { mean: 35, sd: 11 },
             "Sit Up 1 Menit": { mean: 40, sd: 12 },
-            "Standing Board Jump": { mean: 2.4, sd: 0.35 },
+            "Standing Broad Jump": { mean: 2.4, sd: 0.35 },
             "1RM Squat": { mean: 1.6, sd: 0.35 },
             "Core Stability 12 Level": { mean: 8, sd: 2.5 },
             "Sprint 30 m": { mean: 4.3, sd: 0.4 },
             "Stork Stand Kanan": { mean: 40, sd: 12 }, "Stork Stand Kiri": { mean: 40, sd: 12 },
-            "Beep Test": { mean: 44, sd: 8 }
+            "Bleep Test": { mean: 44, sd: 8 }
         },
-        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Standing Board Jump", "1RM Squat", "Core Stability 12 Level", "Stork Stand Kanan", "Stork Stand Kiri", "Beep Test"]
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Standing Broad Jump", "1RM Squat", "Core Stability 12 Level", "Stork Stand Kanan", "Stork Stand Kiri", "Bleep Test"]
     },
     "Lempar Lembing": {
-        items: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Core Stability 12 Level", "Medicine Overhead Throw", "Sprint 20 m", "Beep Test"],
+        items: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Core Stability 12 Level", "Medicine Overhead Throw", "Sprint 20 m", "Bleep Test"],
         normaUnder17: {
             "Sit & Reach": { mean: 28, sd: 6 },
             "Push Up 1 Menit": { mean: 25, sd: 9 },
@@ -1051,7 +1168,7 @@ var atletikNomor = {
             "Core Stability 12 Level": { mean: 6, sd: 2.5 },
             "Medicine Overhead Throw": { mean: 6, sd: 2 },
             "Sprint 20 m": { mean: 3.8, sd: 0.4 },
-            "Beep Test": { mean: 38, sd: 7 }
+            "Bleep Test": { mean: 38, sd: 7 }
         },
         normaOver17: {
             "Sit & Reach": { mean: 32, sd: 6 },
@@ -1060,9 +1177,9 @@ var atletikNomor = {
             "Core Stability 12 Level": { mean: 8, sd: 2.5 },
             "Medicine Overhead Throw": { mean: 8, sd: 2.5 },
             "Sprint 20 m": { mean: 3.2, sd: 0.3 },
-            "Beep Test": { mean: 44, sd: 8 }
+            "Bleep Test": { mean: 44, sd: 8 }
         },
-        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Core Stability 12 Level", "Medicine Overhead Throw", "Beep Test"]
+        higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Sit Up 1 Menit", "Core Stability 12 Level", "Medicine Overhead Throw", "Bleep Test"]
     }
 };
 
@@ -1097,6 +1214,287 @@ function saveDashboardData() {
         localStorage.setItem('koniDashboard', JSON.stringify(dashboardAthletes));
         alert('Gagal menyimpan ke server. Data disimpan di browser lokal.');
     });
+}
+
+// ========== KONFIGURASI ADMIN: CABOR & ITEM TES FISIK ==========
+// Sama seperti data atlet, konfigurasi disimpan di localStorage (utama, instan)
+// dan di-mirror ke Firebase Realtime Database (koni-tuban/adminConfig) agar ikut
+// tersinkron. Data lama TIDAK dihapus: daftar item sebuah cabor hanya berubah
+// ketika admin menyimpan pilihan baru melalui menu "Cabor & Item Tes".
+var ADMIN_CONFIG_KEY = 'koniAdminConfig';
+var adminConfig = readAdminConfigLocal();
+var adminCfgRef = db.ref('koni-tuban/adminConfig');
+
+// ========== PENYERAGAMAN NAMA ITEM TES ==========
+// Nama yang sama pernah ditulis dengan ejaan berbeda (Beep Test vs Bleep Test,
+// Core Stability vs Core Stability 12 Level, Standing Board Jump vs Standing
+// Broad Jump) sehingga item tes terlihat dobel. Semua diseragamkan ke nama
+// kanonik supaya daftar master item, checklist cabor, dan data tersimpan satu.
+var ITEM_ALIASES = {
+    'beep test': 'bleep test',
+    'core stability': 'core stability 12 level',
+    'standing board jump': 'standing broad jump'
+};
+
+// Kunci pembanding nama item: huruf kecil, spasi rapat, alias diterapkan.
+function itemKey(name) {
+    var k = String(name == null ? '' : name).trim().toLowerCase().replace(/\s+/g, ' ');
+    return ITEM_ALIASES[k] || k;
+}
+
+var CANON_ITEM_NAME = {};
+function registerCanonName(name) {
+    if (!name) return;
+    var k = itemKey(name);
+    if (!CANON_ITEM_NAME[k]) CANON_ITEM_NAME[k] = String(name).trim();
+}
+function canonItemName(name) {
+    var k = itemKey(name);
+    return CANON_ITEM_NAME[k] || String(name == null ? '' : name).trim();
+}
+
+// Item bawaan (dari caborData & atletikNomor) di-snapshot sekali di awal,
+// sebelum konfigurasi admin di-merge, supaya tetap dikenali sebagai "bawaan".
+var BUILTIN_ITEMS = (function() {
+    var seen = {}, list = [];
+    function add(n) {
+        var k = itemKey(n);
+        if (!k || seen[k]) return;
+        seen[k] = true;
+        registerCanonName(n);
+        list.push(n);
+    }
+    Object.keys(caborData).forEach(function(c) { (caborData[c].items || []).forEach(add); });
+    Object.keys(atletikNomor).forEach(function(n) { (atletikNomor[n].items || []).forEach(add); });
+    return list;
+})();
+
+function normalizeAdminConfig(cfg) {
+    var out = {};
+    out.extraCabor = (cfg && Array.isArray(cfg.extraCabor)) ? cfg.extraCabor.filter(function(n) { return !!n; }) : [];
+    out.masterItems = (cfg && Array.isArray(cfg.masterItems)) ? cfg.masterItems.filter(function(m) { return m && m.name; }) : [];
+    out.itemAssignments = (cfg && cfg.itemAssignments && typeof cfg.itemAssignments === 'object') ? cfg.itemAssignments : {};
+    out.updatedAt = (cfg && cfg.updatedAt) || 0;
+    return out;
+}
+
+function readAdminConfigLocal() {
+    try {
+        var raw = localStorage.getItem(ADMIN_CONFIG_KEY);
+        if (raw) return normalizeAdminConfig(JSON.parse(raw));
+    } catch (e) {
+        console.warn('[Admin] konfigurasi lokal rusak, diabaikan:', e);
+    }
+    return normalizeAdminConfig(null);
+}
+
+function saveAdminConfig() {
+    adminConfig.updatedAt = Date.now();
+    try {
+        localStorage.setItem(ADMIN_CONFIG_KEY, JSON.stringify(adminConfig));
+    } catch (e) {
+        console.warn('[Admin] gagal menyimpan ke localStorage:', e);
+    }
+    // Mirror ke server (mengikuti pola saveDashboardData); gagal tidak fatal.
+    return adminCfgRef.set(adminConfig).catch(function(err) {
+        console.warn('[Admin] gagal sinkron ke server, data tetap tersimpan di browser:', err);
+    });
+}
+
+function createEmptyCabor(items) {
+    return {
+        items: items || [],
+        normaUnder17: {},
+        normaOver17: {},
+        higherIsBetter: [],
+        catatan: ''
+    };
+}
+
+// Terapkan konfigurasi admin ke caborData sehingga semua dropdown (Daftar Atlet,
+// filter statistik) dan landing page "Total Cabor Terdaftar" ikut terupdate.
+function applyAdminConfig() {
+    (adminConfig.extraCabor || []).forEach(function(name) {
+        if (name && !caborData[name]) caborData[name] = createEmptyCabor();
+    });
+    Object.keys(adminConfig.itemAssignments || {}).forEach(function(name) {
+        var list = adminConfig.itemAssignments[name];
+        if (!caborData[name]) caborData[name] = createEmptyCabor();
+        caborData[name].items = Array.isArray(list) ? list.slice() : [];
+        if (!caborData[name].normaUnder17) caborData[name].normaUnder17 = {};
+        if (!caborData[name].normaOver17) caborData[name].normaOver17 = {};
+        if (!Array.isArray(caborData[name].higherIsBetter)) caborData[name].higherIsBetter = [];
+    });
+}
+
+function refreshAfterConfigChange() {
+    populateCaborDropdown();
+    var fCabor = document.getElementById('fCabor');
+    if (fCabor && fCabor.value) buildTestFields(fCabor.value);
+    if (typeof refreshCurrentView === 'function') refreshCurrentView();
+}
+
+// Rapikan nama item tes tersimpan: buang nama dobel/sama (case & alias) dan
+// ganti nama lama ke nama kanonik. Berjalan saat konfigurasi admin dan data
+// atlet dimuat sehingga data lama tidak kehilangan nilai tesnya.
+function migrateItemNames() {
+    var changed = false;
+    var cfgChanged = false;
+
+    // 1) daftar item tiap cabor: buang dobel + seragamkan nama
+    Object.keys(adminConfig.itemAssignments || {}).forEach(function(cabor) {
+        var list = adminConfig.itemAssignments[cabor];
+        if (!Array.isArray(list)) return;
+        var seen = {}, out = [], ch = false;
+        list.forEach(function(n) {
+            var k = itemKey(n);
+            if (!k || seen[k]) { ch = true; return; }
+            seen[k] = true;
+            var cn = canonItemName(n);
+            if (cn !== n) ch = true;
+            out.push(cn);
+        });
+        if (out.length !== list.length) ch = true;
+        if (ch) { adminConfig.itemAssignments[cabor] = out; changed = true; }
+    });
+    if (changed) cfgChanged = true;
+
+    // 2) item tambahan hasil input admin
+    var masters = adminConfig.masterItems || [];
+    var seenM = {}, mChanged = false, newMasters = [];
+    masters.forEach(function(m) {
+        if (!m || !m.name) return;
+        var k = itemKey(m.name);
+        if (seenM[k]) { mChanged = true; return; }
+        seenM[k] = true;
+        var cn = canonItemName(m.name);
+        if (cn !== m.name) { m.name = cn; mChanged = true; }
+        newMasters.push(m);
+        registerCanonName(m.name);
+    });
+    if (mChanged) {
+        adminConfig.masterItems = newMasters;
+        cfgChanged = true;
+        changed = true;
+    }
+
+    // 3) data cabor hasil merge (items, norma, arah nilai)
+    Object.keys(caborData).forEach(function(cabor) {
+        var d = caborData[cabor];
+        if (!d) return;
+        if (Array.isArray(d.items)) {
+            var seen = {}, out = [];
+            d.items.forEach(function(n) {
+                var k = itemKey(n);
+                if (!k || seen[k]) return;
+                seen[k] = true;
+                out.push(canonItemName(n));
+            });
+            if (out.length !== d.items.length || out.some(function(n, i) { return n !== d.items[i]; })) {
+                d.items = out;
+                changed = true;
+            }
+        }
+        ['normaUnder17', 'normaOver17'].forEach(function(f) {
+            var obj = d[f];
+            if (!obj) return;
+            Object.keys(obj).forEach(function(k) {
+                var cn = canonItemName(k);
+                if (cn === k) return;
+                if (!(cn in obj)) obj[cn] = obj[k];
+                delete obj[k];
+                changed = true;
+            });
+        });
+        if (Array.isArray(d.higherIsBetter)) {
+            var seenH = {}, outH = [];
+            d.higherIsBetter.forEach(function(n) {
+                var k = itemKey(n);
+                if (!k || seenH[k]) return;
+                seenH[k] = true;
+                outH.push(canonItemName(n));
+            });
+            if (outH.length !== d.higherIsBetter.length || outH.some(function(n, i) { return n !== d.higherIsBetter[i]; })) {
+                d.higherIsBetter = outH;
+                changed = true;
+            }
+        }
+    });
+
+    // 4) hasil tes atlet: kunci nilai diseragamkan (nilai lama tetap terbaca)
+    if (Array.isArray(dashboardAthletes)) {
+        dashboardAthletes.forEach(function(a) {
+            if (!a || !a.nilai) return;
+            var out = {}, hit = false;
+            Object.keys(a.nilai).forEach(function(k) {
+                var cn = canonItemName(k);
+                if (cn !== k) hit = true;
+                if (cn in out) { hit = true; return; }
+                out[cn] = a.nilai[k];
+            });
+            if (hit) { a.nilai = out; changed = true; }
+        });
+    }
+
+    if (cfgChanged) saveAdminConfig();
+    if (changed && Array.isArray(dashboardAthletes) && dashboardAthletes.length) saveDashboardData();
+    return changed;
+}
+
+// Muat konfigurasi: lokal dipakai dulu (instan), lalu disinkronkan dengan server.
+function loadAdminConfig() {
+    adminConfig = readAdminConfigLocal();
+    applyAdminConfig();
+    migrateItemNames();
+    adminCfgRef.once('value').then(function(snap) {
+        var remote = normalizeAdminConfig(snap.val());
+        if (remote.updatedAt > adminConfig.updatedAt) {
+            adminConfig = remote;
+            applyAdminConfig();
+            migrateItemNames();
+            try { localStorage.setItem(ADMIN_CONFIG_KEY, JSON.stringify(adminConfig)); } catch (e) {}
+            refreshAfterConfigChange();
+        } else if (adminConfig.updatedAt > remote.updatedAt) {
+            saveAdminConfig();
+        }
+        if (typeof renderAdminView === 'function') renderAdminView();
+    }).catch(function(err) {
+        console.warn('[Admin] gagal memuat konfigurasi dari server:', err);
+    });
+}
+
+function getMasterItems() {
+    var map = {}, list = [];
+    BUILTIN_ITEMS.forEach(function(n) {
+        var k = itemKey(n);
+        if (!k || map[k]) return;
+        registerCanonName(n);
+        map[k] = { name: n, unit: getItemUnit(n) || '-', bawaan: true };
+    });
+    (adminConfig.masterItems || []).forEach(function(m) {
+        if (!m || !m.name) return;
+        var k = itemKey(m.name);
+        if (k && map[k]) return;
+        registerCanonName(m.name);
+        map[k] = { name: m.name, unit: m.unit || getItemUnit(m.name) || '-', bawaan: false };
+    });
+    Object.keys(map).forEach(function(k) { list.push(map[k]); });
+    list.sort(function(a, b) { return a.name.localeCompare(b.name); });
+    return list;
+}
+
+// Satuan khusus untuk item tes tambahan hasil input admin ('' untuk item bawaan).
+function getAdminUnit(name) {
+    var list = adminConfig.masterItems || [];
+    for (var i = 0; i < list.length; i++) {
+        if (list[i].name === name) return list[i].unit || '';
+    }
+    return '';
+}
+
+function escHtml(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function populateCaborDropdown() {
@@ -1138,6 +1536,17 @@ function populateDashFilterCabor() {
 }
 
 function navigateTo(view) {
+    if (view === 'admin') {
+        if (!currentUser) {
+            showLoginPage();
+            showLoginError('Silakan login terlebih dahulu (akun superadmin) untuk membuka menu Cabor & Item Tes.');
+            return;
+        }
+        if (!canManageCabor()) {
+            alert('Menu "Cabor & Item Tes" hanya tersedia untuk superadmin.');
+            view = isPelatih() ? 'dashboard' : 'list';
+        }
+    }
     document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
     document.querySelectorAll('[id^="tab"]').forEach(function(t) { t.className = t.className.replace('tab-active', 'tab-inactive'); });
     var el = document.getElementById(view + 'View');
@@ -1159,6 +1568,9 @@ function navigateTo(view) {
     }
     if (view === 'comparison') {
         renderComparison();
+    }
+    if (view === 'admin') {
+        renderAdminView();
     }
     if (view === 'form') {
         populateCaborDropdown();
@@ -1278,10 +1690,16 @@ function buildTestFields(cabor) {
     var fields = document.getElementById('testFields');
     var catBox = document.getElementById('catatanBox');
     var catText = document.getElementById('catatanText');
-    if (!cabor || !caborData[cabor]) {
+    if (!cabor) {
         box.classList.add('hidden');
         fields.innerHTML = '';
         catBox.classList.add('hidden');
+        return;
+    }
+    if (!caborData[cabor]) {
+        box.classList.remove('hidden');
+        catBox.classList.add('hidden');
+        fields.innerHTML = '<p class="col-span-full bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-lg p-3">Cabor <b>' + escHtml(cabor) + '</b> belum terdaftar di sistem. Daftarkan melalui menu <b>Cabor &amp; Item Tes</b> (superadmin).</p>';
         return;
     }
     var d = caborData[cabor];
@@ -1301,6 +1719,12 @@ function buildTestFields(cabor) {
             fields.innerHTML = '<p class="text-sm text-gray-500 col-span-full">Pilih nomor perlombaan terlebih dahulu</p>';
             return;
         }
+    }
+    if (!items || !items.length) {
+        box.classList.remove('hidden');
+        catBox.classList.add('hidden');
+        fields.innerHTML = '<p class="col-span-full bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-lg p-3">Cabor <b>' + escHtml(cabor) + '</b> belum memiliki item tes fisik. Silakan atur melalui menu <b>Cabor &amp; Item Tes</b> (superadmin).</p>';
+        return;
     }
     box.classList.remove('hidden');
     fields.innerHTML = items.map(function(item) {
@@ -1352,6 +1776,10 @@ function buildTestFields(cabor) {
         } else if (li.indexOf('% performance') >= 0) {
             unit = '%';
         }
+
+        // Satuan dari master item (diinput admin) dipakai untuk item tambahan.
+        var adminUnit = getAdminUnit(item);
+        if (adminUnit) unit = adminUnit;
 
         if (isBleepTest) {
             return '<div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">' +
@@ -1912,28 +2340,45 @@ function deleteCurrentAtlet() {
 }
 
 // ========== AUTH SYSTEM ==========
+// CATATAN KEAMANAN: proyek ini murni frontend (tidak ada backend sendiri), sehingga
+// validasi login dilakukan di sisi client. Password disimpan sebagai hash sederhana
+// (FNV-1a 32-bit + salt) agar tidak tertulis plaintext di source code, TETAPI hash
+// sederhana ini BUKAN keamanan produksi. Untuk deployment sungguhan gunakan
+// autentikasi server / Firebase Auth (email & password).
+// Kredensial superadmin (hanya untuk pengembangan lokal): superadmin / password
+function hashPass(str) {
+    var s = 'koni-tuban:' + str;
+    var h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+    }
+    return ('00000000' + h.toString(16)).slice(-8);
+}
+
 var USERS = [
-    { username: 'koni', password: 'koni123', role: 'koni', cabor: '' },
-    { username: 'pelatih_pencak', password: '12345', role: 'pelatih', cabor: 'Pencak Silat' },
-    { username: 'pelatih_gulat', password: '12345', role: 'pelatih', cabor: 'Gulat' },
-    { username: 'pelatih_atletik', password: '12345', role: 'pelatih', cabor: 'Atletik' },
-    { username: 'pelatih_tinju', password: '12345', role: 'pelatih', cabor: 'Tinju' },
-    { username: 'pelatih_angkat berat', password: '12345', role: 'pelatih', cabor: 'Angkat Berat' },
-    { username: 'pelatih_angkat besi', password: '12345', role: 'pelatih', cabor: 'Angkat Besi' },
-    { username: 'pelatih_judo', password: '12345', role: 'pelatih', cabor: 'Judo' },
-    { username: 'pelatih_sambo', password: '12345', role: 'pelatih', cabor: 'Sambo' },
-    { username: 'pelatih_kempo', password: '12345', role: 'pelatih', cabor: 'Kempo' },
-    { username: 'pelatih_ibc mma', password: '12345', role: 'pelatih', cabor: 'IBC MMA' },
-    { username: 'pelatih_senam', password: '12345', role: 'pelatih', cabor: 'Senam Gymnastic' },
-    { username: 'pelatih_arung jeram', password: '12345', role: 'pelatih', cabor: 'Arung Jeram' },
-    { username: 'pelatih_balap sepeda', password: '12345', role: 'pelatih', cabor: 'Balap Sepeda' },
-    { username: 'pelatih_billiard', password: '12345', role: 'pelatih', cabor: 'Billiard' },
-    { username: 'pelatih_paralayang', password: '12345', role: 'pelatih', cabor: 'Paralayang' },
-    { username: 'pelatih_panahan', password: '12345', role: 'pelatih', cabor: 'Panahan' },
-    { username: 'pelatih_petanque', password: '12345', role: 'pelatih', cabor: 'Petanque' },
-    { username: 'pelatih_senam gymnastic', password: '12345', role: 'pelatih', cabor: 'Senam Gymnastic' },
-    { username: 'pelatih_tarung derajat', password: '12345', role: 'pelatih', cabor: 'Tarung Derajat' },
-    { username: 'pelatih_tenis meja', password: '12345', role: 'pelatih', cabor: 'Tenis Meja' }
+    { username: 'superadmin', passwordHash: 'baad7a52', role: 'superadmin', cabor: '' },
+    { username: 'koni', passwordHash: 'a3e04198', role: 'koni', cabor: '' },
+    { username: 'pelatih_pencak', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Pencak Silat' },
+    { username: 'pelatih_gulat', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Gulat' },
+    { username: 'pelatih_atletik', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Atletik' },
+    { username: 'pelatih_tinju', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Tinju' },
+    { username: 'pelatih_angkat berat', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Angkat Berat' },
+    { username: 'pelatih_angkat besi', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Angkat Besi' },
+    { username: 'pelatih_judo', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Judo' },
+    { username: 'pelatih_sambo', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Sambo' },
+    { username: 'pelatih_kempo', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Kempo' },
+    { username: 'pelatih_ibc mma', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'IBC MMA' },
+    { username: 'pelatih_senam', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Senam Gymnastic' },
+    { username: 'pelatih_arung jeram', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Arung Jeram' },
+    { username: 'pelatih_balap sepeda', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Balap Sepeda' },
+    { username: 'pelatih_billiard', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Billiard' },
+    { username: 'pelatih_paralayang', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Paralayang' },
+    { username: 'pelatih_panahan', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Panahan' },
+    { username: 'pelatih_petanque', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Petanque' },
+    { username: 'pelatih_senam gymnastic', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Senam Gymnastic' },
+    { username: 'pelatih_tarung derajat', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Tarung Derajat' },
+    { username: 'pelatih_tenis meja', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Tenis Meja' }
 ];
 var currentUser = JSON.parse(localStorage.getItem('koniCurrentUser') || 'null');
 
@@ -2233,38 +2678,46 @@ function renderComparison() {
     }
 }
 
-function doLogin() {
-    var username = document.getElementById('loginUsername').value.trim();
-    var password = document.getElementById('loginPassword').value.trim();
+function showLoginError(msg) {
     var errEl = document.getElementById('loginError');
     var card = document.querySelector('#loginPage .bg-white.rounded-2xl');
-
-    if (!username || !password) {
-        errEl.textContent = 'Masukkan username dan password!';
-        errEl.classList.remove('hidden');
+    errEl.textContent = msg;
+    errEl.classList.remove('hidden');
+    if (card) {
         card.classList.add('login-shake');
         setTimeout(function() { card.classList.remove('login-shake'); }, 400);
+    }
+}
+
+function doLogin() {
+    var username = document.getElementById('loginUsername').value.trim();
+    var password = document.getElementById('loginPassword').value;
+    var errEl = document.getElementById('loginError');
+
+    errEl.classList.add('hidden');
+
+    if (!username || !password) {
+        showLoginError('Masukkan username dan password!');
         return;
     }
 
+    var hash = hashPass(password);
     var found = null;
     for (var i = 0; i < USERS.length; i++) {
-        if (USERS[i].username === username && USERS[i].password === password) {
+        if (USERS[i].username === username && USERS[i].passwordHash === hash) {
             found = USERS[i];
             break;
         }
     }
 
     if (!found) {
-        errEl.textContent = 'Username atau password salah!';
-        errEl.classList.remove('hidden');
-        card.classList.add('login-shake');
-        setTimeout(function() { card.classList.remove('login-shake'); }, 400);
+        showLoginError('Username atau password salah!');
         return;
     }
 
     currentUser = { username: found.username, role: found.role, cabor: found.cabor };
     localStorage.setItem('koniCurrentUser', JSON.stringify(currentUser));
+    document.getElementById('loginPassword').value = '';
     showApp();
 }
 
@@ -2293,6 +2746,9 @@ function showApp() {
         if (currentUser.role === 'koni') {
             nameEl.textContent = 'Admin KONI';
             roleEl.textContent = 'Administrator';
+        } else if (currentUser.role === 'superadmin') {
+            nameEl.textContent = currentUser.username;
+            roleEl.textContent = 'Super Administrator';
         } else {
             nameEl.textContent = currentUser.username.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
             roleEl.textContent = 'Pelatih - ' + currentUser.cabor;
@@ -2300,6 +2756,7 @@ function showApp() {
         infoEl.classList.remove('hidden');
 
         applyRoleAccess();
+        document.getElementById('tabAdmin').classList.toggle('hidden', !canManageCabor());
 
         if (isPelatih()) {
             document.getElementById('tabList').classList.add('hidden');
@@ -2308,6 +2765,8 @@ function showApp() {
             document.getElementById('tabList').classList.remove('hidden');
             navigateTo('list');
         }
+        // Buka menu admin bila dibuka lewat URL (contoh: /#admin) setelah login.
+        if (wantsAdminRoute() && canManageCabor()) navigateTo('admin');
     } catch (e) {
         console.error('[Auth] showApp error:', e);
     }
@@ -2333,12 +2792,47 @@ function checkAuth() {
     console.log('[Auth] checkAuth - currentUser:', currentUser);
     if (currentUser) {
         showApp();
+        if (wantsAdminRoute() && !canManageCabor()) openAdminView();
     } else {
         document.getElementById('loginPage').classList.remove('active');
         document.getElementById('appContent').classList.remove('active');
         showLandingPage();
+        if (wantsAdminRoute()) {
+            showLoginPage();
+            showLoginError('Silakan login terlebih dahulu untuk membuka menu admin.');
+        }
     }
 }
+
+// Akses menu admin "Cabor & Item Tes": hanya superadmin (dan akun admin KONI lama).
+function canManageCabor() {
+    return !!currentUser && (currentUser.role === 'superadmin' || currentUser.role === 'koni');
+}
+
+// Dukungan akses langsung via URL, contoh: http://localhost/tuban/#admin
+function wantsAdminRoute() {
+    var h = (location.hash || '').replace('#', '').toLowerCase();
+    return h === 'admin' || h === 'cabor' || h === 'cabor-item' || h === 'manajemen-cabor';
+}
+
+function openAdminView() {
+    if (!currentUser) {
+        showLoginPage();
+        showLoginError('Silakan login terlebih dahulu (akun superadmin) untuk membuka menu Cabor & Item Tes.');
+        return false;
+    }
+    if (!canManageCabor()) {
+        alert('Menu "Cabor & Item Tes" hanya tersedia untuk superadmin.');
+        navigateTo(isPelatih() ? 'dashboard' : 'list');
+        return false;
+    }
+    navigateTo('admin');
+    return true;
+}
+
+window.addEventListener('hashchange', function() {
+    if (wantsAdminRoute()) openAdminView();
+});
 
 document.getElementById('loginPassword').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') doLogin();
@@ -2699,6 +3193,281 @@ function applyRastResult() {
     checkFormReady();
 }
 
+// ========== MENU ADMIN: CABOR & ITEM TES FISIK ==========
+function setAdminMsg(elId, msg, ok) {
+    var el = document.getElementById(elId);
+    if (!el) return;
+    if (!msg) { el.className = 'hidden'; el.textContent = ''; return; }
+    el.textContent = msg;
+    el.className = ok
+        ? 'bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl px-4 py-3 mb-3'
+        : 'bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-3';
+}
+
+function renderAdminView() {
+    if (!canManageCabor()) return;
+    renderAdminCaborList();
+    renderAdminMasterItems();
+    populateAdminCaborSelect();
+}
+
+function renderAdminCaborList() {
+    var box = document.getElementById('adminCaborList');
+    var names = Object.keys(caborData).sort(function(a, b) { return a.localeCompare(b); });
+    if (!names.length) {
+        box.innerHTML = '<p class="text-gray-400 text-sm">Belum ada cabor terdaftar.</p>';
+        return;
+    }
+    box.innerHTML = names.map(function(n) {
+        var count = (caborData[n].items || []).length;
+        var isNew = adminConfig.extraCabor.indexOf(n) >= 0;
+        var cls = count > 0 ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-amber-50 text-amber-700 border border-amber-200';
+        var status = count > 0 ? count + ' item' : 'belum dikonfigurasi';
+        return '<span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ' + cls + '">' +
+            escHtml(n) +
+            (isNew ? ' <span class="text-[9px] uppercase bg-blue-600 text-white px-1.5 py-0.5 rounded">Baru</span>' : '') +
+            ' <span class="opacity-70">' + status + '</span>' +
+        '</span>';
+    }).join('');
+}
+
+function addCabor() {
+    var input = document.getElementById('adminCaborNama');
+    var name = input.value.trim();
+    setAdminMsg('adminCaborError', '');
+    if (!name) {
+        setAdminMsg('adminCaborError', 'Nama cabor tidak boleh kosong.');
+        return;
+    }
+    var dup = Object.keys(caborData).some(function(n) { return n.toLowerCase() === name.toLowerCase(); });
+    if (dup) {
+        setAdminMsg('adminCaborError', 'Cabor "' + name + '" sudah terdaftar, nama tidak boleh duplikat.');
+        return;
+    }
+    adminConfig.extraCabor.push(name);
+    caborData[name] = createEmptyCabor();
+    saveAdminConfig();
+    input.value = '';
+    setAdminMsg('adminCaborError', 'Cabor "' + name + '" berhasil ditambahkan. Silakan atur item tes fisiknya di bagian bawah.', true);
+    refreshAfterConfigChange();
+    renderAdminView();
+}
+
+function renderAdminMasterItems() {
+    var custom = adminConfig.masterItems || [];
+    var customBox = document.getElementById('adminCustomItemList');
+    if (!custom.length) {
+        customBox.innerHTML = '<p class="text-gray-400 text-sm">Belum ada item tambahan. Tambahkan item tes baru lewat form di atas.</p>';
+    } else {
+        customBox.innerHTML = custom.map(function(m, i) {
+            return '<div class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5">' +
+                '<div class="flex items-center gap-2 text-sm">' +
+                    '<span class="font-semibold text-gray-800">' + escHtml(m.name) + '</span>' +
+                    '<span class="text-xs text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded-full">' + escHtml(m.unit || '-') + '</span>' +
+                '</div>' +
+                '<button onclick="removeMasterItem(' + i + ')" class="text-red-500 hover:text-red-700 text-xs font-semibold transition">Hapus</button>' +
+            '</div>';
+        }).join('');
+    }
+    // Chip "Item Bawaan Sistem" memakai sumber yang sama dengan checklist
+    // (getMasterItems) dan difilter hanya item bawaan, sehingga nama, satuan,
+    // dan urutannya selalu identik dengan checklist "Pengaturan Item Tes per Cabor".
+    document.getElementById('adminBuiltinItemList').innerHTML = getMasterItems().filter(function(m) {
+        return m.bawaan;
+    }).map(function(m) {
+        return '<span class="text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200 px-2.5 py-1 rounded-full">' +
+            escHtml(m.name) + ' <span class="text-gray-400">(' + escHtml(m.unit || '-') + ')</span></span>';
+    }).join('');
+}
+
+function addMasterItem() {
+    var namaEl = document.getElementById('adminItemNama');
+    var satuanEl = document.getElementById('adminItemSatuan');
+    var name = namaEl.value.trim();
+    var unit = satuanEl.value.trim();
+    setAdminMsg('adminItemError', '');
+    if (!name) {
+        setAdminMsg('adminItemError', 'Nama item tes tidak boleh kosong.');
+        return;
+    }
+    var key = itemKey(name);
+    var exists = getMasterItems().some(function(m) { return itemKey(m.name) === key; });
+    if (exists) {
+        setAdminMsg('adminItemError', 'Item "' + name + '" sudah ada di master item (sama dengan item yang sudah terdaftar).');
+        return;
+    }
+    if (!unit) unit = getItemUnit(name) || '';
+    adminConfig.masterItems.push({ name: name, unit: unit, createdAt: new Date().toISOString() });
+    registerCanonName(name);
+    saveAdminConfig();
+    namaEl.value = '';
+    satuanEl.value = '';
+    setAdminMsg('adminItemError', 'Item "' + name + '" berhasil ditambahkan ke master item.', true);
+    renderAdminView();
+}
+
+function removeMasterItem(idx) {
+    var m = (adminConfig.masterItems || [])[idx];
+    if (!m) return;
+    if (!confirm('Hapus item "' + m.name + '" dari master item?\nItem yang sudah terpasang di cabor tetap tersimpan agar data atlet lama tidak berubah.')) return;
+    adminConfig.masterItems.splice(idx, 1);
+    saveAdminConfig();
+    renderAdminView();
+}
+
+function populateAdminCaborSelect() {
+    var sel = document.getElementById('adminCaborSelect');
+    var current = sel.value;
+    sel.innerHTML = '<option value="">-- Pilih Cabor --</option>';
+    Object.keys(caborData).sort(function(a, b) { return a.localeCompare(b); }).forEach(function(name) {
+        var o = document.createElement('option');
+        o.value = name;
+        o.textContent = name;
+        sel.appendChild(o);
+    });
+    if (current && caborData[current]) sel.value = current;
+    renderCaborItemChecklist();
+}
+
+function renderCaborItemChecklist() {
+    var name = document.getElementById('adminCaborSelect').value;
+    var wrap = document.getElementById('adminItemChecklistWrap');
+    var empty = document.getElementById('adminItemEmpty');
+    var info = document.getElementById('adminCaborInfo');
+    if (!name) {
+        wrap.classList.add('hidden');
+        empty.classList.remove('hidden');
+        info.innerHTML = '';
+        return;
+    }
+    empty.classList.add('hidden');
+    wrap.classList.remove('hidden');
+
+    var current = (caborData[name] && caborData[name].items) || [];
+    var currentKeys = {};
+    current.forEach(function(n) { var k = itemKey(n); if (k) currentKeys[k] = true; });
+    var currentCount = Object.keys(currentKeys).length;
+    var master = getMasterItems();
+    var seen = {};
+    master.forEach(function(m) { seen[itemKey(m.name)] = true; });
+    var extra = [], seenCur = {};
+    current.forEach(function(n) {
+        var k = itemKey(n);
+        if (!k || seen[k] || seenCur[k]) return;
+        seenCur[k] = true;
+        registerCanonName(n);
+        extra.push({ name: canonItemName(n), unit: getAdminUnit(n) || getItemUnit(n) || '-', bawaan: false });
+    });
+    extra.sort(function(a, b) { return a.name.localeCompare(b.name); });
+    var all = master.concat(extra);
+
+    var assigned = adminConfig.itemAssignments[name];
+    var status = assigned ? '<span class="text-emerald-600 font-semibold">sudah pernah disimpan</span>'
+                          : '<span class="text-amber-600 font-semibold">mengikuti pengaturan awal</span>';
+    var warn = currentCount
+        ? ''
+        : '<br><span class="text-amber-600 font-semibold">Cabor ini belum memiliki item tes: form atlet akan menampilkan pesan sampai item disimpan.</span>';
+    info.innerHTML = '<b>' + escHtml(name) + '</b> — ' + currentCount + ' item aktif, status: ' + status + warn + '.';
+
+    document.getElementById('adminItemChecklist').innerHTML = all.map(function(m) {
+        var checked = currentKeys[itemKey(m.name)] ? ' checked' : '';
+        var search = escHtml((m.name + ' ' + (m.unit || '-')).toLowerCase());
+        return '<label data-search="' + search + '" class="flex items-start gap-2 bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded-lg px-3 py-2 cursor-pointer transition">' +
+            '<input type="checkbox" class="mt-0.5 accent-blue-600 shrink-0" value="' + escHtml(m.name) + '"' + checked + '>' +
+            '<span class="text-xs font-semibold text-gray-700 leading-snug">' + escHtml(m.name) +
+                '<span class="block text-[10px] text-gray-400 font-normal">' + escHtml(m.unit || '-') + '</span>' +
+            '</span>' +
+        '</label>';
+    }).join('');
+    filterCaborItems();
+}
+
+// Ganti cabor: kolom search dikosongkan dan semua item tampil kembali
+// dengan centang sesuai data cabor yang dipilih.
+function onAdminCaborChange() {
+    var el = document.getElementById('adminItemSearch');
+    if (el) el.value = '';
+    renderCaborItemChecklist();
+}
+
+function getItemSearchQuery() {
+    var el = document.getElementById('adminItemSearch');
+    return el ? el.value.trim().toLowerCase() : '';
+}
+
+// Filter realtime: hanya menyembunyikan kartu (display), status centang tetap
+// tersimpan di DOM sehingga item tersembunyi tetap ikut disimpan saat simpan.
+function filterCaborItems() {
+    var query = getItemSearchQuery();
+    var labels = document.querySelectorAll('#adminItemChecklist label[data-search]');
+    var shown = 0;
+    labels.forEach(function(lb) {
+        var match = !query || lb.getAttribute('data-search').indexOf(query) >= 0;
+        lb.style.display = match ? '' : 'none';
+        if (match) shown++;
+    });
+    var info = document.getElementById('adminItemSearchInfo');
+    if (info) info.textContent = 'Menampilkan ' + shown + ' dari ' + labels.length + ' item';
+    var clearBtn = document.getElementById('adminItemSearchClear');
+    if (clearBtn) clearBtn.classList.toggle('hidden', !query);
+    var noResult = document.getElementById('adminItemNoResult');
+    if (noResult) noResult.classList.toggle('hidden', shown > 0);
+    return shown;
+}
+
+function clearItemSearch() {
+    var el = document.getElementById('adminItemSearch');
+    if (el) {
+        el.value = '';
+        el.focus();
+    }
+    filterCaborItems();
+}
+
+function toggleAllCaborItems() {
+    // Hanya item yang sedang tampil (hasil filter) yang ikut dipilih/dilepas.
+    var visible = [];
+    document.querySelectorAll('#adminItemChecklist label[data-search]').forEach(function(lb) {
+        if (lb.style.display === 'none') return;
+        var cb = lb.querySelector('input[type="checkbox"]');
+        if (cb) visible.push(cb);
+    });
+    if (!visible.length) return;
+    var allChecked = visible.every(function(b) { return b.checked; });
+    visible.forEach(function(b) { b.checked = !allChecked; });
+}
+
+function saveCaborItems() {
+    var name = document.getElementById('adminCaborSelect').value;
+    var msgEl = document.getElementById('adminSaveMsg');
+    msgEl.classList.add('hidden');
+    if (!name) {
+        renderCaborItemChecklist();
+        return;
+    }
+    var seenK = {}, checked = [];
+    Array.prototype.forEach.call(
+        document.querySelectorAll('#adminItemChecklist input[type="checkbox"]:checked'),
+        function(i) {
+            var k = itemKey(i.value);
+            if (!k || seenK[k]) return;
+            seenK[k] = true;
+            checked.push(i.value);
+        }
+    );
+    if (!checked.length) {
+        if (!confirm('Belum ada item dipilih untuk cabor "' + name + '".\nForm tes fisik cabor ini tidak akan tampil di Daftar Atlet. Tetap simpan?')) return;
+    }
+    adminConfig.itemAssignments[name] = checked;
+    if (!caborData[name]) caborData[name] = createEmptyCabor();
+    caborData[name].items = checked.slice();
+    saveAdminConfig();
+    refreshAfterConfigChange();
+    renderAdminView();
+    msgEl.textContent = 'Pilihan item untuk "' + name + '" berhasil disimpan (' + checked.length + ' item).';
+    msgEl.className = 'mt-4 text-sm rounded-xl px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-700';
+}
+
 // ========== FIREBASE REALTIME LISTENER ==========
 dbRef.on('value', function(snapshot) {
     var data = snapshot.val();
@@ -2707,6 +3476,7 @@ dbRef.on('value', function(snapshot) {
     } else {
         dashboardAthletes = [];
     }
+    migrateItemNames();
     dataLoaded = true;
     document.getElementById('loadingScreen').classList.add('hidden');
     if (typeof refreshCurrentView === 'function') refreshCurrentView();
@@ -2735,8 +3505,12 @@ function refreshCurrentView() {
         renderDashboard();
     } else if (document.getElementById('comparisonView').classList.contains('active')) {
         renderComparison();
+    } else if (document.getElementById('adminView').classList.contains('active')) {
+        renderAdminView();
     }
 }
+
+loadAdminConfig();
 
 checkAuth();
 
