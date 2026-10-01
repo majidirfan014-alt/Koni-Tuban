@@ -23,6 +23,7 @@
         #loginPage{display:none}#loginPage.active{display:flex}
         #appContent{display:none}#appContent.active{display:block}
         #landingPage{display:none}#landingPage.active{display:block}
+        #caborPage{display:none}#caborPage.active{display:block}
         .login-shake{animation:shake .4s ease-in-out}
         @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
         .calc-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -57,6 +58,9 @@
     <p class="text-gray-400 text-sm mt-1">Mohon tunggu sebentar</p>
 </div>
 
+<!-- ========== INDIKATOR SINKRONISASI DATA ========== -->
+<div id="syncStatus" class="hidden fixed bottom-3 right-3 z-[80] text-[11px] font-semibold px-3 py-1.5 rounded-full shadow-lg transition"></div>
+
 <!-- ========== LANDING PAGE (PUBLIK) ========== -->
 <div id="landingPage" class="active min-h-screen bg-white">
     <nav class="lp-nav">
@@ -74,6 +78,7 @@
                 <a href="#beranda" class="hover:text-blue-600">Beranda</a>
                 <a href="#statistik" class="hover:text-blue-600">Statistik</a>
                 <a href="#tentang" class="hover:text-blue-600">Tentang Sistem</a>
+                <a href="#daftar-cabor" class="hover:text-blue-600">Daftar Cabor</a>
             </div>
             <button onclick="showLoginPage()" class="lp-cta shrink-0 font-bold px-5 sm:px-6 py-2.5 rounded-full transition text-sm flex items-center gap-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,6 +220,29 @@
         </div>
     </section>
 
+    <section id="daftar-cabor" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 scroll-mt-24">
+        <div class="max-w-3xl">
+            <p class="text-xs font-bold text-blue-600 uppercase tracking-wider">Daftar Cabor</p>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2 leading-snug">Pilih cabang olahraga untuk membuka hasil tes fisik</h2>
+            <p class="text-sm text-gray-500 mt-3 leading-relaxed">
+                Seluruh cabor yang terdaftar di sistem. Hasil tes per cabor dilindungi kode akses khusus cabor tersebut dan hanya dapat dibaca (tanpa ubah/hapus data).
+            </p>
+        </div>
+
+        <div class="mt-6 relative max-w-md">
+            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+            <input type="text" id="dcSearch" oninput="renderDaftarCabor()" placeholder="Cari nama cabor..." class="w-full pl-9 pr-9 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm bg-white">
+            <button type="button" id="dcSearchClear" onclick="clearCaborSearch()" aria-label="Kosongkan pencarian" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div id="dcGrid" class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+        <div id="dcEmpty" class="hidden mt-6 text-center bg-gray-50 border border-dashed border-gray-200 rounded-2xl py-10">
+            <p class="text-sm text-gray-400 font-semibold">Cabor tidak ditemukan</p>
+        </div>
+    </section>
+
     <footer class="border-t border-gray-100 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
             <p>&copy; 2026 KONI Kabupaten Tuban</p>
@@ -262,6 +290,124 @@
     </div>
 </div>
 
+<!-- ========== HALAMAN HASIL TES PER CABOR (AKSES KODE) ========== -->
+<div id="caborPage" class="min-h-screen bg-gray-50">
+    <header class="gradient-header text-white py-5 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/20 p-1 rounded-xl overflow-hidden">
+                    <img src="logo%20koni%20tuban.png" alt="KONI Tuban" class="w-8 h-8 object-contain">
+                </div>
+                <div>
+                    <p class="text-blue-200 text-xs font-semibold uppercase tracking-wide">Hasil Tes Fisik</p>
+                    <h1 id="cpCaborName" class="text-xl sm:text-2xl font-bold leading-tight">-</h1>
+                </div>
+                <span class="hidden sm:inline-flex items-center gap-1 bg-white/15 border border-white/25 text-blue-100 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Read-only</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="closeCaborPage()" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl transition text-sm font-semibold flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h14"/></svg>
+                    Kembali ke Daftar Cabor
+                </button>
+                <button onclick="lockCurrentCabor()" class="lp-cta font-bold px-4 py-2 rounded-xl transition text-sm flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    Kunci lagi
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-white rounded-2xl card-shadow p-5">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-100 text-blue-700 p-2.5 rounded-xl"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+                    <div><p class="text-xs text-gray-400 font-semibold">Atlet Dites</p><p id="cpTotalAtlet" class="text-xl font-extrabold text-gray-900">0</p></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl card-shadow p-5">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-100 text-indigo-700 p-2.5 rounded-xl"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+                    <div><p class="text-xs text-gray-400 font-semibold">Sesi Tes</p><p id="cpTotalSesi" class="text-xl font-extrabold text-gray-900">0</p></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl card-shadow p-5">
+                <div class="flex items-center gap-3">
+                    <div class="bg-emerald-100 text-emerald-700 p-2.5 rounded-xl"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></div>
+                    <div><p class="text-xs text-gray-400 font-semibold">Item Tes</p><p id="cpTotalItem" class="text-xl font-extrabold text-gray-900">0</p></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl card-shadow p-5">
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-100 text-amber-700 p-2.5 rounded-xl"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></div>
+                    <div><p class="text-xs text-gray-400 font-semibold">Status Akses</p><p id="cpAccessStatus" class="text-sm font-extrabold text-emerald-600">Terbuka</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="cpItemNotice" class="hidden bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-xl px-4 py-3"></div>
+
+        <div class="bg-white rounded-2xl card-shadow p-5">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="bg-blue-100 text-blue-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                </div>
+                <h3 class="font-bold text-gray-800">Filter Hasil Tes</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Cari Nama Atlet</label>
+                    <div class="relative">
+                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                        <input type="text" id="cpSearchNama" oninput="renderCaborHasil()" placeholder="Nama atlet..." class="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 bg-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal Sesi Tes</label>
+                    <select id="cpFilterTanggal" onchange="renderCaborHasil()" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">Semua Tanggal</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="cpEmptyAtlet" class="hidden bg-white rounded-2xl card-shadow p-10 text-center">
+            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <p class="text-gray-400 font-semibold">Belum ada data atlet untuk cabor ini</p>
+            <p class="text-gray-300 text-sm mt-1">Data akan tampil otomatis setelah atlet cabor ini dites dan disimpan.</p>
+        </div>
+
+        <div id="cpTableCard" class="hidden bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="bg-emerald-100 text-emerald-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 2 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800">Daftar Atlet &amp; Hasil Tes</h3>
+                    <p class="text-xs text-gray-400">Klik nama atlet untuk melihat detail hasil per sesi tes (terbaru di atas).</p>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead><tr class="bg-gray-100">
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 rounded-l-xl text-xs w-10">No</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Nama Atlet</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Usia</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Kelamin</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Sesi Terakhir</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Sesi</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Performa</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs rounded-r-xl">Aksi</th>
+                    </tr></thead>
+                    <tbody id="cpTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="cpNoResult" class="hidden bg-white rounded-2xl card-shadow p-8 text-center text-sm text-gray-400">Atlet tidak ditemukan</div>
+    </main>
+</div>
+
 <!-- ========== APP CONTENT ========== -->
 <div id="appContent">
 <header class="gradient-header text-white py-5 shadow-xl no-print">
@@ -293,11 +439,12 @@
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
 <!-- ========== NAV TABS ========== -->
-<div class="no-print flex gap-2 bg-white rounded-xl card-shadow p-2">
+<div class="no-print flex flex-wrap gap-2 bg-white rounded-xl card-shadow p-2">
     <button onclick="navigateTo('list')" id="tabList" class="flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Daftar Atlet</button>
     <button onclick="navigateTo('dashboard')" id="tabDashboard" class="flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Dashboard Hasil Tes Fisik</button>
     <button onclick="navigateTo('comparison')" id="tabComparison" class="flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Data Comparison</button>
     <button onclick="openAdminView()" id="tabAdmin" class="hidden flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Cabor &amp; Item Tes</button>
+    <button onclick="openCodeAccessView()" id="tabCode" class="hidden flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Kode Akses Cabor</button>
 </div>
 
 <!-- ========== VIEW: DAFTAR ATLET ========== -->
@@ -435,48 +582,9 @@
             <h2 class="text-xl font-bold text-gray-800">Hasil Evaluasi</h2>
         </div>
 
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-5 mb-5">
-            <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
-                <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Nama</p><p id="dNama" class="font-bold text-gray-800 text-sm">-</p></div>
-                <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Tempat, Tanggal Lahir</p><p id="dTTL" class="font-bold text-gray-800 text-sm">-</p></div>
-                <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Usia</p><p id="dUsia" class="font-bold text-gray-800 text-sm">-</p></div>
-                <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Cabor</p><p id="dCabor" class="font-bold text-gray-800 text-sm">-</p></div>
-                <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Kelamin</p><p id="dKelamin" class="font-bold text-gray-800 text-sm">-</p></div>
-                <div><p class="text-[10px] font-semibold text-blue-600 uppercase">Tanggal</p><p id="dTanggal" class="font-bold text-gray-800 text-sm">-</p></div>
-            </div>
-        </div>
-
-        <div id="cederaBox" class="hidden mt-3"></div>
-
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead><tr class="bg-gray-100">
-                    <th class="px-3 py-2.5 text-left font-semibold text-gray-700 rounded-l-xl text-xs w-10">No</th>
-                    <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Jenis Tes</th>
-                    <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Hasil</th>
-                    <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Persentase</th>
-                    <th class="px-3 py-2.5 text-left font-semibold text-gray-700 rounded-r-xl text-xs">Kategori</th>
-                </tr></thead>
-                <tbody id="dBody"></tbody>
-            </table>
-        </div>
-
-        <div class="mt-5 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-xl p-5">
-            <div class="flex items-center gap-2 mb-3">
-                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                </svg>
-                <h3 class="font-bold text-gray-800">Performa Keseluruhan</h3>
-            </div>
-            <div class="grid grid-cols-3 gap-4 mb-3">
-                <div><p class="text-[10px] font-semibold text-indigo-600 uppercase">Total Skor</p><p id="dPerforma" class="text-2xl font-extrabold text-gray-800">-</p></div>
-                <div><p class="text-[10px] font-semibold text-indigo-600 uppercase">Kategori</p><p id="dKategori" class="font-bold text-sm">-</p></div>
-                <div><p class="text-[10px] font-semibold text-indigo-600 uppercase">Item</p><p id="dJumlahItem" class="text-sm font-semibold text-gray-600">-</p></div>
-            </div>
-            <div class="bg-gray-200 rounded-full h-3.5 overflow-hidden">
-                <div id="dBar" class="bg-gray-400 h-full rounded-full transition-all duration-700" style="width:0%"></div>
-            </div>
-        </div>
+        <!-- Konten detail hasil: dirender oleh komponen bersama buildAthleteDetailHtml()
+             sehingga tampilannya identik dengan modal detail di menu Daftar Cabor. -->
+        <div id="dDetail"></div>
 
         <div class="mt-5 bg-white border border-gray-200 rounded-xl p-5">
             <div class="flex items-center gap-2 mb-3">
@@ -744,11 +852,16 @@
             <div id="adminCaborError" class="hidden bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-3"></div>
             <div class="flex flex-col sm:flex-row gap-3">
                 <input type="text" id="adminCaborNama" placeholder="Nama cabor (contoh: Bola Voli)" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm">
+                <div class="flex gap-2 shrink-0">
+                    <input type="text" id="adminCaborKode" placeholder="Kode akses (opsional)" maxlength="12" class="w-full sm:w-44 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition text-sm uppercase font-semibold tracking-wider">
+                    <button type="button" onclick="generateCaborKodeInput()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-2.5 rounded-xl transition text-sm whitespace-nowrap">Generate kode</button>
+                </div>
                 <button onclick="addCabor()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm shadow-lg shadow-blue-200 flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Tambah Cabor
                 </button>
             </div>
+            <p class="text-xs text-gray-400 mt-2">Kode akses dipakai pelatih untuk membuka menu <b>Daftar Cabor</b>. Kosongkan agar sistem memakai kode bawaan yang dihitung dari nama cabor (sama di semua perangkat).</p>
             <div class="mt-5">
                 <p class="text-xs font-bold text-gray-500 uppercase mb-2">Daftar Cabor Terdaftar</p>
                 <div id="adminCaborList" class="flex flex-wrap gap-2"></div>
@@ -836,6 +949,117 @@
             </div>
             <div id="adminItemEmpty" class="hidden bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-xl px-4 py-3">
                 Pilih cabor terlebih dahulu untuk mengatur item tes fisiknya.
+            </div>
+        </div>
+
+        <!-- D. KODE AKSES PER CABOR -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-amber-100 text-amber-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Kode Akses per Cabor</h2>
+                    <p class="text-gray-400 text-xs">Bagikan kode ini ke pelatih agar bisa membuka hasil tes cabor lewat menu "Daftar Cabor".</p>
+                    <p id="adminCodeTestNote" class="hidden text-[11px] font-bold text-red-600 bg-red-50 border border-red-200 rounded-lg px-2 py-1 w-fit mt-1"></p>
+                </div>
+            </div>
+            <div id="adminCodeMsg" class="hidden bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-3"></div>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <p class="text-xs font-bold text-gray-500 uppercase">Daftar Kode Akses Cabor</p>
+                <span class="text-xs text-gray-400">Label "Bawaan" = kode sistem yang sama di semua perangkat. Label "Diubah" = kode hasil ubahan admin yang tersimpan terpusat (ikut tersinkron).</span>
+            </div>
+            <div id="adminCaborCodeList" class="space-y-2"></div>
+        </div>
+
+        <!-- E. AKUN USER CABOR -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-indigo-100 text-indigo-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Akun User Cabor</h2>
+                    <p class="text-gray-400 text-xs">Akun pelatih tiap cabor. Tersimpan terpusat, jadi bisa langsung dipakai login di laptop/perangkat lain.</p>
+                </div>
+            </div>
+            <div id="adminUserMsg" class="hidden bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-3"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end mb-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-800 mb-1">Username</label>
+                    <input type="text" id="adminUserNama" placeholder="pelatih_bola voli" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-800 mb-1">Password</label>
+                    <input type="password" id="adminUserPass" placeholder="min. 4 karakter" autocomplete="new-password" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-800 mb-1">Role</label>
+                    <select id="adminUserRole" onchange="onAdminUserRoleChange()" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition bg-white text-sm">
+                        <option value="pelatih">Pelatih</option>
+                        <option value="koni">KONI</option>
+                        <option value="superadmin">Superadmin</option>
+                    </select>
+                </div>
+                <div id="adminUserCaborWrap">
+                    <label class="block text-sm font-semibold text-gray-800 mb-1">Cabor</label>
+                    <select id="adminUserCabor" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition bg-white text-sm">
+                        <option value="">-- Tidak terkait cabor --</option>
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" id="adminUserBtn" onclick="saveAdminUser()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm shadow-lg shadow-indigo-200">Tambah Akun</button>
+                    <button type="button" id="adminUserCancel" onclick="cancelAdminUserEdit()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-2.5 rounded-xl transition text-sm">Batal</button>
+                </div>
+            </div>
+            <p class="text-xs text-gray-400 mb-3">Akun pelatih baru untuk cabor baru dibuat otomatis (username: <b>pelatih_&lt;nama cabor&gt;</b>, password sama dengan pelatih lain) dan langsung tersinkron di semua perangkat.</p>
+            <div id="adminUserList" class="space-y-2"></div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ========== VIEW: KODE AKSES CABOR ========== -->
+<div id="codeView" class="view">
+    <div class="space-y-6">
+
+        <!-- A. KELOLA KODE AKSES TIAP CABOR -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-amber-100 text-amber-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Kode Akses Cabor</h2>
+                    <p class="text-gray-400 text-xs">Kelola kode akses tiap cabor. Kode dipakai pelatih pada menu "Daftar Cabor" untuk membuka hasil tes fisik atlet cabor tersebut.</p>
+                </div>
+            </div>
+            <p id="codeAccessTestNote" class="hidden text-[11px] font-bold text-red-600 bg-red-50 border border-red-200 rounded-lg px-2 py-1 w-fit mb-3"></p>
+            <div id="codeAccessMsg" class="hidden"></div>
+            <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between mb-3">
+                <p class="text-xs font-bold text-gray-500 uppercase">Daftar Kode Akses Cabor</p>
+                <div class="relative w-full sm:w-72">
+                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                    <input type="text" id="codeAccessSearch" oninput="renderCodeAccessList()" placeholder="Cari nama cabor..." class="w-full pl-9 pr-9 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm bg-white">
+                    <button type="button" id="codeAccessSearchClear" onclick="clearCodeAccessSearch()" aria-label="Kosongkan pencarian" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+            <p id="codeAccessInfo" class="text-xs text-gray-400 mb-2"></p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead><tr class="bg-gray-100">
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs w-10">No</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Nama Cabor</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Kode Akses</th>
+                        <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs rounded-r-xl">Aksi</th>
+                    </tr></thead>
+                    <tbody id="codeAccessList"></tbody>
+                </table>
+            </div>
+            <div id="codeAccessEmpty" class="hidden mt-4 text-center bg-gray-50 border border-dashed border-gray-200 rounded-2xl py-10">
+                <p class="text-sm text-gray-400 font-semibold">Cabor tidak ditemukan</p>
             </div>
         </div>
 
@@ -934,6 +1158,60 @@
         <div class="flex gap-3 mt-4">
             <button onclick="applyRastResult()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl transition text-sm">Terapkan ke Formulir</button>
             <button onclick="closeRastCalc()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2.5 rounded-xl transition text-sm">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL: KODE AKSES CABOR ========== -->
+<div id="caborAccessOverlay" class="calc-overlay" onclick="if(event.target===this)closeCaborAccessModal()">
+    <div class="calc-modal" style="max-width:420px">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <div class="bg-amber-100 text-amber-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Kode Akses Cabor</p>
+                    <h3 id="caborAccessTitle" class="font-bold text-gray-800 text-lg leading-tight">-</h3>
+                </div>
+            </div>
+            <button onclick="closeCaborAccessModal()" class="text-gray-400 hover:text-gray-600 p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">Masukkan kode akses cabor ini untuk membuka hasil tes fisik atletnya.</p>
+        <div id="caborAccessError" class="hidden bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-3"></div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">Kode Akses</label>
+        <input type="password" id="caborAccessInput" placeholder="Masukkan kode akses" autocomplete="off" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm font-semibold tracking-widest uppercase mb-4">
+        <div class="flex gap-3">
+            <button onclick="submitCaborAccess()" id="btnCaborAccess" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition text-sm disabled:opacity-50 disabled:cursor-not-allowed">Buka Hasil Tes</button>
+            <button onclick="closeCaborAccessModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2.5 rounded-xl transition text-sm">Batal</button>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-3 leading-relaxed">Pembatas akses ringan untuk pengembangan lokal. Maksimal 5 percobaan salah, lalu jeda sementara.</p>
+    </div>
+</div>
+
+<!-- ========== MODAL: DETAIL ATLET (HALAMAN CABOR) ========== -->
+<div id="caborAthleteOverlay" class="calc-overlay" onclick="if(event.target===this)closeCaborAthleteDetail()">
+    <div class="calc-modal" style="max-width:900px">
+        <div class="flex items-start justify-between gap-3 mb-4">
+            <div class="flex items-center gap-2">
+                <div class="bg-blue-100 text-blue-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Detail Hasil Tes Atlet</p>
+                    <h3 id="cadName" class="font-bold text-gray-800 text-lg leading-tight">-</h3>
+                </div>
+            </div>
+            <button onclick="closeCaborAthleteDetail()" class="text-gray-400 hover:text-gray-600 p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <!-- Konten dirender komponen bersama buildAthleteDetailHtml() (identik dengan admin). -->
+        <div id="cadDetail" class="max-h-[65vh] overflow-y-auto pr-1"></div>
+        <div class="flex justify-end mt-4">
+            <button onclick="closeCaborAthleteDetail()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-5 py-2.5 rounded-xl transition text-sm">Tutup</button>
         </div>
     </div>
 </div>
@@ -1208,22 +1486,173 @@ auth.signInAnonymously().catch(function(err) {
     console.warn('Anonymous auth failed:', err.message);
 });
 
-function saveDashboardData() {
-    return dbRef.set(dashboardAthletes).catch(function(err) {
-        console.error('Firebase write error:', err);
-        localStorage.setItem('koniDashboard', JSON.stringify(dashboardAthletes));
-        alert('Gagal menyimpan ke server. Data disimpan di browser lokal.');
+// ========== PENYIMPANAN TERPUSAT (FIREBASE REALTIME DATABASE) ==========
+// Firebase Rules proyek ini HANYA mengizinkan node "koni-tuban/athletes":
+// path lain (termasuk "koni-tuban/adminConfig") mengembalikan 401 Permission
+// denied sehingga tidak pernah bisa ditulis/dibaca. Karena itu SELURUH data
+// disimpan sebagai SATU dokumen pada node itu:
+//   - data atlet        : elemen 0..n-1 seperti sebelumnya (tetap array)
+//   - konfigurasi admin : SATU elemen penanda di akhir array (__koni = 'cfg')
+// Elemen penanda dipilih (bukan key khusus) supaya node tetap terbaca sebagai
+// array oleh klien mana pun, dan atlet + konfigurasi ditulis atomik dalam satu
+// set() sehingga tidak pernah tersimpan data setengah jadi. localStorage hanya
+// menjadi CACHE/salinan cadangan, bukan sumber data utama.
+var CFG_KEY = '__koni';
+var CFG_VALUE = 'cfg';
+var CFG_SCHEMA = 3;
+var CFG_COLLECTIONS = ['extraCabor', 'masterItems', 'itemAssignments', 'caborAccess', 'users'];
+var DASHBOARD_CACHE_KEY = 'koniDashboard';
+
+// ---- state sinkronisasi ----
+var syncSeenServer = false;   // sudah pernah menerima snapshot dari server
+var syncPending = false;      // ada perubahan yang belum berhasil dikirim
+var syncMigrated = false;     // backup + migrasi lokal sudah dijalankan sesi ini
+var serverConfig = null;      // konfigurasi server terakhir (sudah dinormalisasi)
+var lastPushedConfig = null;  // isi konfigurasi terakhir yang diketahui di server
+var syncStatusTimer = null;
+
+function buildConfigElement() {
+    var el = {};
+    Object.keys(adminConfig).forEach(function(k) { el[k] = adminConfig[k]; });
+    el[CFG_KEY] = CFG_VALUE;
+    el.v = CFG_SCHEMA;
+    return el;
+}
+
+function snapshotPayload() {
+    var out = dashboardAthletes.slice();
+    out.push(buildConfigElement());
+    return out;
+}
+
+// Pisahkan snapshot server menjadi daftar atlet + konfigurasi admin.
+function splitServerSnapshot(val) {
+    var athletes = [], cfg = null;
+    function take(x) {
+        if (!x || typeof x !== 'object') { if (x != null) athletes.push(x); return; }
+        if (x[CFG_KEY] === CFG_VALUE) { cfg = x; return; }
+        athletes.push(x);
+    }
+    if (Array.isArray(val)) {
+        val.forEach(take);
+    } else if (val && typeof val === 'object') {
+        Object.keys(val).sort(function(a, b) {
+            var na = Number(a), nb = Number(b);
+            if (isFinite(na) && isFinite(nb)) return na - nb;
+            return a < b ? -1 : (a > b ? 1 : 0);
+        }).forEach(function(k) { take(val[k]); });
+    }
+    return { athletes: athletes, cfg: cfg };
+}
+
+// ====== Indikator status sinkronisasi (kecil, di pojok layar) ======
+var SYNC_STATUS_UI = {
+    saving:  { text: 'Menyimpan ke server…', cls: 'bg-blue-600 text-white' },
+    saved:   { text: 'Tersinkron ✓', cls: 'bg-emerald-600 text-white' },
+    waiting: { text: 'Menunggu koneksi ke server…', cls: 'bg-slate-500 text-white' },
+    offline: { text: 'Offline — data disimpan di perangkat ini', cls: 'bg-amber-500 text-white' },
+    error:   { text: 'Gagal sinkron — klik untuk coba lagi', cls: 'bg-red-600 text-white' }
+};
+
+function setSyncStatus(state, detail) {
+    var el = document.getElementById('syncStatus');
+    if (!el) return;
+    clearTimeout(syncStatusTimer);
+    if (!state) { el.classList.add('hidden'); return; }
+    var ui = SYNC_STATUS_UI[state];
+    if (!ui) { el.classList.add('hidden'); return; }
+    el.className = 'fixed bottom-3 right-3 z-[80] cursor-pointer text-[11px] font-semibold px-3 py-1.5 rounded-full shadow-lg transition ' + ui.cls;
+    el.textContent = ui.text;
+    el.title = detail || ui.text;
+    el.classList.remove('hidden');
+    if (state === 'saved') {
+        syncStatusTimer = setTimeout(function() { el.classList.add('hidden'); }, 4000);
+    }
+}
+
+function retrySync() {
+    if (syncPending) writeSnapshot();
+}
+(function bindSyncStatusClick() {
+    var el = document.getElementById('syncStatus');
+    if (el) el.addEventListener('click', retrySync);
+    else document.addEventListener('DOMContentLoaded', bindSyncStatusClick);
+})();
+
+function saveLocalCache() {
+    try {
+        localStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify({
+            athletes: dashboardAthletes, cfg: adminConfig, savedAt: Date.now()
+        }));
+        localStorage.setItem(ADMIN_CONFIG_KEY, JSON.stringify(adminConfig));
+    } catch (e) {
+        console.warn('[Sync] gagal menulis cache lokal:', e);
+    }
+}
+
+function readLocalCache() {
+    try {
+        var raw = localStorage.getItem(DASHBOARD_CACHE_KEY);
+        if (!raw) return null;
+        var parsed = JSON.parse(raw);
+        // Format lama: langsung array atlet.
+        if (Array.isArray(parsed)) return { athletes: parsed, cfg: null };
+        return { athletes: parsed.athletes || [], cfg: parsed.cfg || null };
+    } catch (e) {
+        return null;
+    }
+}
+
+// Tulis SELURUH dokumen (atlet + konfigurasi) dalam satu operasi atomik.
+function writeSnapshot() {
+    if (!syncSeenServer) {
+        // Belum pernah menerima data server: jangan menimpa, tunggu dulu.
+        syncPending = true;
+        setSyncStatus('waiting');
+        return Promise.resolve({ ok: false, waiting: true, error: null });
+    }
+    // Gabungkan dengan konfigurasi server terakhir agar perubahan perangkat
+    // lain tidak tertimpa oleh tulisan dari perangkat ini.
+    if (serverConfig) {
+        var merged = mergeAdminConfig(adminConfig, serverConfig);
+        if (!sameConfigContent(merged, adminConfig)) {
+            adminConfig = merged;
+            applyAdminConfig();
+        }
+    }
+    setSyncStatus('saving');
+    return dbRef.set(snapshotPayload()).then(function() {
+        syncPending = false;
+        lastPushedConfig = cloneConfig(adminConfig);
+        saveLocalCache();
+        setSyncStatus('saved');
+        return { ok: true, error: null };
+    }).catch(function(err) {
+        syncPending = true;
+        setSyncStatus(navigator.onLine === false ? 'offline' : 'error',
+            String((err && err.message) || err) + ' — klik indikator untuk mencoba lagi.');
+        console.error('[Sync] gagal menyimpan ke server:', err);
+        saveLocalCache();
+        return { ok: false, error: err };
     });
 }
 
-// ========== KONFIGURASI ADMIN: CABOR & ITEM TES FISIK ==========
-// Sama seperti data atlet, konfigurasi disimpan di localStorage (utama, instan)
-// dan di-mirror ke Firebase Realtime Database (koni-tuban/adminConfig) agar ikut
-// tersinkron. Data lama TIDAK dihapus: daftar item sebuah cabor hanya berubah
-// ketika admin menyimpan pilihan baru melalui menu "Cabor & Item Tes".
+function saveDashboardData() {
+    return writeSnapshot().then(function(res) {
+        if (!res.ok && !res.waiting) {
+            alert('Gagal menyimpan ke server. Data tetap tersimpan di perangkat ini dan akan dikirim ulang otomatis saat koneksi pulih.');
+        }
+        return res;
+    });
+}
+
+// ========== KONFIGURASI ADMIN: CABOR, ITEM TES FISIK & AKUN USER ==========
+// Konfigurasi disimpan TERUTAMA di server (lihat blok di atas) dan di-mirror ke
+// localStorage sebagai cache instan. Data lama TIDAK dihapus: daftar item sebuah
+// cabor hanya berubah ketika admin menyimpan pilihan baru lewat menu
+// "Cabor & Item Tes".
 var ADMIN_CONFIG_KEY = 'koniAdminConfig';
 var adminConfig = readAdminConfigLocal();
-var adminCfgRef = db.ref('koni-tuban/adminConfig');
 
 // ========== PENYERAGAMAN NAMA ITEM TES ==========
 // Nama yang sama pernah ditulis dengan ejaan berbeda (Beep Test vs Bleep Test,
@@ -1274,6 +1703,20 @@ function normalizeAdminConfig(cfg) {
     out.extraCabor = (cfg && Array.isArray(cfg.extraCabor)) ? cfg.extraCabor.filter(function(n) { return !!n; }) : [];
     out.masterItems = (cfg && Array.isArray(cfg.masterItems)) ? cfg.masterItems.filter(function(m) { return m && m.name; }) : [];
     out.itemAssignments = (cfg && cfg.itemAssignments && typeof cfg.itemAssignments === 'object') ? cfg.itemAssignments : {};
+    // Kode akses per cabor: { "Nama Cabor": { code, hash, updatedAt } }.
+    out.caborAccess = (cfg && cfg.caborAccess && typeof cfg.caborAccess === 'object') ? cfg.caborAccess : {};
+    // Versi format kode akses (lihat loadAdminConfig): kode bawaan kini dihitung
+    // dari nama cabor sehingga tidak perlu lagi disimpan per browser.
+    out.caborAccessVersion = (cfg && cfg.caborAccessVersion) || 0;
+    // Akun user cabor (superadmin/koni/pelatih) ikut tersinkron, sehingga akun
+    // yang dibuat admin di satu perangkat bisa dipakai untuk login di perangkat
+    // lain tanpa import/export.
+    out.users = (cfg && Array.isArray(cfg.users)) ? cfg.users.filter(function(u) { return u && u.username; }) : [];
+    // Stempel waktu per kunci + penanda hapus (tombstone) dipakai merge konflik:
+    // perubahan terbaru pada kunci yang sama yang menang, sedangkan perubahan
+    // pada kunci berbeda saling dipertahankan (tidak saling menimpa).
+    out.ts = (cfg && cfg.ts && typeof cfg.ts === 'object') ? cfg.ts : {};
+    out.del = (cfg && cfg.del && typeof cfg.del === 'object') ? cfg.del : {};
     out.updatedAt = (cfg && cfg.updatedAt) || 0;
     return out;
 }
@@ -1288,17 +1731,251 @@ function readAdminConfigLocal() {
     return normalizeAdminConfig(null);
 }
 
+// ====== Penanganan konflik sederhana (per kunci, data terbaru menang) ======
+function cloneConfig(cfg) {
+    return normalizeAdminConfig(JSON.parse(JSON.stringify(cfg || null)));
+}
+
+// Objek kanonik (kunci diurutkan) agar perbandungan konten tidak bergantung
+// pada urutan key.
+function canonValue(v) {
+    if (Array.isArray(v)) return v.map(canonValue);
+    if (v && typeof v === 'object') {
+        var out = {};
+        Object.keys(v).sort().forEach(function(k) { out[k] = canonValue(v[k]); });
+        return out;
+    }
+    return v;
+}
+
+function keyedList(cfg, coll) {
+    var src = cfg[coll], out = {};
+    if (coll === 'extraCabor') {
+        src.forEach(function(n) { out[String(n)] = n; });
+    } else if (coll === 'masterItems') {
+        src.forEach(function(m) { out[itemKey(m.name)] = m; });
+    } else if (coll === 'users') {
+        src.forEach(function(u) { out[String(u.username).toLowerCase()] = u; });
+    } else {
+        Object.keys(src || {}).forEach(function(k) { out[k] = src[k]; });
+    }
+    return out;
+}
+
+function entryTs(cfg, coll, key, value) {
+    if (cfg.ts && cfg.ts[coll] && cfg.ts[coll][key]) return cfg.ts[coll][key];
+    if (coll === 'masterItems' && value && value.createdAt) {
+        var t = Date.parse(value.createdAt);
+        if (t) return t;
+    }
+    if (coll === 'caborAccess' && value && value.updatedAt) {
+        var t2 = Date.parse(value.updatedAt);
+        if (t2) return t2;
+    }
+    return cfg.updatedAt || 0;
+}
+
+function entryDel(cfg, coll, key) {
+    return (cfg.del && cfg.del[coll] && cfg.del[coll][key]) || 0;
+}
+
+// Pilihan deterministik bila timestamp sama tapi isinya berbeda: bandingkan
+// serialisasi kanonik sehingga semua perangkat memilih pemenang yang sama
+// (mencegah saling menimpa bolak-balik / ping-pong).
+function pickEntry(a, b) {
+    var sa = JSON.stringify(canonValue(a));
+    var sb = JSON.stringify(canonValue(b));
+    if (sa === sb) return a;
+    return sa < sb ? a : b;
+}
+
+// Merge dua versi konfigurasi: per kunci, konten dengan stempel waktu terbaru
+// yang menang; kunci yang hanya ada di satu sisi tetap dipertahankan; kunci yang
+// dihapus (tombstone lebih baru dari isi) dibuang dari keduanya.
+function mergeAdminConfig(local, remote) {
+    local = local ? normalizeAdminConfig(local) : normalizeAdminConfig(null);
+    remote = remote ? normalizeAdminConfig(remote) : normalizeAdminConfig(null);
+    var out = normalizeAdminConfig(null);
+    out.caborAccessVersion = Math.max(local.caborAccessVersion || 0, remote.caborAccessVersion || 0);
+    out.updatedAt = Math.max(local.updatedAt || 0, remote.updatedAt || 0);
+    CFG_COLLECTIONS.forEach(function(coll) {
+        var lm = keyedList(local, coll), rm = keyedList(remote, coll);
+        var order = [], seen = {};
+        function addKey(k) { if (k && !seen[k]) { seen[k] = 1; order.push(k); } }
+        Object.keys(lm).forEach(addKey);
+        Object.keys(rm).forEach(addKey);
+        Object.keys((local.del || {})[coll] || {}).forEach(addKey);
+        Object.keys((remote.del || {})[coll] || {}).forEach(addKey);
+        var tsMap = {}, delMap = {}, picked = {};
+        order.forEach(function(key) {
+            var l = lm[key], r = rm[key];
+            var lt = l ? entryTs(local, coll, key, l) : 0;
+            var rt = r ? entryTs(remote, coll, key, r) : 0;
+            var val = null, at = 0;
+            if (l && r) {
+                if (lt > rt) { val = l; at = lt; }
+                else if (rt > lt) { val = r; at = rt; }
+                else { val = pickEntry(l, r); at = lt; }
+            } else if (l) { val = l; at = lt; }
+            else if (r) { val = r; at = rt; }
+            var del = Math.max(entryDel(local, coll, key), entryDel(remote, coll, key));
+            if (del && del >= at) {
+                if (del) delMap[key] = del;
+                return;
+            }
+            if (val == null) return;
+            picked[key] = val;
+            tsMap[key] = at;
+        });
+        // Susun hasil: urutan sisi lokal dulu, lalu kunci tambahan dari remote.
+        var list = [];
+        if (coll === 'itemAssignments' || coll === 'caborAccess') {
+            var map = {};
+            order.forEach(function(k) { if (k in picked) map[k] = picked[k]; });
+            out[coll] = map;
+        } else {
+            order.forEach(function(k) { if (k in picked) list.push(picked[k]); });
+            out[coll] = list;
+        }
+        out.ts[coll] = tsMap;
+        out.del[coll] = delMap;
+    });
+    return out;
+}
+
+// Tanda tangan konten (tanpa ts/del/updatedAt) untuk memutuskan apakah memang
+// perlu mengirim ulang. Perbandingan per kunci, bukan per dokumen utuh.
+function configSignature(cfg) {
+    var c = normalizeAdminConfig(cfg);
+    var payload = {
+        extraCabor: c.extraCabor.slice().map(String).sort(),
+        masterItems: c.masterItems.map(function(m) {
+            return itemKey(m.name) + '|' + m.name + '|' + (m.unit || '') + '|' + (m.createdAt || '');
+        }).sort(),
+        itemAssignments: sortMap(c.itemAssignments, true),
+        caborAccess: sortMap(c.caborAccess, false),
+        caborAccessVersion: c.caborAccessVersion || 0,
+        users: c.users.map(function(u) {
+            return String(u.username).toLowerCase() + '|' + u.passwordHash + '|' + u.role + '|' + (u.cabor || '');
+        }).sort()
+    };
+    return JSON.stringify(payload);
+}
+
+function sortMap(obj, sortInnerArrays) {
+    var out = {};
+    Object.keys(obj || {}).sort().forEach(function(k) {
+        var v = obj[k];
+        if (sortInnerArrays && Array.isArray(v)) v = v.slice().map(String).sort();
+        out[k] = canonValue(v);
+    });
+    return out;
+}
+
+function sameConfigContent(a, b) {
+    return configSignature(a) === configSignature(b);
+}
+
+// Stempel waktu otomatis untuk setiap kunci yang berubah sejak kiriman terakhir,
+// sehingga penentuan "data terbaru" tidak bergantung pada urutan aksi admin.
+function autoStampChanges(prev, next) {
+    if (!prev) return;
+    var now = Date.now();
+    next.ts = next.ts || {};
+    next.del = next.del || {};
+    CFG_COLLECTIONS.forEach(function(coll) {
+        var pm = keyedList(prev, coll);
+        var nm = keyedList(next, coll);
+        var prevDel = (prev.del || {})[coll] || {};
+        next.ts[coll] = next.ts[coll] || {};
+        next.del[coll] = next.del[coll] || {};
+        Object.keys(nm).forEach(function(k) {
+            var changed = !(k in pm) || JSON.stringify(canonValue(pm[k])) !== JSON.stringify(canonValue(nm[k]));
+            if (changed) {
+                next.ts[coll][k] = now;
+                delete next.del[coll][k];
+            }
+        });
+        Object.keys(pm).forEach(function(k) {
+            if (!(k in nm)) {
+                next.del[coll][k] = now;
+                delete next.ts[coll][k];
+            }
+        });
+        Object.keys(prevDel).forEach(function(k) {
+            if (!(k in next.del[coll]) && !(k in nm)) next.del[coll][k] = prevDel[k];
+        });
+    });
+}
+
+// Stempel seluruh kunci yang belum punya waktu (dipakai saat migrasi) supaya
+// data lama punya dasar perbandingan di perangkat berikutnya.
+function stampAllKeys(cfg) {
+    var now = cfg.updatedAt || Date.now();
+    cfg.ts = cfg.ts || {};
+    cfg.del = cfg.del || {};
+    CFG_COLLECTIONS.forEach(function(coll) {
+        cfg.ts[coll] = cfg.ts[coll] || {};
+        cfg.del[coll] = cfg.del[coll] || {};
+        Object.keys(keyedList(cfg, coll)).forEach(function(k) {
+            if (!cfg.ts[coll][k]) cfg.ts[coll][k] = now;
+        });
+    });
+}
+
+// Backup sebelum konfigurasi lokal dimigrasikan/ditimpa (permintaan: jangan
+// sampai data lama hilang). Menyimpan maksimal 3 salinan terakhir per sumber.
+function backupAdminConfig(source, label) {
+    var key = 'koniAdminConfigBackup_' + label;
+    try {
+        var stamp = { label: label, at: new Date().toISOString(), cfg: cloneConfig(source) };
+        var list = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!Array.isArray(list)) list = [];
+        list.unshift(stamp);
+        list = list.slice(0, 3);
+        localStorage.setItem(key, JSON.stringify(list));
+        console.info('[Sync] backup konfigurasi (' + label + ') dibuat:', key);
+        return true;
+    } catch (e) {
+        console.warn('[Sync] gagal membuat backup:', e);
+        return false;
+    }
+}
+
+// Kembalikan konfigurasi dari backup terakhir (dipanggil dari console bila
+// perlu: restoreAdminConfigBackup('lokal')).
+function restoreAdminConfigBackup(label) {
+    label = label || 'lokal';
+    try {
+        var list = JSON.parse(localStorage.getItem('koniAdminConfigBackup_' + label) || '[]');
+        if (!list || !list.length) { console.warn('Tidak ada backup untuk label', label); return null; }
+        adminConfig = cloneConfig(list[0].cfg);
+        saveLocalCache();
+        applyAdminConfig();
+        migrateItemNames();
+        refreshAfterConfigChange();
+        console.info('Konfigurasi dipulihkan dari backup', list[0].at);
+        return adminConfig;
+    } catch (e) {
+        console.warn('Gagal memulihkan backup:', e);
+        return null;
+    }
+}
+
+// Simpan konfigurasi admin ke server (dan cache lokal). Selalu menghasilkan
+// promise {ok, error} supaya pemanggil bisa menampilkan pesan gagal.
 function saveAdminConfig() {
+    autoStampChanges(lastPushedConfig, adminConfig);
     adminConfig.updatedAt = Date.now();
+    // Pastikan setiap kunci punya stempel waktu (data lama tanpa stempel tetap
+    // bisa diputuskan pemenangnya saat merge di perangkat lain).
+    stampAllKeys(adminConfig);
     try {
         localStorage.setItem(ADMIN_CONFIG_KEY, JSON.stringify(adminConfig));
     } catch (e) {
         console.warn('[Admin] gagal menyimpan ke localStorage:', e);
     }
-    // Mirror ke server (mengikuti pola saveDashboardData); gagal tidak fatal.
-    return adminCfgRef.set(adminConfig).catch(function(err) {
-        console.warn('[Admin] gagal sinkron ke server, data tetap tersimpan di browser:', err);
-    });
+    return writeSnapshot();
 }
 
 function createEmptyCabor(items) {
@@ -1441,26 +2118,42 @@ function migrateItemNames() {
     return changed;
 }
 
-// Muat konfigurasi: lokal dipakai dulu (instan), lalu disinkronkan dengan server.
+// Peningkatan format kode akses (versi 2): kode bawaan tiap cabor kini
+// diturunkan dari nama cabor, sehingga entri kode acak yang pernah dibuat
+// otomatis oleh versi sebelumnya dibersihkan agar kode seragam di semua browser.
+var CABOR_ACCESS_VERSION = 2;
+function migrateCaborAccess() {
+    if ((adminConfig.caborAccessVersion || 0) >= CABOR_ACCESS_VERSION) return;
+    var hasOld = adminConfig.caborAccess && Object.keys(adminConfig.caborAccess).length > 0;
+    adminConfig.caborAccess = {};
+    adminConfig.caborAccessVersion = CABOR_ACCESS_VERSION;
+    // Browser yang masih punya kode lama perlu disimpan ulang; browser baru cukup
+    // menandai versi saja (tanpa mengubah updatedAt).
+    if (hasOld) {
+        saveAdminConfig();
+    } else {
+        try { localStorage.setItem(ADMIN_CONFIG_KEY, JSON.stringify(adminConfig)); } catch (e) {}
+    }
+}
+
+// Muat konfigurasi: lokal dipakai dulu agar tampilan langsung siap (cache),
+// lalu diserap dari server lewat listener realtime (lihat blok FIREBASE REALTIME
+// LISTENER di bawah) — server adalah sumber data utama.
 function loadAdminConfig() {
     adminConfig = readAdminConfigLocal();
+    migrateCaborAccess();
     applyAdminConfig();
     migrateItemNames();
-    adminCfgRef.once('value').then(function(snap) {
-        var remote = normalizeAdminConfig(snap.val());
-        if (remote.updatedAt > adminConfig.updatedAt) {
-            adminConfig = remote;
-            applyAdminConfig();
-            migrateItemNames();
-            try { localStorage.setItem(ADMIN_CONFIG_KEY, JSON.stringify(adminConfig)); } catch (e) {}
-            refreshAfterConfigChange();
-        } else if (adminConfig.updatedAt > remote.updatedAt) {
-            saveAdminConfig();
-        }
-        if (typeof renderAdminView === 'function') renderAdminView();
-    }).catch(function(err) {
-        console.warn('[Admin] gagal memuat konfigurasi dari server:', err);
-    });
+    // Bila konfigurasi server sudah lebih dulu diterima, jangan tertimpa oleh
+    // salinan lokal: merge dulu (perubahan terbaru per kunci yang menang).
+    if (serverConfig) {
+        adminConfig = mergeAdminConfig(adminConfig, serverConfig);
+        lastPushedConfig = cloneConfig(serverConfig);
+        applyAdminConfig();
+        saveLocalCache();
+    }
+    if (typeof renderAdminView === 'function') renderAdminView();
+    if (typeof renderCodeAccessView === 'function') renderCodeAccessView();
 }
 
 function getMasterItems() {
@@ -1547,6 +2240,17 @@ function navigateTo(view) {
             view = isPelatih() ? 'dashboard' : 'list';
         }
     }
+    if (view === 'code') {
+        if (!currentUser) {
+            showLoginPage();
+            showLoginError('Silakan login terlebih dahulu (akun KONI/Superadmin) untuk membuka menu Kode Akses Cabor.');
+            return;
+        }
+        if (!canManageCabor()) {
+            alert('Menu "Kode Akses Cabor" hanya tersedia untuk akun KONI dan Superadmin.');
+            view = isPelatih() ? 'dashboard' : 'list';
+        }
+    }
     document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
     document.querySelectorAll('[id^="tab"]').forEach(function(t) { t.className = t.className.replace('tab-active', 'tab-inactive'); });
     var el = document.getElementById(view + 'View');
@@ -1571,6 +2275,9 @@ function navigateTo(view) {
     }
     if (view === 'admin') {
         renderAdminView();
+    }
+    if (view === 'code') {
+        renderCodeAccessView();
     }
     if (view === 'form') {
         populateCaborDropdown();
@@ -2082,33 +2789,83 @@ function getCategory(pct) {
     return getPctCategory(pct);
 }
 
-function renderDetail(a) {
-    if (!a) return;
-    var ev = computeEvaluation(a);
-    currentId = a.id;
-    document.getElementById('dNama').textContent = a.nama;
-    var ttl = (a.tempatLahir || '-') + ', ' + (a.tanggalLahir ? formatTanggal(a.tanggalLahir) : '-');
-    document.getElementById('dTTL').textContent = ttl;
-    document.getElementById('dCabor').textContent = a.cabor + (a.nomor ? ' - ' + a.nomor : '');
-    document.getElementById('dUsia').textContent = a.usia + ' tahun';
-    document.getElementById('dKelamin').textContent = a.kelamin;
-    document.getElementById('dTanggal').textContent = a.tanggal;
-    var cederaBox = document.getElementById('cederaBox');
-    if (a.catatanCedera) {
-        cederaBox.innerHTML = '<div class="bg-red-50 border border-red-200 rounded-xl p-4"><div class="flex items-start gap-2"><svg class="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><div><p class="text-xs font-bold text-red-700 uppercase mb-1">Catatan Cedera / Kondisi Khusus</p><p class="text-sm text-red-800">' + a.catatanCedera + '</p></div></div></div>';
-        cederaBox.classList.remove('hidden');
-    } else {
-        cederaBox.innerHTML = '';
-        cederaBox.classList.add('hidden');
+// =====================================================================
+// KOMPONEN BERSAMA: DETAIL HASIL TES ATLET
+// Satu template & satu sumber data (dashboardAthletes) untuk detail hasil
+// tes. Dipakai oleh menu admin (Daftar Atlet -> Lihat) dan oleh modal "Lihat"
+// di menu Daftar Cabor, sehingga info, navigasi sesi, tabel item, rumus
+// persentase, kategori, dan performa selalu identik di kedua tempat.
+// =====================================================================
+var detailSessions = [];
+var caborDetailSessions = [];
+var caborDetailIdx = 0;
+
+// Semua sesi atlet yang sama (nama + cabor + nomor + ttl), terbaru di atas.
+function getAthleteSessions(a) {
+    if (!a) return [];
+    var key = buildAthleteKey(a);
+    var list = dashboardAthletes.filter(function(x) {
+        return x && buildAthleteKey(x) === key;
+    });
+    if (!list.length) list = [a];
+    return sortSessionsDesc(list);
+}
+
+function indexOfAthleteSession(sessions, a) {
+    for (var i = 0; i < sessions.length; i++) {
+        if (sessions[i] === a || (a && sessions[i].id === a.id)) return i;
     }
-    document.getElementById('dPerforma').textContent = ev.totalSkor.toFixed(1) + ' (' + ev.performa.toFixed(1) + '%)';
-    var g = getCategory(ev.performa);
-    document.getElementById('dKategori').innerHTML = '<span class="text-' + g.color + '-700 bg-' + g.color + '-100 px-2.5 py-0.5 rounded-full text-xs font-semibold">' + g.label + '</span>';
-    document.getElementById('dJumlahItem').textContent = ev.jumlahItem + ' item diukur';
-    document.getElementById('dBar').style.width = Math.min(ev.performa, 100) + '%';
-    document.getElementById('dBar').className = 'h-full rounded-full transition-all duration-700 bg-' + g.color + '-500';
-    var tbody = document.getElementById('dBody');
-    tbody.innerHTML = ev.items.map(function(it, i) {
+    return 0;
+}
+
+function buildAthleteInfoHtml(a) {
+    function f(label, value) {
+        return '<div><p class="text-[10px] font-semibold text-blue-600 uppercase">' + label + '</p><p class="font-bold text-gray-800 text-sm">' + value + '</p></div>';
+    }
+    var ttl = (a.tempatLahir || '-') + ', ' + (a.tanggalLahir ? formatTanggal(a.tanggalLahir) : '-');
+    return '<div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-5 mb-5">' +
+        '<div class="grid grid-cols-2 sm:grid-cols-6 gap-3">' +
+        f('Nama', escHtml(a.nama || '-')) +
+        f('Tempat, Tanggal Lahir', escHtml(ttl)) +
+        f('Usia', a.usia + ' tahun') +
+        f('Cabor', escHtml(a.cabor + (a.nomor ? ' - ' + a.nomor : ''))) +
+        f('Kelamin', escHtml(a.kelamin || '-')) +
+        f('Tanggal', escHtml(a.tanggal || '-')) +
+        '</div></div>';
+}
+
+function buildAthleteSessionNavHtml(sessions, idx, source) {
+    var a = sessions[idx];
+    var total = sessions.length;
+    var prev = idx - 1;
+    var next = idx + 1;
+    var calSvg = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>';
+    var left = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>';
+    var right = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
+    function btn(label, i, icon, active) {
+        if (!active) {
+            return '<span class="text-xs font-bold px-3 py-2 rounded-lg border border-gray-100 text-gray-300 cursor-not-allowed flex items-center gap-1">' + icon + label + '</span>';
+        }
+        return '<button type="button" onclick="showAthleteSession(\'' + source + '\',' + i + ')" class="text-xs font-bold px-3 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition flex items-center gap-1">' + icon + label + '</button>';
+    }
+    return '<div class="flex flex-wrap items-center justify-between gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 mb-4">' +
+        '<div class="flex items-center gap-3">' +
+        '<span class="bg-blue-100 text-blue-700 p-1.5 rounded-lg">' + calSvg + '</span>' +
+        '<div><p class="text-[10px] font-bold text-gray-400 uppercase">Sesi ' + (idx + 1) + ' dari ' + total + '</p>' +
+        '<p class="text-sm font-bold text-gray-800">' + formatTanggal(getCaborSessionDate(a)) + '</p></div>' +
+        '</div>' +
+        '<div class="flex items-center gap-2">' +
+        btn('Sebelumnya', prev, left, prev >= 0) +
+        btn('Berikutnya', next, right, next < total) +
+        '</div></div>';
+}
+
+function buildAthleteResultRowsHtml(ev) {
+    var items = (ev && ev.items) || [];
+    if (!items.length) {
+        return '<tr><td colspan="5" class="px-3 py-4 text-xs text-gray-400">Belum ada hasil tes tersimpan untuk sesi ini.</td></tr>';
+    }
+    return items.map(function(it, i) {
         var gc = getCategory(it.pct);
         var barW = Math.min(it.pct, 100);
         var unit = getItemUnit(it.name);
@@ -2142,7 +2899,76 @@ function renderDetail(a) {
             '<td class="px-3 py-2.5 text-xs"><span class="text-' + gc.color + '-700 bg-' + gc.color + '-100 px-2 py-0.5 rounded-full font-semibold text-[11px]">' + gc.label + '</span></td>' +
             '</tr>';
     }).join('');
-    drawSpider(ev.items);
+}
+
+function buildAthleteResultTableHtml(ev) {
+    return '<div class="overflow-x-auto">' +
+        '<table class="w-full text-sm">' +
+        '<thead><tr class="bg-gray-100">' +
+        '<th class="px-3 py-2.5 text-left font-semibold text-gray-700 rounded-l-xl text-xs w-10">No</th>' +
+        '<th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Jenis Tes</th>' +
+        '<th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Hasil</th>' +
+        '<th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Persentase</th>' +
+        '<th class="px-3 py-2.5 text-left font-semibold text-gray-700 rounded-r-xl text-xs">Kategori</th>' +
+        '</tr></thead>' +
+        '<tbody>' + buildAthleteResultRowsHtml(ev) + '</tbody>' +
+        '</table></div>';
+}
+
+function buildAthletePerfHtml(ev) {
+    var g = getCategory(ev.performa);
+    var skor = (ev.totalSkor != null ? ev.totalSkor.toFixed(1) + ' (' + ev.performa.toFixed(1) + '%)' : ev.performa.toFixed(1) + '%');
+    return '<div class="mt-5 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-xl p-5">' +
+        '<div class="flex items-center gap-2 mb-3">' +
+        '<svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>' +
+        '<h3 class="font-bold text-gray-800">Performa Keseluruhan</h3>' +
+        '</div>' +
+        '<div class="grid grid-cols-3 gap-4 mb-3">' +
+        '<div><p class="text-[10px] font-semibold text-indigo-600 uppercase">Total Skor</p><p class="text-2xl font-extrabold text-gray-800">' + skor + '</p></div>' +
+        '<div><p class="text-[10px] font-semibold text-indigo-600 uppercase">Kategori</p><p class="font-bold text-sm"><span class="text-' + g.color + '-700 bg-' + g.color + '-100 px-2.5 py-0.5 rounded-full text-xs font-semibold">' + g.label + '</span></p></div>' +
+        '<div><p class="text-[10px] font-semibold text-indigo-600 uppercase">Item</p><p class="text-sm font-semibold text-gray-600">' + ev.jumlahItem + ' item diukur</p></div>' +
+        '</div>' +
+        '<div class="bg-gray-200 rounded-full h-3.5 overflow-hidden">' +
+        '<div class="h-full rounded-full transition-all duration-700 bg-' + g.color + '-500" style="width:' + Math.min(ev.performa, 100) + '%"></div>' +
+        '</div></div>';
+}
+
+// Satu fungsi render untuk admin & Daftar Cabor. source menentukan wadah:
+// 'admin' -> #dDetail (view detail), 'cabor' -> #cadDetail (modal pelatih).
+function buildAthleteDetailHtml(a, sessions, idx, source) {
+    var ev = computeEvaluation(a);
+    var html = buildAthleteInfoHtml(a) + buildAthleteSessionNavHtml(sessions, idx, source);
+    if (a.catatanCedera) {
+        html += '<div class="mt-3 bg-red-50 border border-red-200 rounded-xl p-4"><div class="flex items-start gap-2"><svg class="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><div><p class="text-xs font-bold text-red-700 uppercase mb-1">Catatan Cedera / Kondisi Khusus</p><p class="text-sm text-red-800">' + escHtml(a.catatanCedera) + '</p></div></div></div>';
+    }
+    html += buildAthleteResultTableHtml(ev);
+    html += buildAthletePerfHtml(ev);
+    return html;
+}
+
+// Navigasi sesi bersama (admin & pelatih memakai handler yang sama).
+function showAthleteSession(source, idx) {
+    var list = source === 'cabor' ? caborDetailSessions : detailSessions;
+    if (!list.length) return;
+    idx = Math.max(0, Math.min(idx, list.length - 1));
+    var box = document.getElementById(source === 'cabor' ? 'cadDetail' : 'dDetail');
+    if (!box) return;
+    if (source === 'cabor') {
+        caborDetailIdx = idx;
+        box.innerHTML = buildAthleteDetailHtml(list[idx], list, idx, 'cabor');
+        return;
+    }
+    renderDetail(list[idx]);
+}
+
+function renderDetail(a) {
+    if (!a) return;
+    currentId = a.id;
+    detailSessions = getAthleteSessions(a);
+    var idx = indexOfAthleteSession(detailSessions, a);
+    var box = document.getElementById('dDetail');
+    if (box) box.innerHTML = buildAthleteDetailHtml(detailSessions[idx], detailSessions, idx, 'admin');
+    drawSpider(computeEvaluation(detailSessions[idx]).items);
 
     var editBtn = document.querySelector('#detailView .bg-amber-500');
     var deleteBtn = document.querySelector('#detailView .bg-red-50');
@@ -2356,7 +3182,12 @@ function hashPass(str) {
     return ('00000000' + h.toString(16)).slice(-8);
 }
 
-var USERS = [
+// Daftar akun bawaan. Daftar INI hanya cadangan: daftar efektif dipakai login
+// diambil dari getAllUsers() yang menggabungkan akun bawaan dengan akun tersimpan
+// di server (adminConfig.users), sehingga akun baru yang dibuat admin di satu
+// perangkat langsung bisa dipakai di perangkat lain.
+var PELATIH_DEFAULT_HASH = '14e4d84a';
+var BUILTIN_USERS = [
     { username: 'superadmin', passwordHash: 'baad7a52', role: 'superadmin', cabor: '' },
     { username: 'koni', passwordHash: 'a3e04198', role: 'koni', cabor: '' },
     { username: 'pelatih_pencak', passwordHash: '14e4d84a', role: 'pelatih', cabor: 'Pencak Silat' },
@@ -2382,6 +3213,45 @@ var USERS = [
 ];
 var currentUser = JSON.parse(localStorage.getItem('koniCurrentUser') || 'null');
 
+// Akun efektif: gabungan akun bawaan + akun dari server. Akun yang dihapus admin
+// (tombstone) dibuang dari daftar bawaan agar tidak "hidup lagi".
+function getAllUsers() {
+    var byKey = {}, order = [];
+    function put(u) {
+        var k = String((u && u.username) || '').toLowerCase();
+        if (!k) return;
+        if (!(k in byKey)) order.push(k);
+        byKey[k] = u;
+    }
+    BUILTIN_USERS.forEach(put);
+    var del = (adminConfig.del && adminConfig.del.users) || {};
+    Object.keys(del).forEach(function(k) { if (del[k]) delete byKey[k]; });
+    (adminConfig.users || []).forEach(put);
+    return order.map(function(k) { return byKey[k]; });
+}
+
+// Sinkronkan sesi login yang sedang berjalan bila admin mengubah role/cabor
+// akunnya dari perangkat lain (akun tetap sama, hanya datanya yang diperbarui).
+function refreshCurrentUserFromConfig() {
+    if (!currentUser) return;
+    var found = null;
+    var list = getAllUsers();
+    for (var i = 0; i < list.length; i++) {
+        if (String(list[i].username).toLowerCase() === String(currentUser.username).toLowerCase()) {
+            found = list[i];
+            break;
+        }
+    }
+    if (!found) return;
+    var changed = false;
+    if (found.role !== currentUser.role) { currentUser.role = found.role; changed = true; }
+    if ((found.cabor || '') !== (currentUser.cabor || '')) { currentUser.cabor = found.cabor || ''; changed = true; }
+    if (changed) {
+        localStorage.setItem('koniCurrentUser', JSON.stringify(currentUser));
+        if (typeof showApp === 'function') showApp();
+    }
+}
+
 // ========== LANDING PAGE ==========
 function showLoginPage() {
     document.getElementById('landingPage').classList.remove('active');
@@ -2392,8 +3262,10 @@ function showLoginPage() {
 function showLandingPage() {
     document.getElementById('loginPage').classList.remove('active');
     document.getElementById('appContent').classList.remove('active');
+    document.getElementById('caborPage').classList.remove('active');
     document.getElementById('landingPage').classList.add('active');
     renderLandingStats();
+    renderDaftarCabor();
 }
 
 function renderLandingStats() {
@@ -2702,10 +3574,11 @@ function doLogin() {
     }
 
     var hash = hashPass(password);
+    var list = getAllUsers();
     var found = null;
-    for (var i = 0; i < USERS.length; i++) {
-        if (USERS[i].username === username && USERS[i].passwordHash === hash) {
-            found = USERS[i];
+    for (var i = 0; i < list.length; i++) {
+        if (list[i].username === username && list[i].passwordHash === hash) {
+            found = list[i];
             break;
         }
     }
@@ -2757,6 +3630,7 @@ function showApp() {
 
         applyRoleAccess();
         document.getElementById('tabAdmin').classList.toggle('hidden', !canManageCabor());
+        document.getElementById('tabCode').classList.toggle('hidden', !canManageCabor());
 
         if (isPelatih()) {
             document.getElementById('tabList').classList.add('hidden');
@@ -2802,6 +3676,9 @@ function checkAuth() {
             showLoginError('Silakan login terlebih dahulu untuk membuka menu admin.');
         }
     }
+    // Menu "Daftar Cabor" bisa dibuka lewat URL, contoh: http://localhost/tuban/#daftar-cabor
+    // Termasuk saat superadmin sedang login (tanpa perlu keluar dari akun).
+    if (wantsDaftarCaborRoute()) openDaftarCaborPage();
 }
 
 // Akses menu admin "Cabor & Item Tes": hanya superadmin (dan akun admin KONI lama).
@@ -2832,6 +3709,7 @@ function openAdminView() {
 
 window.addEventListener('hashchange', function() {
     if (wantsAdminRoute()) openAdminView();
+    else if (wantsDaftarCaborRoute()) openDaftarCaborPage();
 });
 
 document.getElementById('loginPassword').addEventListener('keypress', function(e) {
@@ -3204,10 +4082,45 @@ function setAdminMsg(elId, msg, ok) {
         : 'bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-3';
 }
 
+function errText(err) {
+    return String((err && err.message) || err || 'tidak diketahui');
+}
+
+// Pesan hasil simpan ke server: sukses jelas, gagal jelas + tetap ada cadangan
+// lokal, dan status "menunggu koneksi" tidak dianggap kegagalan.
+function reportSyncResult(msgElId, okText, res) {
+    if (!res || res.ok) {
+        setAdminMsg(msgElId, okText, true);
+    } else if (res.waiting) {
+        setAdminMsg(msgElId, okText + ' (masih menunggu koneksi pertama ke server — otomatis terkirim setelah tersambung).', true);
+    } else {
+        setAdminMsg(msgElId, 'Gagal mengirim ke server: ' + errText(res.error) +
+            '. Perubahan tersimpan di perangkat ini dan akan dikirim ulang otomatis saat koneksi pulih.', false);
+    }
+}
+
+// Buat akun pelatih untuk cabor baru (otomatis, ikut tersinkron) agar relasi
+// user <-> cabor <-> item tes selalu terhubung tanpa setup manual tiap laptop.
+function ensureCaborUser(cabor) {
+    var semua = getAllUsers();
+    var ada = semua.some(function(u) { return u.role === 'pelatih' && u.cabor === cabor; });
+    if (ada) return null;
+    var dipakai = {};
+    semua.forEach(function(u) { dipakai[String(u.username).toLowerCase()] = true; });
+    var base = 'pelatih_' + String(cabor).toLowerCase();
+    var username = base, i = 2;
+    while (dipakai[username.toLowerCase()]) { username = base + i; i++; }
+    var akun = { username: username, passwordHash: PELATIH_DEFAULT_HASH, role: 'pelatih', cabor: cabor };
+    adminConfig.users = (adminConfig.users || []).concat([akun]);
+    return akun;
+}
+
 function renderAdminView() {
     if (!canManageCabor()) return;
     renderAdminCaborList();
     renderAdminMasterItems();
+    renderAdminCaborCodes();
+    renderAdminUsers();
     populateAdminCaborSelect();
 }
 
@@ -3231,9 +4144,196 @@ function renderAdminCaborList() {
     }).join('');
 }
 
+// ===== AKUN USER CABOR (tersinkron lewat adminConfig.users) =====
+// Relasi: user -> cabor -> item tes -> atlet. Perubahan di sini langsung terbaca
+// perangkat lain karena konfigurasi admin disimpan di server, bukan di browser.
+var adminUserEditKey = null;
+
+function findAdminUser(username) {
+    var key = String(username || '').toLowerCase();
+    var list = getAllUsers();
+    for (var i = 0; i < list.length; i++) {
+        if (String(list[i].username).toLowerCase() === key) return list[i];
+    }
+    return null;
+}
+
+function adminUserCaborOptions(selected) {
+    var names = Object.keys(caborData).sort(function(a, b) { return a.localeCompare(b); });
+    var html = '<option value="">-- Tidak terkait cabor --</option>';
+    if (selected && names.indexOf(selected) < 0) names = names.concat([selected]);
+    names.forEach(function(n) {
+        html += '<option value="' + escHtml(n) + '"' + (n === selected ? ' selected' : '') + '>' + escHtml(n) + '</option>';
+    });
+    return html;
+}
+
+function onAdminUserRoleChange() {
+    var role = (document.getElementById('adminUserRole') || {}).value || 'pelatih';
+    var wrap = document.getElementById('adminUserCaborWrap');
+    if (wrap) wrap.classList.toggle('hidden', role !== 'pelatih');
+}
+
+function renderAdminUsers() {
+    var box = document.getElementById('adminUserList');
+    if (!box) return;
+    var caborSel = document.getElementById('adminUserCabor');
+    if (caborSel) {
+        var editing = adminUserEditKey ? findAdminUser(adminUserEditKey) : null;
+        caborSel.innerHTML = adminUserCaborOptions(editing ? (editing.cabor || '') : caborSel.value);
+    }
+    onAdminUserRoleChange();
+    var users = getAllUsers();
+    if (!users.length) {
+        box.innerHTML = '<p class="text-gray-400 text-sm">Belum ada akun user.</p>';
+        return;
+    }
+    var myName = currentUser ? String(currentUser.username).toLowerCase() : '';
+    box.innerHTML = users.map(function(u) {
+        var roleCls = u.role === 'pelatih' ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+            : (u.role === 'koni' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-amber-50 text-amber-700 border-amber-200');
+        var kunci = String(u.username).toLowerCase();
+        var acts = '<button type="button" onclick="editAdminUser(\'' + jsStr(u.username) + '\')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 underline">Ubah</button>';
+        if (kunci !== myName) {
+            acts += '<button type="button" onclick="deleteAdminUser(\'' + jsStr(u.username) + '\')" class="text-xs font-semibold text-red-500 hover:text-red-700 underline">Hapus</button>';
+        }
+        return '<div class="flex flex-wrap items-center justify-between gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5">' +
+            '<div class="flex flex-wrap items-center gap-2 text-sm">' +
+                '<span class="font-semibold text-gray-800">' + escHtml(u.username) + '</span>' +
+                '<span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ' + roleCls + '">' + escHtml(u.role) + '</span>' +
+                '<span class="text-xs text-gray-500">' + (u.cabor ? '&rarr; ' + escHtml(u.cabor) : 'tanpa cabor') + '</span>' +
+            '</div>' +
+            '<div class="flex items-center gap-3">' + acts + '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function fillAdminUserForm(user) {
+    document.getElementById('adminUserNama').value = user ? user.username : '';
+    document.getElementById('adminUserPass').value = '';
+    document.getElementById('adminUserRole').value = user ? (user.role || 'pelatih') : 'pelatih';
+    onAdminUserRoleChange();
+    var caborSel = document.getElementById('adminUserCabor');
+    caborSel.innerHTML = adminUserCaborOptions(user ? (user.cabor || '') : '');
+    var btn = document.getElementById('adminUserBtn');
+    var cancel = document.getElementById('adminUserCancel');
+    if (btn) btn.textContent = user ? 'Simpan Perubahan' : 'Tambah Akun';
+    if (cancel) cancel.classList.toggle('hidden', !user);
+}
+
+function cancelAdminUserEdit() {
+    adminUserEditKey = null;
+    fillAdminUserForm(null);
+    setAdminMsg('adminUserMsg', '');
+}
+
+function editAdminUser(username) {
+    if (!canManageCabor()) return;
+    var u = findAdminUser(username);
+    if (!u) { setAdminMsg('adminUserMsg', 'Akun "' + username + '" tidak ditemukan.'); return; }
+    adminUserEditKey = u.username;
+    fillAdminUserForm(u);
+    setAdminMsg('adminUserMsg', '');
+    var el = document.getElementById('adminUserNama');
+    if (el) el.focus();
+}
+
+function saveAdminUser() {
+    if (!canManageCabor()) { setAdminMsg('adminUserMsg', 'Hanya superadmin/KONI yang boleh mengelola akun.'); return; }
+    var namaEl = document.getElementById('adminUserNama');
+    var passEl = document.getElementById('adminUserPass');
+    var roleEl = document.getElementById('adminUserRole');
+    var caborEl = document.getElementById('adminUserCabor');
+    var username = namaEl.value.trim();
+    var password = passEl.value;
+    var role = roleEl.value;
+    var cabor = role === 'pelatih' ? caborEl.value : '';
+    setAdminMsg('adminUserMsg', '');
+
+    if (!username) { setAdminMsg('adminUserMsg', 'Username tidak boleh kosong.'); return; }
+    if (!adminUserEditKey && password.length < 4) { setAdminMsg('adminUserMsg', 'Password minimal 4 karakter.'); return; }
+    if (adminUserEditKey && password && password.length < 4) { setAdminMsg('adminUserMsg', 'Password minimal 4 karakter.'); return; }
+    if (role === 'pelatih' && !cabor) { setAdminMsg('adminUserMsg', 'Pilih cabor untuk akun pelatih.'); return; }
+
+    var key = username.toLowerCase();
+    var bentrok = null;
+    getAllUsers().forEach(function(u) {
+        var uk = String(u.username).toLowerCase();
+        if (uk === key && (!adminUserEditKey || uk !== String(adminUserEditKey).toLowerCase())) bentrok = u;
+    });
+    if (bentrok) { setAdminMsg('adminUserMsg', 'Username "' + username + '" sudah dipakai akun lain.'); return; }
+
+    if (!adminConfig.users) adminConfig.users = [];
+    var matchKey = String(adminUserEditKey || username).toLowerCase();
+    var idx = -1;
+    for (var i = 0; i < adminConfig.users.length; i++) {
+        if (String(adminConfig.users[i].username).toLowerCase() === matchKey) { idx = i; break; }
+    }
+    var oldName = idx >= 0 ? adminConfig.users[idx].username : null;
+    var target = idx >= 0 ? adminConfig.users[idx] : { username: username };
+    target.username = username;
+    target.role = role;
+    target.cabor = cabor;
+    if (password) target.passwordHash = hashPass(password);
+    else if (!target.passwordHash) target.passwordHash = PELATIH_DEFAULT_HASH;
+    if (idx < 0) adminConfig.users.push(target);
+    // Buang sisa entri lama bila username berubah, dan cegah entri kembar.
+    var seenU = {};
+    adminConfig.users = adminConfig.users.filter(function(x) {
+        var k = String(x.username).toLowerCase();
+        if (seenU[k]) return false;
+        seenU[k] = true;
+        return true;
+    });
+    if (oldName && oldName !== username) {
+        markBuiltinUserRemoved(String(oldName).toLowerCase());
+    }
+
+    adminUserEditKey = null;
+    fillAdminUserForm(null);
+    renderAdminView();
+    saveAdminConfig().then(function(res) {
+        reportSyncResult('adminUserMsg', 'Akun "' + username + '" tersimpan dan tersinkron di semua perangkat.', res);
+    });
+}
+
+// Akun bawaan sistem tidak ikut tersimpan di adminConfig.users, jadi perubahan
+// di atasnya perlu ditandai (tombstone) agar tidak muncul lagi di perangkat lain.
+function markBuiltinUserRemoved(key) {
+    var ada = BUILTIN_USERS.some(function(x) { return String(x.username).toLowerCase() === key; });
+    if (!ada) return;
+    if (!adminConfig.del) adminConfig.del = {};
+    if (!adminConfig.del.users) adminConfig.del.users = {};
+    adminConfig.del.users[key] = Date.now();
+    if (adminConfig.ts && adminConfig.ts.users) delete adminConfig.ts.users[key];
+}
+
+function deleteAdminUser(username) {
+    if (!canManageCabor()) { setAdminMsg('adminUserMsg', 'Hanya superadmin/KONI yang boleh mengelola akun.'); return; }
+    var u = findAdminUser(username);
+    if (!u) { setAdminMsg('adminUserMsg', 'Akun "' + username + '" tidak ditemukan.'); return; }
+    if (currentUser && String(u.username).toLowerCase() === String(currentUser.username).toLowerCase()) {
+        setAdminMsg('adminUserMsg', 'Akun yang sedang dipakai tidak bisa dihapus.');
+        return;
+    }
+    if (!confirm('Hapus akun "' + u.username + '"?\nAkun ini langsung tidak bisa dipakai login di semua perangkat.')) return;
+    var key = String(u.username).toLowerCase();
+    adminConfig.users = (adminConfig.users || []).filter(function(x) {
+        return String(x.username).toLowerCase() !== key;
+    });
+    markBuiltinUserRemoved(key);
+    if (adminUserEditKey && String(adminUserEditKey).toLowerCase() === key) cancelAdminUserEdit();
+    renderAdminView();
+    saveAdminConfig().then(function(res) {
+        reportSyncResult('adminUserMsg', 'Akun "' + u.username + '" dihapus.', res);
+    });
+}
+
 function addCabor() {
     var input = document.getElementById('adminCaborNama');
+    var kodeInput = document.getElementById('adminCaborKode');
     var name = input.value.trim();
+    var kode = kodeInput ? kodeInput.value.trim().toUpperCase() : '';
     setAdminMsg('adminCaborError', '');
     if (!name) {
         setAdminMsg('adminCaborError', 'Nama cabor tidak boleh kosong.');
@@ -3244,12 +4344,25 @@ function addCabor() {
         setAdminMsg('adminCaborError', 'Cabor "' + name + '" sudah terdaftar, nama tidak boleh duplikat.');
         return;
     }
+    if (kode && !isCaborCodeUnique(kode, '')) {
+        setAdminMsg('adminCaborError', 'Kode akses "' + kode + '" sudah dipakai cabor lain. Gunakan kode lain atau kosongkan untuk memakai kode bawaan sistem.');
+        return;
+    }
     adminConfig.extraCabor.push(name);
     caborData[name] = createEmptyCabor();
-    saveAdminConfig();
+    // Kode dari admin disimpan sebagai override; jika dikosongkan, sistem memakai
+    // kode bawaan yang diturunkan dari nama cabor (sama di semua browser).
+    if (kode) setCaborAccessCode(name, kode);
+    // Akun pelatih cabor baru ikut dibuat supaya user <-> cabor langsung terhubung.
+    var akun = ensureCaborUser(name);
     input.value = '';
-    setAdminMsg('adminCaborError', 'Cabor "' + name + '" berhasil ditambahkan. Silakan atur item tes fisiknya di bagian bawah.', true);
+    if (kodeInput) kodeInput.value = '';
     refreshAfterConfigChange();
+    renderAdminView();
+    var msg = 'Cabor "' + name + '" berhasil ditambahkan dengan kode akses ' + getCaborAccessCode(name) +
+        '. Bagikan kode ini ke pelatih, lalu atur item tes fisiknya di bagian bawah.';
+    if (akun) msg += ' Akun user cabor ' + akun.username + ' ikut dibuat (password sama dengan pelatih lain) dan langsung tersinkron di semua perangkat.';
+    saveAdminConfig().then(function(res) { reportSyncResult('adminCaborError', msg, res); });
     renderAdminView();
 }
 
@@ -3299,11 +4412,12 @@ function addMasterItem() {
     if (!unit) unit = getItemUnit(name) || '';
     adminConfig.masterItems.push({ name: name, unit: unit, createdAt: new Date().toISOString() });
     registerCanonName(name);
-    saveAdminConfig();
     namaEl.value = '';
     satuanEl.value = '';
-    setAdminMsg('adminItemError', 'Item "' + name + '" berhasil ditambahkan ke master item.', true);
     renderAdminView();
+    saveAdminConfig().then(function(res) {
+        reportSyncResult('adminItemError', 'Item "' + name + '" berhasil ditambahkan ke master item.', res);
+    });
 }
 
 function removeMasterItem(idx) {
@@ -3311,8 +4425,10 @@ function removeMasterItem(idx) {
     if (!m) return;
     if (!confirm('Hapus item "' + m.name + '" dari master item?\nItem yang sudah terpasang di cabor tetap tersimpan agar data atlet lama tidak berubah.')) return;
     adminConfig.masterItems.splice(idx, 1);
-    saveAdminConfig();
     renderAdminView();
+    saveAdminConfig().then(function(res) {
+        reportSyncResult('adminItemError', 'Item "' + m.name + '" dihapus dari master item (tetap tersimpan pada cabor yang sudah memakainya).', res);
+    });
 }
 
 function populateAdminCaborSelect() {
@@ -3461,31 +4577,1148 @@ function saveCaborItems() {
     adminConfig.itemAssignments[name] = checked;
     if (!caborData[name]) caborData[name] = createEmptyCabor();
     caborData[name].items = checked.slice();
-    saveAdminConfig();
     refreshAfterConfigChange();
     renderAdminView();
     msgEl.textContent = 'Pilihan item untuk "' + name + '" berhasil disimpan (' + checked.length + ' item).';
     msgEl.className = 'mt-4 text-sm rounded-xl px-4 py-3 bg-emerald-50 border border-emerald-200 text-emerald-700';
+    saveAdminConfig().then(function(res) {
+        if (res && res.ok) return;
+        msgEl.textContent = (res && res.waiting)
+            ? 'Pilihan item "' + name + '" tersimpan di perangkat ini dan menunggu koneksi pertama ke server.'
+            : 'Pilihan item "' + name + '" tersimpan di perangkat ini, tetapi gagal dikirim ke server: ' + errText(res && res.error) + '. Akan dikirim ulang otomatis saat koneksi pulih.';
+        msgEl.className = 'mt-4 text-sm rounded-xl px-4 py-3 bg-amber-50 border border-amber-200 text-amber-800';
+    });
 }
 
-// ========== FIREBASE REALTIME LISTENER ==========
-dbRef.on('value', function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
-        dashboardAthletes = data;
-    } else {
-        dashboardAthletes = [];
+// ========== MENU "DAFTAR CABOR" (PUBLIK) & KODE AKSES PER CABOR ==========
+// CATATAN KEAMANAN: proyek ini frontend-only (tidak ada backend khusus milik
+// sendiri), sehingga validasi kode akses dilakukan di sisi browser. Kode disimpan
+// pada adminConfig.caborAccess[namaCabor] berupa HASH (FNV-1a + salt nama cabor,
+// mirip hashPass) dan hash inilah yang dipakai memverifikasi input pengguna.
+// Field `code` hanya disimpan untuk panel superadmin (melihat / membagikan kode
+// ke pelatih). Ini PEMBATAS AKSES RINGAN untuk pengembangan lokal, BUKAN keamanan
+// penuh: data hasil tes tetap terbaca oleh klien yang membuka tools developer.
+// Untuk deployment produksi, kode harus divalidasi di server dan data atlet
+// tidak boleh dikirim ke browser sebelum kode benar.
+var CABOR_UNLOCK_KEY = 'koniCaborUnlocked';
+    var CABOR_ATTEMPT_KEY = 'koniCaborAttempts';
+    var CABOR_MAX_ATTEMPTS = 5;
+    var CABOR_LOCK_SECONDS = 60;
+    // ===== MODE TESTING =====
+    // Selama pengujian SEMUA cabor memakai kode akses yang sama (1234).
+    // Ubah menjadi '' untuk kembali ke kode bawaan unik per cabor.
+    var CABOR_TEST_CODE = '1234';
+var pendingCabor = '';
+var currentCabor = '';
+var caborLockTimer = null;
+
+function hashAccessCode(cabor, code) {
+    var s = 'koni-cabor:' + String(cabor == null ? '' : cabor).toLowerCase() + ':' + String(code == null ? '' : code).trim().toUpperCase();
+    var h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
     }
+    return ('00000000' + h.toString(16)).slice(-8);
+}
+
+function generateCaborCode() {
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // tanpa I, O, 0, 1 agar mudah dibaca
+    var code = '';
+    for (var i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+    return code;
+}
+
+function isCaborCodeUnique(code, exceptName) {
+    var target = String(code || '').trim().toUpperCase();
+    if (!target) return false;
+    // Mode testing: kode global berlaku untuk semua cabor sehingga selalu unik.
+    if (CABOR_TEST_CODE && target === CABOR_TEST_CODE) return true;
+    return getAllCaborNames().every(function(n) {
+        if (n === exceptName) return true;
+        return String(getActiveCaborAccess(n).code).toUpperCase() !== target;
+    });
+}
+
+function generateUniqueCaborCode(exceptName) {
+    var code = '', guard = 0;
+    do {
+        code = generateCaborCode();
+        guard++;
+    } while (!isCaborCodeUnique(code, exceptName) && guard < 1000);
+    return code;
+}
+
+// Kode kandidat (belum diseleksi): FNV-1a atas nama cabor, lalu xorshift32
+// agar bit rendah benar-benar tercampur, dipotong menjadi 6 karakter x 5 bit.
+function codeCandidate(name, k) {
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // tanpa I, O, 0, 1 agar mudah dibaca
+    var s = 'koni-tuban-cabor-akses|' + String(name == null ? '' : name).trim().toLowerCase() + '|' + k;
+    var h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+    }
+    for (var t = 0; t < 3; t++) {
+        h = (h ^ (h << 13)) >>> 0;
+        h = (h ^ (h >>> 17)) >>> 0;
+        h = (h ^ (h << 5)) >>> 0;
+    }
+    var code = '';
+    for (var r = 0; r < 6; r++) code += chars.charAt((h >>> (r * 5)) & 31);
+    return code;
+}
+
+// Sebaran kode bawaan: nama diurutkan berdasarkan kode karakter (bukan locale)
+// lalu tiap nama mengambil kandidat pertama yang belum dipakai cabor lain.
+// Hasilnya selalu unik antar cabor dan identik di semua browser.
+function buildDerivedCodes(names) {
+    var sorted = names.slice().sort(function(a, b) { return a < b ? -1 : (a > b ? 1 : 0); });
+    var used = {}, out = {};
+    sorted.forEach(function(n) {
+        var pick = '';
+        for (var k = 0; k < 256; k++) {
+            var cand = codeCandidate(n, k);
+            if (!used[cand]) { pick = cand; break; }
+        }
+        if (pick) used[pick] = true;
+        out[n] = pick || codeCandidate(n, 0);
+    });
+    return out;
+}
+
+var derivedCodesKey = '';
+var derivedCodes = null;
+
+// Kode bawaan tiap cabor diturunkan dari nama cabor + rahasia aplikasi, bukan
+// angka acak browser. Hasilnya selalu sama di semua browser/perangkat karena
+// Firebase hanya mengizinkan node "athletes": konfigurasi admin tidak bisa
+// disinkronkan lewat server, jadi kode tetap konsisten untuk dibagikan ke pelatih.
+function deriveCaborCode(cabor) {
+    // Mode testing: semua cabor memakai satu kode yang sama.
+    if (CABOR_TEST_CODE) return CABOR_TEST_CODE;
+    var name = String(cabor == null ? '' : cabor).trim();
+    var names = getAllCaborNames().slice();
+    var isKnown = names.indexOf(name) >= 0;
+    if (!isKnown) names.push(name);
+    if (isKnown) {
+        var key = names.slice().sort(function(a, b) { return a < b ? -1 : (a > b ? 1 : 0); }).join('\u0001');
+        if (key !== derivedCodesKey || !derivedCodes) {
+            derivedCodesKey = key;
+            derivedCodes = buildDerivedCodes(names);
+        }
+        return derivedCodes[name];
+    }
+    return buildDerivedCodes(names)[name];
+}
+
+// Semua nama cabor yang dikenal: terdaftar di caborData + yang punya override kode.
+function getAllCaborNames() {
+    var seen = {};
+    Object.keys(caborData).forEach(function(n) { seen[n] = true; });
+    Object.keys(adminConfig.caborAccess || {}).forEach(function(n) { seen[n] = true; });
+    return Object.keys(seen);
+}
+
+// Kode aktif per cabor: override hasil ubahan superadmin bila ada, selain itu
+// kode bawaan sistem (sama di semua browser). Entri ber-flag `disabled`
+// (hasil tombol "Nonaktifkan" di menu Kode Akses Cabor) dianggap tanpa kode,
+// sehingga hasil tes cabor tidak bisa dibuka lewat kode sampai diaktifkan lagi.
+function getActiveCaborAccess(cabor) {
+    var entry = (adminConfig.caborAccess || {})[cabor];
+    if (entry && entry.disabled) return { code: '', source: 'disabled' };
+    if (entry && entry.code) return { code: String(entry.code), source: 'override' };
+    return { code: deriveCaborCode(cabor), source: 'default' };
+}
+
+function setCaborAccessCode(cabor, code) {
+    if (!adminConfig.caborAccess) adminConfig.caborAccess = {};
+    var clean = String(code == null ? '' : code).trim().toUpperCase();
+    adminConfig.caborAccess[cabor] = {
+        code: clean,
+        hash: hashAccessCode(cabor, clean),
+        disabled: false,
+        updatedAt: new Date().toISOString()
+    };
+}
+
+// Nonaktifkan kode akses cabor: kode tersimpan tetap ada (untuk riwayat) tapi
+// tidak dipakai verifikasi sampai cabor diaktifkan kembali.
+function disableCaborAccessCode(cabor) {
+    if (!adminConfig.caborAccess) adminConfig.caborAccess = {};
+    var entry = adminConfig.caborAccess[cabor] || {};
+    adminConfig.caborAccess[cabor] = {
+        code: entry.code || '',
+        hash: entry.hash || '',
+        disabled: true,
+        updatedAt: new Date().toISOString()
+    };
+}
+
+function removeCaborAccessCode(cabor) {
+    if (adminConfig.caborAccess && adminConfig.caborAccess[cabor]) {
+        delete adminConfig.caborAccess[cabor];
+    }
+}
+
+function getCaborAccessCode(cabor) {
+    return getActiveCaborAccess(cabor).code;
+}
+
+function verifyCaborAccessCode(cabor, input) {
+    var given = String(input == null ? '' : input).trim().toUpperCase();
+    if (!given) return false;
+    var code = getCaborAccessCode(cabor);
+    if (!code) return false;
+    return hashAccessCode(cabor, given) === hashAccessCode(cabor, code);
+}
+
+// ----- Akses yang sudah dibuka (tersimpan di sesi browser / sessionStorage) -----
+function getUnlockedCabors() {
+    try {
+        var list = JSON.parse(sessionStorage.getItem(CABOR_UNLOCK_KEY) || '[]');
+        return Array.isArray(list) ? list : [];
+    } catch (e) { return []; }
+}
+
+function isCaborUnlocked(cabor) { return getUnlockedCabors().indexOf(cabor) >= 0; }
+
+function unlockCabor(cabor) {
+    var list = getUnlockedCabors();
+    if (list.indexOf(cabor) < 0) list.push(cabor);
+    try { sessionStorage.setItem(CABOR_UNLOCK_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+function lockCabor(cabor) {
+    var list = getUnlockedCabors().filter(function(n) { return n !== cabor; });
+    try { sessionStorage.setItem(CABOR_UNLOCK_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+// ----- Pembatasan percobaan kode salah (per cabor) -----
+function readCaborAttempts() {
+    try {
+        var obj = JSON.parse(sessionStorage.getItem(CABOR_ATTEMPT_KEY) || '{}');
+        return obj && typeof obj === 'object' ? obj : {};
+    } catch (e) { return {}; }
+}
+
+function writeCaborAttempts(obj) {
+    try { sessionStorage.setItem(CABOR_ATTEMPT_KEY, JSON.stringify(obj)); } catch (e) {}
+}
+
+function getAttemptState(cabor) {
+    var all = readCaborAttempts();
+    var st = all[cabor] || { count: 0, until: 0 };
+    if (st.until && st.until <= Date.now()) {
+        st = { count: 0, until: 0 };
+        all[cabor] = st;
+        writeCaborAttempts(all);
+    }
+    return st;
+}
+
+function registerFailedAttempt(cabor) {
+    var all = readCaborAttempts();
+    var st = all[cabor] || { count: 0, until: 0 };
+    st.count = (st.count || 0) + 1;
+    if (st.count >= CABOR_MAX_ATTEMPTS) st.until = Date.now() + (CABOR_LOCK_SECONDS * 1000);
+    all[cabor] = st;
+    writeCaborAttempts(all);
+    return st;
+}
+
+function clearCaborAttempts(cabor) {
+    var all = readCaborAttempts();
+    if (all[cabor]) { delete all[cabor]; writeCaborAttempts(all); }
+}
+
+function isCaborLockedOut(st) { return !!(st && st.until && st.until > Date.now()); }
+
+// String aman untuk dipakai di dalam atribut onclick='...'
+function jsStr(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, "\\'").replace(/\r?\n/g, ' ');
+}
+
+// ----- Rute landing "#daftar-cabor" (bisa dibuka walau superadmin login) -----
+function wantsDaftarCaborRoute() {
+    return (location.hash || '').replace('#', '').toLowerCase() === 'daftar-cabor';
+}
+
+function openDaftarCaborPage() {
+    var wasLanding = document.getElementById('landingPage').classList.contains('active');
+    showLandingPage();
+    if (!wasLanding) {
+        var sec = document.getElementById('daftar-cabor');
+        if (sec) setTimeout(function() { sec.scrollIntoView({ block: 'start' }); }, 60);
+    }
+}
+
+// ----- Kartu cabor di landing page -----
+function clearCaborSearch() {
+    var el = document.getElementById('dcSearch');
+    if (el) { el.value = ''; el.focus(); }
+    renderDaftarCabor();
+}
+
+function renderDaftarCabor() {
+    var grid = document.getElementById('dcGrid');
+    if (!grid) return;
+    var emptyBox = document.getElementById('dcEmpty');
+    var searchEl = document.getElementById('dcSearch');
+    var clearBtn = document.getElementById('dcSearchClear');
+    var query = searchEl ? searchEl.value.trim().toLowerCase() : '';
+    if (clearBtn) clearBtn.classList.toggle('hidden', !query);
+
+    var names = Object.keys(caborData).sort(function(a, b) { return a.localeCompare(b); });
+    var filtered = names.filter(function(n) { return n.toLowerCase().indexOf(query) >= 0; });
+
+    // Hitungan atlet (angka agregat saja; identitas atlet tetap tertutup).
+    var counts = {}, seen = {};
+    dashboardAthletes.forEach(function(a) {
+        if (!a || !a.cabor) return;
+        var k = a.cabor + '|' + buildAthleteKey(a);
+        if (seen[k]) return;
+        seen[k] = true;
+        counts[a.cabor] = (counts[a.cabor] || 0) + 1;
+    });
+
+    var unlocked = getUnlockedCabors();
+    var superadmin = canManageCabor();
+
+    grid.innerHTML = filtered.map(function(name) {
+        var isOpen = superadmin || unlocked.indexOf(name) >= 0;
+        var cnt = counts[name] || 0;
+        return '<button type="button" onclick="requestCaborAccess(\'' + jsStr(name) + '\')" class="text-left bg-white border border-gray-200 rounded-2xl p-4 hover:border-blue-400 hover:shadow-lg hover:-translate-y-0.5 transition fade-in">' +
+            '<div class="flex items-start justify-between gap-3">' +
+                '<div class="w-11 h-11 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">' +
+                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>' +
+                '</div>' +
+                (isOpen
+                    ? '<span class="shrink-0 text-emerald-600 bg-emerald-50 border border-emerald-200 p-1.5 rounded-lg" title="Sudah terbuka di sesi ini"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg></span>'
+                    : '<span class="shrink-0 text-amber-500 bg-amber-50 border border-amber-200 p-1.5 rounded-lg" title="Perlu kode akses"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></span>') +
+            '</div>' +
+            '<p class="font-bold text-gray-900 text-sm mt-3 leading-snug">' + escHtml(name) + '</p>' +
+            '<p class="text-xs text-gray-400 mt-1">' + (cnt ? cnt + ' atlet dites' : 'Belum ada atlet dites') + '</p>' +
+            '<span class="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-blue-600">' +
+                (isOpen ? 'Lihat Hasil Tes' : 'Masukkan Kode Akses') +
+                '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>' +
+            '</span>' +
+        '</button>';
+    }).join('');
+
+    if (emptyBox) {
+        if (!filtered.length) {
+            emptyBox.classList.remove('hidden');
+            var msg = emptyBox.querySelector('p');
+            if (msg) msg.textContent = names.length ? 'Cabor tidak ditemukan' : 'Belum ada cabor terdaftar';
+        } else {
+            emptyBox.classList.add('hidden');
+        }
+    }
+}
+
+// ----- Modal kode akses -----
+function requestCaborAccess(cabor) {
+    if (!caborData[cabor]) {
+        alert('Cabor "' + cabor + '" tidak ditemukan di sistem.');
+        return;
+    }
+    // Superadmin/koni yang sedang login boleh membuka semua cabor tanpa kode.
+    if (canManageCabor() || isCaborUnlocked(cabor)) {
+        openCaborPage(cabor);
+        return;
+    }
+    openCaborAccessModal(cabor);
+}
+
+function openCaborAccessModal(cabor) {
+    pendingCabor = cabor;
+    var title = document.getElementById('caborAccessTitle');
+    if (title) title.textContent = cabor;
+    var input = document.getElementById('caborAccessInput');
+    if (input) input.value = '';
+    var err = document.getElementById('caborAccessError');
+    if (err) err.classList.add('hidden');
+    document.getElementById('caborAccessOverlay').classList.add('active');
+    updateCaborLockInfo();
+    setTimeout(function() { if (input) input.focus(); }, 60);
+}
+
+function closeCaborAccessModal() {
+    document.getElementById('caborAccessOverlay').classList.remove('active');
+    pendingCabor = '';
+    stopCaborLockTimer();
+    var btn = document.getElementById('btnCaborAccess');
+    if (btn) btn.disabled = false;
+}
+
+function showCaborAccessError(msg) {
+    var el = document.getElementById('caborAccessError');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.remove('hidden');
+}
+
+function stopCaborLockTimer() {
+    if (caborLockTimer) { clearInterval(caborLockTimer); caborLockTimer = null; }
+}
+
+function startCaborLockTimer() {
+    stopCaborLockTimer();
+    caborLockTimer = setInterval(function() {
+        if (!pendingCabor) { closeCaborAccessModal(); return; }
+        var st = getAttemptState(pendingCabor);
+        if (!isCaborLockedOut(st)) {
+            stopCaborLockTimer();
+            var err = document.getElementById('caborAccessError');
+            if (err) err.classList.add('hidden');
+            var b = document.getElementById('btnCaborAccess');
+            if (b) b.disabled = false;
+            return;
+        }
+        showCaborAccessError('Terlalu banyak percobaan salah. Coba lagi dalam ' + Math.ceil((st.until - Date.now()) / 1000) + ' detik.');
+    }, 1000);
+}
+
+function updateCaborLockInfo() {
+    if (!pendingCabor) return;
+    var st = getAttemptState(pendingCabor);
+    var btn = document.getElementById('btnCaborAccess');
+    if (isCaborLockedOut(st)) {
+        if (btn) btn.disabled = true;
+        showCaborAccessError('Terlalu banyak percobaan salah. Coba lagi dalam ' + Math.ceil((st.until - Date.now()) / 1000) + ' detik.');
+        startCaborLockTimer();
+    } else {
+        if (btn) btn.disabled = false;
+        stopCaborLockTimer();
+    }
+}
+
+function submitCaborAccess() {
+    if (!pendingCabor) return;
+    var cabor = pendingCabor;
+    var input = document.getElementById('caborAccessInput');
+    var code = input ? input.value.trim() : '';
+    var st = getAttemptState(cabor);
+
+    if (isCaborLockedOut(st)) {
+        showCaborAccessError('Terlalu banyak percobaan salah. Coba lagi dalam ' + Math.ceil((st.until - Date.now()) / 1000) + ' detik.');
+        startCaborLockTimer();
+        return;
+    }
+    if (!code) {
+        showCaborAccessError('Masukkan kode akses cabor "' + cabor + '".');
+        return;
+    }
+    if (verifyCaborAccessCode(cabor, code)) {
+        clearCaborAttempts(cabor);
+        unlockCabor(cabor);
+        closeCaborAccessModal();
+        openCaborPage(cabor);
+        return;
+    }
+
+    st = registerFailedAttempt(cabor);
+    if (input) input.value = '';
+    if (isCaborLockedOut(st)) {
+        showCaborAccessError('Kode akses salah. Percobaan dibatasi sementara, coba lagi dalam ' + CABOR_LOCK_SECONDS + ' detik.');
+        var btn = document.getElementById('btnCaborAccess');
+        if (btn) btn.disabled = true;
+        startCaborLockTimer();
+    } else {
+        var sisa = CABOR_MAX_ATTEMPTS - (st.count || 0);
+        showCaborAccessError('Kode akses salah untuk "' + cabor + '". Sisa percobaan: ' + sisa + '.');
+        if (input) input.focus();
+    }
+}
+
+// ----- Halaman hasil tes fisik per cabor (read-only) -----
+function getCaborSessionDate(a) {
+    return a.tanggal || (a.createdAt ? String(a.createdAt).slice(0, 10) : '');
+}
+
+// Item yang ditampilkan = sesuai "Pengaturan Item Tes per Cabor" (+ item bawaan
+// Atletik per nomor perlombaan bila atlet memakai nomor tersebut).
+function getCaborResultItems(cabor, pool) {
+    var seen = {}, list = [];
+    function add(n) {
+        var k = itemKey(n);
+        if (!k || seen[k]) return;
+        seen[k] = true;
+        list.push(canonItemName(n));
+    }
+    ((caborData[cabor] && caborData[cabor].items) || []).forEach(add);
+    if (cabor === 'Atletik') {
+        (pool || []).forEach(function(a) {
+            if (a && a.nomor && atletikNomor[a.nomor]) (atletikNomor[a.nomor].items || []).forEach(add);
+        });
+    }
+    return list;
+}
+
+function sortSessionsDesc(list) {
+    return list.slice().sort(function(x, y) {
+        var dx = getCaborSessionDate(x), dy = getCaborSessionDate(y);
+        if (dx === dy) return String(y.createdAt || '').localeCompare(String(x.createdAt || ''));
+        return String(dy).localeCompare(String(dx));
+    });
+}
+
+function openCaborPage(cabor) {
+    currentCabor = cabor;
+    document.getElementById('landingPage').classList.remove('active');
+    document.getElementById('loginPage').classList.remove('active');
+    document.getElementById('appContent').classList.remove('active');
+    document.getElementById('caborPage').classList.add('active');
+    var title = document.getElementById('cpCaborName');
+    if (title) title.textContent = cabor;
+    var search = document.getElementById('cpSearchNama');
+    if (search) search.value = '';
+    var status = document.getElementById('cpAccessStatus');
+    if (status) {
+        if (canManageCabor()) {
+            status.textContent = 'Superadmin';
+            status.className = 'text-sm font-extrabold text-blue-600';
+        } else {
+            status.textContent = 'Terbuka';
+            status.className = 'text-sm font-extrabold text-emerald-600';
+        }
+    }
+    renderCaborHasil();
+    window.scrollTo(0, 0);
+}
+
+function closeCaborPage() {
+    document.getElementById('caborPage').classList.remove('active');
+    currentCabor = '';
+    showLandingPage();
+    var sec = document.getElementById('daftar-cabor');
+    if (sec) setTimeout(function() { sec.scrollIntoView({ block: 'start' }); }, 60);
+}
+
+// "Kunci lagi": cabut akses sesi cabor ini, lalu kembali ke daftar cabor.
+function lockCurrentCabor() {
+    if (currentCabor) lockCabor(currentCabor);
+    closeCaborPage();
+}
+
+function renderCaborHasil() {
+    var cabor = currentCabor;
+    if (!cabor) return;
+    var title = document.getElementById('cpCaborName');
+    if (title) title.textContent = cabor;
+
+    var all = dashboardAthletes.filter(function(a) { return a && a.cabor === cabor; });
+
+    // Filter tanggal: hanya tanggal sesi yang benar-benar tersedia.
+    var dateSel = document.getElementById('cpFilterTanggal');
+    var currentDate = dateSel ? dateSel.value : '';
+    var dates = {};
+    all.forEach(function(a) { var d = getCaborSessionDate(a); if (d) dates[d] = true; });
+    if (dateSel) {
+        dateSel.innerHTML = '<option value="">Semua Tanggal</option>' + Object.keys(dates).sort().reverse().map(function(d) {
+            return '<option value="' + d + '">' + formatTanggal(d) + '</option>';
+        }).join('');
+        if (currentDate && dates[currentDate]) dateSel.value = currentDate;
+    }
+    var filterTanggal = dateSel ? dateSel.value : '';
+    var pool = filterTanggal ? all.filter(function(a) { return getCaborSessionDate(a) === filterTanggal; }) : all;
+
+    var items = getCaborResultItems(cabor, pool);
+    var notice = document.getElementById('cpItemNotice');
+    if (notice) {
+        if (items.length) {
+            notice.classList.add('hidden');
+        } else {
+            notice.classList.remove('hidden');
+            notice.innerHTML = 'Cabor <b>' + escHtml(cabor) + '</b> belum memiliki item tes yang diatur, sehingga hasil tes tidak dapat ditampilkan. Superadmin dapat mengaturnya lewat menu <b>Cabor &amp; Item Tes</b>.';
+        }
+    }
+
+    // Kelompokkan sesi per atlet.
+    var groups = {}, order = [];
+    pool.forEach(function(a) {
+        var k = buildAthleteKey(a);
+        if (!groups[k]) { groups[k] = []; order.push(k); }
+        groups[k].push(a);
+    });
+    Object.keys(groups).forEach(function(k) { groups[k] = sortSessionsDesc(groups[k]); });
+
+    var searchEl = document.getElementById('cpSearchNama');
+    var q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+    var shown = order.filter(function(k) {
+        var nama = String((groups[k][0] || {}).nama || '').toLowerCase();
+        return !q || nama.indexOf(q) >= 0;
+    }).sort(function(a, b) {
+        return String((groups[a][0] || {}).nama || '').localeCompare(String((groups[b][0] || {}).nama || ''));
+    });
+
+    var uniqueAll = {};
+    all.forEach(function(a) { uniqueAll[buildAthleteKey(a)] = true; });
+    var elAtlet = document.getElementById('cpTotalAtlet');
+    var elSesi = document.getElementById('cpTotalSesi');
+    var elItem = document.getElementById('cpTotalItem');
+    if (elAtlet) elAtlet.textContent = Object.keys(uniqueAll).length;
+    if (elSesi) elSesi.textContent = all.length;
+    if (elItem) elItem.textContent = items.length;
+
+    var tbody = document.getElementById('cpTableBody');
+    var emptyAtlet = document.getElementById('cpEmptyAtlet');
+    var tableCard = document.getElementById('cpTableCard');
+    var noResult = document.getElementById('cpNoResult');
+
+    if (!all.length) {
+        if (tbody) tbody.innerHTML = '';
+        if (tableCard) tableCard.classList.add('hidden');
+        if (noResult) noResult.classList.add('hidden');
+        if (emptyAtlet) emptyAtlet.classList.remove('hidden');
+        return;
+    }
+    if (emptyAtlet) emptyAtlet.classList.add('hidden');
+
+    if (!shown.length) {
+        if (tbody) tbody.innerHTML = '';
+        if (tableCard) tableCard.classList.remove('hidden');
+        if (noResult) {
+            noResult.textContent = filterTanggal ? 'Atlet tidak ditemukan pada tanggal tersebut' : 'Atlet tidak ditemukan';
+            noResult.classList.remove('hidden');
+        }
+        return;
+    }
+    if (noResult) noResult.classList.add('hidden');
+    if (tableCard) tableCard.classList.remove('hidden');
+
+    tbody.innerHTML = shown.map(function(k, i) {
+        var sessions = groups[k];
+        var latest = sessions[0];
+        var ev = computeEvaluation(latest);
+        var cat = getCategory(ev.performa);
+        return '<tr class="' + (i % 2 ? 'bg-gray-50' : '') + ' border-t border-gray-100 hover:bg-blue-50 transition cursor-pointer" onclick="openCaborAthleteDetail(\'' + jsStr(k) + '\')">' +
+            '<td class="px-3 py-2.5 font-semibold text-gray-500 text-xs">' + (i + 1) + '</td>' +
+            '<td class="px-3 py-2.5 font-semibold text-gray-800 text-xs">' + escHtml(latest.nama || '-') +
+                (latest.nomor ? ' <span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full text-[10px] font-semibold">' + escHtml(latest.nomor) + '</span>' : '') + '</td>' +
+            '<td class="px-3 py-2.5 text-xs text-gray-600">' + escHtml(latest.usia) + ' thn</td>' +
+            '<td class="px-3 py-2.5 text-xs text-gray-600">' + escHtml(latest.kelamin || '-') + '</td>' +
+            '<td class="px-3 py-2.5 text-xs text-gray-600">' + formatTanggal(getCaborSessionDate(latest)) + '</td>' +
+            '<td class="px-3 py-2.5 text-xs text-gray-600">' + sessions.length + '</td>' +
+            '<td class="px-3 py-2.5 text-xs"><span class="font-extrabold text-' + cat.color + '-600">' + ev.performa.toFixed(1) + '%</span> <span class="text-' + cat.color + '-700 bg-' + cat.color + '-100 px-1.5 py-0.5 rounded-full font-semibold text-[10px]">' + cat.label + '</span></td>' +
+            '<td class="px-3 py-2.5 text-xs"><button onclick="event.stopPropagation();openCaborAthleteDetail(\'' + jsStr(k) + '\')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">Lihat</button></td>' +
+        '</tr>';
+    }).join('');
+}
+
+function openCaborAthleteDetail(key) {
+    if (!currentCabor) return;
+    var sessions = dashboardAthletes.filter(function(a) {
+        return a && a.cabor === currentCabor && buildAthleteKey(a) === key;
+    });
+    if (!sessions.length) return;
+    caborDetailSessions = sortSessionsDesc(sessions);
+    caborDetailIdx = 0;
+    var first = caborDetailSessions[0];
+
+    var nameEl = document.getElementById('cadName');
+    if (nameEl) nameEl.textContent = first.nama || '-';
+
+    var box = document.getElementById('cadDetail');
+    if (box) box.innerHTML = buildAthleteDetailHtml(first, caborDetailSessions, 0, 'cabor');
+    document.getElementById('caborAthleteOverlay').classList.add('active');
+}
+
+function closeCaborAthleteDetail() {
+    document.getElementById('caborAthleteOverlay').classList.remove('active');
+}
+
+// Sinkronkan isi modal detail pelatih bila sedang terbuka saat data diperbarui.
+function refreshOpenCaborDetail() {
+    var overlay = document.getElementById('caborAthleteOverlay');
+    if (!overlay || !overlay.classList.contains('active') || !caborDetailSessions.length) return;
+    var sessions = getAthleteSessions(caborDetailSessions[0]);
+    if (!sessions.length) { closeCaborAthleteDetail(); return; }
+    caborDetailSessions = sessions;
+    var idx = Math.max(0, Math.min(caborDetailIdx, sessions.length - 1));
+    caborDetailIdx = idx;
+    var nameEl = document.getElementById('cadName');
+    if (nameEl) nameEl.textContent = sessions[idx].nama || '-';
+    var box = document.getElementById('cadDetail');
+    if (box) box.innerHTML = buildAthleteDetailHtml(sessions[idx], sessions, idx, 'cabor');
+}
+
+// ----- Panel superadmin: kelola kode akses -----
+function generateCaborKodeInput() {
+    var el = document.getElementById('adminCaborKode');
+    if (!el) return;
+    var nameEl = document.getElementById('adminCaborNama');
+    var name = nameEl ? nameEl.value.trim() : '';
+    // Nama sudah diketik: isi kode bawaan cabor tersebut (sama di semua browser).
+    el.value = name ? deriveCaborCode(name) : generateUniqueCaborCode('');
+    el.focus();
+    el.select();
+}
+
+function renderAdminCaborCodes() {
+    var box = document.getElementById('adminCaborCodeList');
+    if (!box) return;
+    var note = document.getElementById('adminCodeTestNote');
+    if (note) {
+        if (CABOR_TEST_CODE) {
+            note.textContent = 'MODE TESTING: semua cabor memakai kode akses ' + CABOR_TEST_CODE + '.';
+            note.classList.remove('hidden');
+        } else {
+            note.classList.add('hidden');
+        }
+    }
+    var names = Object.keys(caborData).sort(function(a, b) { return a.localeCompare(b); });
+    if (!names.length) {
+        box.innerHTML = '<p class="text-gray-400 text-sm">Belum ada cabor terdaftar.</p>';
+        return;
+    }
+    var lockSvg = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>';
+    box.innerHTML = names.map(function(n) {
+        var active = getActiveCaborAccess(n);
+        var code = active.code;
+        var masked = code ? code.replace(/./g, '\u2022') : '(belum ada)';
+        var badge = active.source === 'disabled'
+            ? '<span class="text-[9px] font-bold uppercase bg-red-100 text-red-600 border border-red-200 px-1.5 py-0.5 rounded-full">Nonaktif</span>'
+            : (active.source === 'override'
+            ? '<span class="text-[9px] font-bold uppercase bg-amber-100 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded-full">Diubah</span>'
+            : '<span class="text-[9px] font-bold uppercase bg-slate-100 text-slate-500 border border-slate-200 px-1.5 py-0.5 rounded-full">Bawaan</span>');
+        return '<div class="flex flex-wrap items-center justify-between gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">' +
+            '<div class="flex items-center gap-2 min-w-0 flex-wrap">' +
+                '<span class="bg-amber-100 text-amber-700 p-1.5 rounded-lg shrink-0">' + lockSvg + '</span>' +
+                '<span class="font-semibold text-gray-800 text-sm">' + escHtml(n) + '</span>' +
+                '<code class="font-mono text-sm font-bold text-gray-900 bg-white border border-gray-200 px-2 py-0.5 rounded" data-code-cell="' + escHtml(n) + '" data-code-value="' + escHtml(code) + '">' + escHtml(masked) + '</code>' +
+                badge +
+            '</div>' +
+            '<div class="flex flex-wrap items-center gap-3">' +
+                '<button type="button" onclick="toggleCaborCode(this,\'' + jsStr(n) + '\')" class="text-xs font-semibold text-blue-600 hover:text-blue-800 underline">Lihat</button>' +
+                '<button type="button" onclick="copyCaborCode(\'' + jsStr(n) + '\')" class="text-xs font-semibold text-emerald-600 hover:text-emerald-800 underline">Salin</button>' +
+                '<button type="button" onclick="editCaborCode(\'' + jsStr(n) + '\')" class="text-xs font-semibold text-amber-600 hover:text-amber-800 underline">Ubah</button>' +
+                '<button type="button" onclick="resetCaborCode(\'' + jsStr(n) + '\')" class="text-xs font-semibold text-red-500 hover:text-red-700 underline">Reset</button>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function findCaborCodeCell(cabor) {
+    var cell = null;
+    document.querySelectorAll('#adminCaborCodeList code[data-code-cell]').forEach(function(c) {
+        if (c.getAttribute('data-code-cell') === cabor) cell = c;
+    });
+    return cell;
+}
+
+function toggleCaborCode(btn, cabor) {
+    var cell = findCaborCodeCell(cabor);
+    if (!cell) return;
+    var code = cell.getAttribute('data-code-value') || '';
+    var showing = btn.textContent.trim() === 'Sembunyikan';
+    cell.textContent = showing ? code.replace(/./g, '\u2022') : (code || '(belum ada)');
+    btn.textContent = showing ? 'Lihat' : 'Sembunyikan';
+}
+
+function copyCaborCode(cabor) {
+    var code = getCaborAccessCode(cabor);
+    if (!code) {
+        setAdminMsg('adminCodeMsg', 'Cabor "' + cabor + '" belum punya kode akses.', false);
+        return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(function() {
+            setAdminMsg('adminCodeMsg', 'Kode akses "' + cabor + '" (' + code + ') berhasil disalin.', true);
+        }).catch(function() {
+            window.prompt('Salin kode akses ' + cabor + ':', code);
+        });
+    } else {
+        window.prompt('Salin kode akses ' + cabor + ':', code);
+    }
+}
+
+function editCaborCode(cabor) {
+    var current = getCaborAccessCode(cabor);
+    var next = window.prompt('Masukkan kode akses baru untuk "' + cabor + '":', current);
+    if (next === null) return;
+    next = next.trim().toUpperCase();
+    if (!next) {
+        setAdminMsg('adminCodeMsg', 'Kode akses tidak boleh kosong.', false);
+        return;
+    }
+    if (!isCaborCodeUnique(next, cabor)) {
+        setAdminMsg('adminCodeMsg', 'Kode "' + next + '" sudah dipakai cabor lain. Gunakan kode lain.', false);
+        return;
+    }
+    setCaborAccessCode(cabor, next);
+    lockCabor(cabor);
+    saveAdminConfig();
+    renderAdminCaborCodes();
+    setAdminMsg('adminCodeMsg', 'Kode akses "' + cabor + '" diubah menjadi ' + next + ' (tersimpan di browser ini).', true);
+}
+
+function resetCaborCode(cabor) {
+    var active = getActiveCaborAccess(cabor);
+    if (active.source === 'default') {
+        setAdminMsg('adminCodeMsg', 'Kode akses "' + cabor + '" masih memakai kode bawaan sistem (' + active.code + '). Tidak ada override untuk direset.', false);
+        return;
+    }
+    var def = deriveCaborCode(cabor);
+    if (!confirm('Reset kode akses "' + cabor + '"?\n\nKode override akan dihapus dan kembali ke kode bawaan sistem: ' + def + '\nKode lama tidak berlaku lagi.')) return;
+    removeCaborAccessCode(cabor);
+    lockCabor(cabor);
+    saveAdminConfig();
+    renderAdminCaborCodes();
+    setAdminMsg('adminCodeMsg', 'Kode akses "' + cabor + '" direset ke kode bawaan sistem: ' + def + '. Kode ini sama di semua perangkat sehingga aman dibagikan ke pelatih.', true);
+}
+
+// ========== MENU "KODE AKSES CABOR" (KONI & SUPERADMIN) ==========
+// Halaman khusus mengelola kode akses tiap cabor. Semua aksi memakai sistem
+// caborAccess yang sama dengan panel "Kode Akses per Cabor" di menu
+// Cabor & Item Tes, sehingga kode yang dibuat/diubah/di-reset di halaman ini
+// langsung berlaku untuk menu "Daftar Cabor" dan kode lama otomatis tidak
+// berlaku lagi.
+
+// Pintu akses menu: hanya login role KONI atau Superadmin.
+function openCodeAccessView() {
+    if (!currentUser) {
+        showLoginPage();
+        showLoginError('Silakan login terlebih dahulu (akun KONI/Superadmin) untuk membuka menu Kode Akses Cabor.');
+        return false;
+    }
+    if (!canManageCabor()) {
+        alert('Menu "Kode Akses Cabor" hanya tersedia untuk akun KONI dan Superadmin.');
+        navigateTo(isPelatih() ? 'dashboard' : 'list');
+        return false;
+    }
+    navigateTo('code');
+    return true;
+}
+
+// Penjaga sisi "backend": setiap aksi perubahan kode dicek ulang, bukan hanya
+// tombol menu yang disembunyikan.
+function codeAccessGuard() {
+    if (canManageCabor()) return true;
+    setAdminMsg('codeAccessMsg', 'Hanya akun KONI dan Superadmin yang boleh mengelola kode akses cabor.', false);
+    return false;
+}
+
+function renderCodeAccessView() {
+    if (!canManageCabor()) return;
+    var note = document.getElementById('codeAccessTestNote');
+    if (note) {
+        if (CABOR_TEST_CODE) {
+            note.textContent = 'MODE TESTING: cabor tanpa kode khusus memakai kode akses ' + CABOR_TEST_CODE + '.';
+            note.classList.remove('hidden');
+        } else {
+            note.classList.add('hidden');
+        }
+    }
+    renderCodeAccessList();
+}
+
+function clearCodeAccessSearch() {
+    var el = document.getElementById('codeAccessSearch');
+    if (el) { el.value = ''; el.focus(); }
+    renderCodeAccessList();
+}
+
+function renderCodeAccessList() {
+    if (!canManageCabor()) return;
+    var box = document.getElementById('codeAccessList');
+    if (!box) return;
+    var emptyBox = document.getElementById('codeAccessEmpty');
+    var infoEl = document.getElementById('codeAccessInfo');
+    var searchEl = document.getElementById('codeAccessSearch');
+    var clearBtn = document.getElementById('codeAccessSearchClear');
+    var query = searchEl ? searchEl.value.trim().toLowerCase() : '';
+    if (clearBtn) clearBtn.classList.toggle('hidden', !query);
+
+    var names = Object.keys(caborData).sort(function(a, b) { return a.localeCompare(b); });
+    var filtered = names.filter(function(n) { return n.toLowerCase().indexOf(query) >= 0; });
+
+    box.innerHTML = filtered.map(function(n, i) { return codeAccessRowHtml(n, i); }).join('');
+
+    if (infoEl) {
+        infoEl.textContent = query
+            ? 'Menampilkan ' + filtered.length + ' dari ' + names.length + ' cabor'
+            : 'Total ' + names.length + ' cabor terdaftar';
+    }
+    if (emptyBox) emptyBox.classList.toggle('hidden', filtered.length > 0);
+}
+
+function codeAccessRowHtml(name, idx) {
+    var active = getActiveCaborAccess(name);
+    var code = active.code;
+    var masked = code ? code.replace(/./g, '\u2022') : '';
+    var badge = active.source === 'disabled'
+        ? '<span class="text-[9px] font-bold uppercase bg-red-100 text-red-600 border border-red-200 px-1.5 py-0.5 rounded-full">Nonaktif</span>'
+        : (active.source === 'override'
+        ? '<span class="text-[9px] font-bold uppercase bg-amber-100 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded-full">Diubah</span>'
+        : '<span class="text-[9px] font-bold uppercase bg-slate-100 text-slate-500 border border-slate-200 px-1.5 py-0.5 rounded-full">Bawaan</span>');
+    var codeHtml = code
+        ? '<code class="font-mono text-sm font-bold text-gray-900 bg-gray-50 border border-gray-200 px-2 py-1 rounded" data-code-cell="' + escHtml(name) + '" data-code-value="' + escHtml(code) + '">' + escHtml(masked) + '</code>'
+        : '<span class="text-xs font-semibold text-gray-400">Belum ada</span>';
+    var lockSvg = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>';
+    var acts = [];
+    if (code) {
+        acts.push('<button type="button" onclick="toggleCodeAccess(this,\'' + jsStr(name) + '\')" class="text-xs font-semibold text-blue-600 hover:text-blue-800 underline">Lihat</button>');
+        acts.push('<button type="button" onclick="copyCodeAccess(\'' + jsStr(name) + '\')" class="text-xs font-semibold text-emerald-600 hover:text-emerald-800 underline">Salin</button>');
+    }
+    acts.push('<button type="button" onclick="generateCodeAccess(\'' + jsStr(name) + '\')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 underline">Generate</button>');
+    acts.push('<button type="button" onclick="editCodeAccess(\'' + jsStr(name) + '\')" class="text-xs font-semibold text-amber-600 hover:text-amber-800 underline">Ubah</button>');
+    acts.push('<button type="button" onclick="resetCodeAccess(\'' + jsStr(name) + '\')" class="text-xs font-semibold text-orange-600 hover:text-orange-800 underline">Reset</button>');
+    if (active.source === 'disabled') {
+        acts.push('<button type="button" onclick="enableCodeAccess(\'' + jsStr(name) + '\')" class="text-xs font-semibold text-emerald-600 hover:text-emerald-800 underline">Aktifkan</button>');
+    } else {
+        acts.push('<button type="button" onclick="disableCodeAccess(\'' + jsStr(name) + '\')" class="text-xs font-semibold text-red-500 hover:text-red-700 underline">Nonaktifkan</button>');
+    }
+
+    return '<tr class="border-b border-gray-100 hover:bg-gray-50 transition">' +
+        '<td class="px-3 py-3 align-top text-gray-400 w-10">' + (idx + 1) + '</td>' +
+        '<td class="px-3 py-3 align-top font-semibold text-gray-800"><span class="inline-flex items-center gap-2"><span class="bg-amber-100 text-amber-700 p-1.5 rounded-lg shrink-0">' + lockSvg + '</span>' + escHtml(name) + '</span></td>' +
+        '<td class="px-3 py-3 align-top"><span class="flex flex-wrap items-center gap-2">' + codeHtml + badge + '</span></td>' +
+        '<td class="px-3 py-3 align-top rounded-r-xl"><span class="flex flex-wrap items-center gap-x-3 gap-y-1.5">' + acts.join('') + '</span></td>' +
+    '</tr>';
+}
+
+function findCodeAccessCell(cabor) {
+    var cell = null;
+    document.querySelectorAll('#codeAccessList code[data-code-cell]').forEach(function(c) {
+        if (c.getAttribute('data-code-cell') === cabor) cell = c;
+    });
+    return cell;
+}
+
+function toggleCodeAccess(btn, cabor) {
+    var cell = findCodeAccessCell(cabor);
+    if (!cell) return;
+    var code = cell.getAttribute('data-code-value') || '';
+    var showing = btn.textContent.trim() === 'Sembunyikan';
+    cell.textContent = showing ? code.replace(/./g, '\u2022') : code;
+    btn.textContent = showing ? 'Lihat' : 'Sembunyikan';
+}
+
+function copyCodeAccess(cabor) {
+    if (!codeAccessGuard()) return;
+    var code = getCaborAccessCode(cabor);
+    if (!code) {
+        setAdminMsg('codeAccessMsg', 'Cabor "' + cabor + '" tidak punya kode akses aktif.', false);
+        return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(function() {
+            setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" (' + code + ') berhasil disalin.', true);
+        }).catch(function() {
+            window.prompt('Salin kode akses ' + cabor + ':', code);
+        });
+    } else {
+        window.prompt('Salin kode akses ' + cabor + ':', code);
+    }
+}
+
+// Simpan perubahan + kunci ulang sesi yang sudah terbuka (kode lama tidak
+// berlaku lagi), lalu segarkan panel lain yang menampilkan kode akses.
+function afterCodeAccessChange(cabor) {
+    lockCabor(cabor);
+    clearCaborAttempts(cabor);
+    saveAdminConfig();
+    renderCodeAccessList();
+    if (typeof renderAdminView === 'function') renderAdminView();
+    if (typeof renderDaftarCabor === 'function' && document.getElementById('landingPage').classList.contains('active')) renderDaftarCabor();
+}
+
+function generateCodeAccess(cabor) {
+    if (!codeAccessGuard()) return;
+    var active = getActiveCaborAccess(cabor);
+    if (active.source !== 'default') {
+        var current = active.code || '(nonaktif)';
+        if (!confirm('Generate kode akses baru untuk "' + cabor + '"?\n\nKode saat ini: ' + current + '\nKode lama tidak berlaku lagi setelah diganti.')) return;
+    }
+    var code = generateUniqueCaborCode(cabor);
+    setCaborAccessCode(cabor, code);
+    afterCodeAccessChange(cabor);
+    setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" berhasil dibuat: ' + code + '. Kode lama tidak berlaku lagi.', true);
+}
+
+function editCodeAccess(cabor) {
+    if (!codeAccessGuard()) return;
+    var active = getActiveCaborAccess(cabor);
+    var next = window.prompt('Masukkan kode akses baru untuk "' + cabor + '":', active.code);
+    if (next === null) return;
+    next = next.trim().toUpperCase();
+    if (!next) {
+        setAdminMsg('codeAccessMsg', 'Kode akses tidak boleh kosong.', false);
+        return;
+    }
+    if (!isCaborCodeUnique(next, cabor)) {
+        setAdminMsg('codeAccessMsg', 'Kode "' + next + '" sudah dipakai cabor lain. Gunakan kode lain.', false);
+        return;
+    }
+    setCaborAccessCode(cabor, next);
+    afterCodeAccessChange(cabor);
+    setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" diubah menjadi ' + next + '. Kode lama tidak berlaku lagi.', true);
+}
+
+function resetCodeAccess(cabor) {
+    if (!codeAccessGuard()) return;
+    var active = getActiveCaborAccess(cabor);
+    if (active.source === 'default') {
+        setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" masih memakai kode bawaan sistem (' + active.code + '). Tidak ada kode ubahan untuk direset.', false);
+        return;
+    }
+    var def = deriveCaborCode(cabor);
+    var current = active.code || '(nonaktif)';
+    if (!confirm('Reset kode akses "' + cabor + '"?\n\nKode saat ini: ' + current + '\nKode akan kembali ke kode bawaan sistem: ' + def + '\nKode lama tidak berlaku lagi.')) return;
+    removeCaborAccessCode(cabor);
+    afterCodeAccessChange(cabor);
+    setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" direset ke kode bawaan sistem: ' + def + '. Kode lama tidak berlaku lagi.', true);
+}
+
+function disableCodeAccess(cabor) {
+    if (!codeAccessGuard()) return;
+    var active = getActiveCaborAccess(cabor);
+    if (active.source === 'disabled') {
+        setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" sudah nonaktif.', false);
+        return;
+    }
+    if (!confirm('Nonaktifkan kode akses "' + cabor + '"?\n\nKode saat ini: ' + active.code + '\nPelatih tidak bisa membuka hasil tes cabor ini lewat menu Daftar Cabor sampai kode diaktifkan kembali.')) return;
+    disableCaborAccessCode(cabor);
+    afterCodeAccessChange(cabor);
+    setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" dinonaktifkan. Hasil tes cabor ini tertutup untuk pelatih sampai kode diaktifkan kembali.', true);
+}
+
+function enableCodeAccess(cabor) {
+    if (!codeAccessGuard()) return;
+    var entry = (adminConfig.caborAccess || {})[cabor];
+    var restored = entry && entry.code ? entry.code : '';
+    if (restored) {
+        entry.disabled = false;
+        entry.updatedAt = new Date().toISOString();
+    } else {
+        removeCaborAccessCode(cabor);
+    }
+    afterCodeAccessChange(cabor);
+    setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" diaktifkan kembali: ' + (restored || getCaborAccessCode(cabor)) + '.', true);
+}
+
+document.getElementById('caborAccessInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') submitCaborAccess();
+});
+
+// ========== FIREBASE REALTIME LISTENER (sumber data utama) ==========
+// Satu listener untuk seluruh dokumen: data atlet + konfigurasi admin (cabor,
+// item tes, kode akses, akun user). Perubahan di perangkat lain langsung
+// diterapkan tanpa reload, tanpa import/export.
+
+// Terapkan konfigurasi dari server: merge per kunci dengan salinan lokal, lalu
+// putuskan apakah perlu mengirim balik ke server.
+function applyServerConfig(cfgRaw) {
+    if (!cfgRaw) {
+        // Server belum punya konfigurasi sama sekali: migrasikan konfigurasi
+        // lokal ke server. Backup dibuat lebih dulu (permintaan: jangan sampai
+        // data lama hilang).
+        serverConfig = null;
+        if ((adminConfig.updatedAt || 0) > 0) {
+            if (!syncMigrated) {
+                backupAdminConfig(adminConfig, 'lokal');
+                stampAllKeys(adminConfig);
+                syncMigrated = true;
+                console.info('[Sync] migrasi konfigurasi lokal -> server (backup dibuat).');
+            }
+            return { changed: false, needsPush: true };
+        }
+        return { changed: false, needsPush: false };
+    }
+    var remote = normalizeAdminConfig(cfgRaw);
+    serverConfig = remote;
+    lastPushedConfig = cloneConfig(remote);
+    var merged = mergeAdminConfig(adminConfig, remote);
+    var localDiff = !sameConfigContent(merged, adminConfig);
+    var serverDiff = !sameConfigContent(merged, remote);
+    if (localDiff) {
+        adminConfig = merged;
+        applyAdminConfig();
+        saveLocalCache();
+    }
+    return { changed: localDiff, needsPush: serverDiff };
+}
+
+dbRef.on('value', function(snapshot) {
+    var parts = splitServerSnapshot(snapshot.val());
+    var incoming = parts.athletes;
+
+    // Sinkron pertama: perubahan lokal yang belum terkirim (mis. sedang offline)
+    // digabungkan berdasarkan id agar tidak hilang tertimpa server.
+    if (!syncSeenServer && dashboardAthletes.length) {
+        var serverIds = {};
+        incoming.forEach(function(a) { if (a && a.id != null) serverIds[a.id] = true; });
+        var localOnly = dashboardAthletes.filter(function(a) {
+            return a && a.id != null && !serverIds[a.id];
+        });
+        if (localOnly.length && syncPending) {
+            incoming = incoming.concat(localOnly);
+            console.info('[Sync] ' + localOnly.length + ' data lokal yang belum terkirim ikut digabungkan.');
+        }
+    }
+    dashboardAthletes = incoming;
+    syncSeenServer = true;
+
+    var cfgResult = applyServerConfig(parts.cfg);
     migrateItemNames();
+
     dataLoaded = true;
     document.getElementById('loadingScreen').classList.add('hidden');
-    if (typeof refreshCurrentView === 'function') refreshCurrentView();
+
+    var pushed = false;
+    if (cfgResult.needsPush) {
+        // Hasil merge (perubahan perangkat ini) belum ada di server: kirim.
+        saveAdminConfig();
+        pushed = true;
+    } else if (syncPending) {
+        // Masih ada antrian tadi (mis. sempat offline): kirim ulang sekarang.
+        writeSnapshot();
+        pushed = true;
+    }
+
+    if (cfgResult.changed) {
+        refreshAfterConfigChange();
+        refreshCurrentUserFromConfig();
+    } else if (typeof refreshCurrentView === 'function') {
+        refreshCurrentView();
+    }
+    if (!pushed) setSyncStatus(syncPending ? 'waiting' : 'saved');
 }, function(error) {
     console.error('Firebase read error:', error);
+    var cache = readLocalCache();
+    if (cache && cache.athletes && cache.athletes.length && !dashboardAthletes.length) {
+        dashboardAthletes = cache.athletes;
+        console.info('[Sync] memakai cache perangkat karena gagal membaca server.');
+    }
+    if (cache && cache.cfg && !serverConfig) {
+        adminConfig = normalizeAdminConfig(cache.cfg);
+        applyAdminConfig();
+    }
     dataLoaded = true;
     document.getElementById('loadingScreen').classList.add('hidden');
-    alert('Gagal memuat data dari server. Data kosong digunakan sementara.');
+    setSyncStatus('error', 'Gagal mengambil data dari server: ' + ((error && error.message) || error));
+    if (typeof refreshCurrentView === 'function') refreshCurrentView();
+    alert('Gagal mengambil data dari server (' + ((error && error.message) || error) + ').\nMenampilkan data terakhir yang tersimpan di perangkat ini.');
 });
+
+// Koneksi pulih / putus: kirim ulang antrian dan beri tahu pengguna.
+db.ref('.info/connected').on('value', function(snap) {
+    var connected = snap.val() === true;
+    if (connected) {
+        if (syncPending) {
+            setSyncStatus('waiting');
+            writeSnapshot();
+        }
+    } else if (syncPending) {
+        setSyncStatus('offline');
+    }
+});
+window.addEventListener('online', function() { if (syncPending) writeSnapshot(); });
+window.addEventListener('focus', function() { if (syncPending) writeSnapshot(); });
 
 setTimeout(function() {
     if (!dataLoaded) {
@@ -3497,6 +5730,12 @@ setTimeout(function() {
 function refreshCurrentView() {
     if (document.getElementById('landingPage').classList.contains('active')) {
         renderLandingStats();
+        renderDaftarCabor();
+        return;
+    }
+    if (document.getElementById('caborPage').classList.contains('active')) {
+        renderCaborHasil();
+        refreshOpenCaborDetail();
         return;
     }
     if (document.getElementById('listView').classList.contains('active')) {
@@ -3507,6 +5746,8 @@ function refreshCurrentView() {
         renderComparison();
     } else if (document.getElementById('adminView').classList.contains('active')) {
         renderAdminView();
+    } else if (document.getElementById('codeView').classList.contains('active')) {
+        renderCodeAccessView();
     }
 }
 
