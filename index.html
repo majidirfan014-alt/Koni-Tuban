@@ -972,50 +972,6 @@
             <div id="adminCaborCodeList" class="space-y-2"></div>
         </div>
 
-        <!-- E. AKUN USER CABOR -->
-        <div class="bg-white rounded-2xl card-shadow p-6">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="bg-indigo-100 text-indigo-700 p-2 rounded-lg">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800">Akun User Cabor</h2>
-                    <p class="text-gray-400 text-xs">Akun pelatih tiap cabor. Tersimpan terpusat, jadi bisa langsung dipakai login di laptop/perangkat lain.</p>
-                </div>
-            </div>
-            <div id="adminUserMsg" class="hidden bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-3"></div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end mb-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-800 mb-1">Username</label>
-                    <input type="text" id="adminUserNama" placeholder="pelatih_bola voli" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition text-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-800 mb-1">Password</label>
-                    <input type="password" id="adminUserPass" placeholder="min. 4 karakter" autocomplete="new-password" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition text-sm">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-800 mb-1">Role</label>
-                    <select id="adminUserRole" onchange="onAdminUserRoleChange()" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition bg-white text-sm">
-                        <option value="pelatih">Pelatih</option>
-                        <option value="koni">KONI</option>
-                        <option value="superadmin">Superadmin</option>
-                    </select>
-                </div>
-                <div id="adminUserCaborWrap">
-                    <label class="block text-sm font-semibold text-gray-800 mb-1">Cabor</label>
-                    <select id="adminUserCabor" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition bg-white text-sm">
-                        <option value="">-- Tidak terkait cabor --</option>
-                    </select>
-                </div>
-                <div class="flex gap-2">
-                    <button type="button" id="adminUserBtn" onclick="saveAdminUser()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm shadow-lg shadow-indigo-200">Tambah Akun</button>
-                    <button type="button" id="adminUserCancel" onclick="cancelAdminUserEdit()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-2.5 rounded-xl transition text-sm">Batal</button>
-                </div>
-            </div>
-            <p class="text-xs text-gray-400 mb-3">Akun pelatih baru untuk cabor baru dibuat otomatis (username: <b>pelatih_&lt;nama cabor&gt;</b>, password sama dengan pelatih lain) dan langsung tersinkron di semua perangkat.</p>
-            <div id="adminUserList" class="space-y-2"></div>
-        </div>
-
     </div>
 </div>
 
@@ -1061,6 +1017,50 @@
             <div id="codeAccessEmpty" class="hidden mt-4 text-center bg-gray-50 border border-dashed border-gray-200 rounded-2xl py-10">
                 <p class="text-sm text-gray-400 font-semibold">Cabor tidak ditemukan</p>
             </div>
+        </div>
+
+        <!-- B. AKUN USER CABOR -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-indigo-100 text-indigo-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Akun User Cabor</h2>
+                    <p class="text-gray-400 text-xs">Akun pelatih tiap cabor. Tersimpan terpusat, jadi bisa langsung dipakai login di laptop/perangkat lain.</p>
+                </div>
+            </div>
+            <div id="adminUserMsg" class="hidden bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-3"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end mb-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-800 mb-1">Username</label>
+                    <input type="text" id="adminUserNama" placeholder="pelatih_bola voli" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-800 mb-1">Password</label>
+                    <input type="password" id="adminUserPass" placeholder="min. 4 karakter" autocomplete="new-password" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-800 mb-1">Role</label>
+                    <select id="adminUserRole" onchange="onAdminUserRoleChange()" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition bg-white text-sm">
+                        <option value="pelatih">Pelatih</option>
+                        <option value="koni">KONI</option>
+                        <option value="superadmin">Superadmin</option>
+                    </select>
+                </div>
+                <div id="adminUserCaborWrap">
+                    <label class="block text-sm font-semibold text-gray-800 mb-1">Cabor</label>
+                    <select id="adminUserCabor" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition bg-white text-sm">
+                        <option value="">-- Tidak terkait cabor --</option>
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" id="adminUserBtn" onclick="saveAdminUser()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-xl transition text-sm shadow-lg shadow-indigo-200">Tambah Akun</button>
+                    <button type="button" id="adminUserCancel" onclick="cancelAdminUserEdit()" class="hidden bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-2.5 rounded-xl transition text-sm">Batal</button>
+                </div>
+            </div>
+            <p class="text-xs text-gray-400 mb-3">Akun pelatih baru untuk cabor baru dibuat otomatis (username: <b>pelatih_&lt;nama cabor&gt;</b>, password sama dengan pelatih lain) dan langsung tersinkron di semua perangkat.</p>
+            <div id="adminUserList" class="space-y-2"></div>
         </div>
 
     </div>
@@ -1482,8 +1482,11 @@ var currentId = null;
 var editingId = null;
 var dataLoaded = false;
 
-auth.signInAnonymously().catch(function(err) {
+// Tunggu proses login anonymous selesai sebelum menulis. Rules hanya menerima
+// tulisan yang membawa token, jadi menulis terlalu cepat bisa berujung 401.
+var authReady = auth.signInAnonymously().catch(function(err) {
     console.warn('Anonymous auth failed:', err.message);
+    return null;
 });
 
 // ========== PENYIMPANAN TERPUSAT (FIREBASE REALTIME DATABASE) ==========
@@ -1621,7 +1624,9 @@ function writeSnapshot() {
         }
     }
     setSyncStatus('saving');
-    return dbRef.set(snapshotPayload()).then(function() {
+    return authReady.then(function() {
+        return dbRef.set(snapshotPayload());
+    }).then(function() {
         syncPending = false;
         lastPushedConfig = cloneConfig(adminConfig);
         saveLocalCache();
@@ -4120,7 +4125,6 @@ function renderAdminView() {
     renderAdminCaborList();
     renderAdminMasterItems();
     renderAdminCaborCodes();
-    renderAdminUsers();
     populateAdminCaborSelect();
 }
 
@@ -4175,6 +4179,7 @@ function onAdminUserRoleChange() {
 }
 
 function renderAdminUsers() {
+    if (!canManageCabor()) return;
     var box = document.getElementById('adminUserList');
     if (!box) return;
     var caborSel = document.getElementById('adminUserCabor');
@@ -4291,7 +4296,7 @@ function saveAdminUser() {
 
     adminUserEditKey = null;
     fillAdminUserForm(null);
-    renderAdminView();
+    renderAdminUsers();
     saveAdminConfig().then(function(res) {
         reportSyncResult('adminUserMsg', 'Akun "' + username + '" tersimpan dan tersinkron di semua perangkat.', res);
     });
@@ -4323,7 +4328,7 @@ function deleteAdminUser(username) {
     });
     markBuiltinUserRemoved(key);
     if (adminUserEditKey && String(adminUserEditKey).toLowerCase() === key) cancelAdminUserEdit();
-    renderAdminView();
+    renderAdminUsers();
     saveAdminConfig().then(function(res) {
         reportSyncResult('adminUserMsg', 'Akun "' + u.username + '" dihapus.', res);
     });
@@ -5351,9 +5356,10 @@ function editCaborCode(cabor) {
     }
     setCaborAccessCode(cabor, next);
     lockCabor(cabor);
-    saveAdminConfig();
     renderAdminCaborCodes();
-    setAdminMsg('adminCodeMsg', 'Kode akses "' + cabor + '" diubah menjadi ' + next + ' (tersimpan di browser ini).', true);
+    saveAdminConfig().then(function(res) {
+        reportSyncResult('adminCodeMsg', 'Kode akses "' + cabor + '" diubah menjadi ' + next + '.', res);
+    });
 }
 
 function resetCaborCode(cabor) {
@@ -5366,9 +5372,10 @@ function resetCaborCode(cabor) {
     if (!confirm('Reset kode akses "' + cabor + '"?\n\nKode override akan dihapus dan kembali ke kode bawaan sistem: ' + def + '\nKode lama tidak berlaku lagi.')) return;
     removeCaborAccessCode(cabor);
     lockCabor(cabor);
-    saveAdminConfig();
     renderAdminCaborCodes();
-    setAdminMsg('adminCodeMsg', 'Kode akses "' + cabor + '" direset ke kode bawaan sistem: ' + def + '. Kode ini sama di semua perangkat sehingga aman dibagikan ke pelatih.', true);
+    saveAdminConfig().then(function(res) {
+        reportSyncResult('adminCodeMsg', 'Kode akses "' + cabor + '" direset ke kode bawaan sistem: ' + def + '. Kode ini sama di semua perangkat sehingga aman dibagikan ke pelatih.', res);
+    });
 }
 
 // ========== MENU "KODE AKSES CABOR" (KONI & SUPERADMIN) ==========
@@ -5414,6 +5421,7 @@ function renderCodeAccessView() {
         }
     }
     renderCodeAccessList();
+    renderAdminUsers();
 }
 
 function clearCodeAccessSearch() {
@@ -5521,10 +5529,12 @@ function copyCodeAccess(cabor) {
 function afterCodeAccessChange(cabor) {
     lockCabor(cabor);
     clearCaborAttempts(cabor);
-    saveAdminConfig();
     renderCodeAccessList();
     if (typeof renderAdminView === 'function') renderAdminView();
     if (typeof renderDaftarCabor === 'function' && document.getElementById('landingPage').classList.contains('active')) renderDaftarCabor();
+    // Kembalikan promise supaya pemanggil bisa menampilkan pesan gagal kirim
+    // ke server (jangan mengaku tersimpan bila sinkronisasi gagal).
+    return saveAdminConfig();
 }
 
 function generateCodeAccess(cabor) {
@@ -5536,8 +5546,9 @@ function generateCodeAccess(cabor) {
     }
     var code = generateUniqueCaborCode(cabor);
     setCaborAccessCode(cabor, code);
-    afterCodeAccessChange(cabor);
-    setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" berhasil dibuat: ' + code + '. Kode lama tidak berlaku lagi.', true);
+    afterCodeAccessChange(cabor).then(function(res) {
+        reportSyncResult('codeAccessMsg', 'Kode akses "' + cabor + '" berhasil dibuat: ' + code + '. Kode lama tidak berlaku lagi.', res);
+    });
 }
 
 function editCodeAccess(cabor) {
@@ -5555,8 +5566,9 @@ function editCodeAccess(cabor) {
         return;
     }
     setCaborAccessCode(cabor, next);
-    afterCodeAccessChange(cabor);
-    setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" diubah menjadi ' + next + '. Kode lama tidak berlaku lagi.', true);
+    afterCodeAccessChange(cabor).then(function(res) {
+        reportSyncResult('codeAccessMsg', 'Kode akses "' + cabor + '" diubah menjadi ' + next + '. Kode lama tidak berlaku lagi.', res);
+    });
 }
 
 function resetCodeAccess(cabor) {
@@ -5570,8 +5582,9 @@ function resetCodeAccess(cabor) {
     var current = active.code || '(nonaktif)';
     if (!confirm('Reset kode akses "' + cabor + '"?\n\nKode saat ini: ' + current + '\nKode akan kembali ke kode bawaan sistem: ' + def + '\nKode lama tidak berlaku lagi.')) return;
     removeCaborAccessCode(cabor);
-    afterCodeAccessChange(cabor);
-    setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" direset ke kode bawaan sistem: ' + def + '. Kode lama tidak berlaku lagi.', true);
+    afterCodeAccessChange(cabor).then(function(res) {
+        reportSyncResult('codeAccessMsg', 'Kode akses "' + cabor + '" direset ke kode bawaan sistem: ' + def + '. Kode lama tidak berlaku lagi.', res);
+    });
 }
 
 function disableCodeAccess(cabor) {
@@ -5583,8 +5596,9 @@ function disableCodeAccess(cabor) {
     }
     if (!confirm('Nonaktifkan kode akses "' + cabor + '"?\n\nKode saat ini: ' + active.code + '\nPelatih tidak bisa membuka hasil tes cabor ini lewat menu Daftar Cabor sampai kode diaktifkan kembali.')) return;
     disableCaborAccessCode(cabor);
-    afterCodeAccessChange(cabor);
-    setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" dinonaktifkan. Hasil tes cabor ini tertutup untuk pelatih sampai kode diaktifkan kembali.', true);
+    afterCodeAccessChange(cabor).then(function(res) {
+        reportSyncResult('codeAccessMsg', 'Kode akses "' + cabor + '" dinonaktifkan. Hasil tes cabor ini tertutup untuk pelatih sampai kode diaktifkan kembali.', res);
+    });
 }
 
 function enableCodeAccess(cabor) {
@@ -5597,8 +5611,9 @@ function enableCodeAccess(cabor) {
     } else {
         removeCaborAccessCode(cabor);
     }
-    afterCodeAccessChange(cabor);
-    setAdminMsg('codeAccessMsg', 'Kode akses "' + cabor + '" diaktifkan kembali: ' + (restored || getCaborAccessCode(cabor)) + '.', true);
+    afterCodeAccessChange(cabor).then(function(res) {
+        reportSyncResult('codeAccessMsg', 'Kode akses "' + cabor + '" diaktifkan kembali: ' + (restored || getCaborAccessCode(cabor)) + '.', res);
+    });
 }
 
 document.getElementById('caborAccessInput').addEventListener('keydown', function(e) {
