@@ -9,6 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <!-- SheetJS fork dengan dukungan gaya sel (bold header) untuk export .xlsx menu Norma Tes -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         body{font-family:'Inter',sans-serif}
@@ -445,6 +447,7 @@
     <button onclick="navigateTo('comparison')" id="tabComparison" class="flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Data Comparison</button>
     <button onclick="openAdminView()" id="tabAdmin" class="hidden flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Cabor &amp; Item Tes</button>
     <button onclick="openCodeAccessView()" id="tabCode" class="hidden flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Kode Akses Cabor</button>
+    <button onclick="openNormaView()" id="tabNorma" class="hidden flex-1 py-2.5 px-4 rounded-lg text-sm transition tab-inactive">Norma Tes</button>
 </div>
 
 <!-- ========== VIEW: DAFTAR ATLET ========== -->
@@ -1063,6 +1066,146 @@
             <div id="adminUserList" class="space-y-2"></div>
         </div>
 
+    </div>
+</div>
+
+<!-- ========== VIEW: NORMA TES ========== -->
+<div id="normaView" class="view">
+    <div class="space-y-6">
+
+        <!-- HEADER + AKSI UNDUH -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-100 text-indigo-700 p-2 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Norma Tes Fisik</h2>
+                        <p class="text-gray-400 text-xs">Norma, kategori, dan rumus penilaian yang benar-benar dipakai sistem (read-only)</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button id="normaBtnCsv" type="button" onclick="downloadNormaCSV()" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-5 py-2.5 rounded-xl transition flex items-center gap-2 text-sm shadow-lg shadow-teal-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Download CSV
+                    </button>
+                    <button id="normaBtnXlsx" type="button" onclick="downloadNormaXLSX()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl transition flex items-center gap-2 text-sm shadow-lg shadow-emerald-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Download Excel (.xlsx)
+                    </button>
+                </div>
+            </div>
+            <div id="normaMsg" class="hidden mt-4 text-sm rounded-xl px-4 py-3"></div>
+        </div>
+
+        <!-- A. DAFTAR ITEM TES -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-blue-100 text-blue-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800">A. Daftar Item Tes</h3>
+                    <p class="text-gray-400 text-xs">Nama tes, satuan, komponen fisik yang diukur, dan arah penilaian</p>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 rounded-l-xl text-xs w-10">No</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Nama Item Tes</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Satuan</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Komponen Fisik</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Arah Nilai</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Berlaku Untuk</th>
+                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 rounded-r-xl text-xs">Status Penilaian</th>
+                        </tr>
+                    </thead>
+                    <tbody id="normaItemBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- B. TABEL NORMA & KATEGORI -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-emerald-100 text-emerald-700 p-2 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M3 6h18M3 18h18"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">B. Tabel Norma &amp; Kategori</h3>
+                        <p class="text-gray-400 text-xs">Rentang nilai per kategori diturunkan dari mean &amp; sd norma (z = 2, 1, 0, -1)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 mb-3">
+                <div class="relative">
+                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                    <input type="text" id="normaSearch" oninput="filterNormaItems()" placeholder="Cari item tes..." class="w-52 sm:w-64 pl-9 pr-8 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm">
+                    <button type="button" id="normaSearchClear" onclick="clearNormaSearch()" aria-label="Kosongkan pencarian" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <select id="normaKomponenFilter" onchange="filterNormaItems()" class="py-2 px-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm text-gray-700">
+                    <option value="">Semua Komponen Fisik</option>
+                </select>
+            </div>
+            <p id="normaSearchInfo" class="text-xs text-gray-400 mb-2"></p>
+            <div id="normaAccordion" class="space-y-2"></div>
+            <div id="normaNoResult" class="hidden text-center text-sm text-gray-400 bg-gray-50 border border-dashed border-gray-200 rounded-xl py-6 mt-2">Item tes tidak ditemukan</div>
+        </div>
+
+        <!-- C. RUMUS PERHITUNGAN -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-amber-100 text-amber-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800">C. Rumus Perhitungan</h3>
+                    <p class="text-gray-400 text-xs">Rumus skor, konversi nilai, persentase, total, dan penentuan kategori akhir</p>
+                </div>
+            </div>
+            <div id="normaRumusWrap" class="space-y-3"></div>
+        </div>
+
+        <!-- D. KETERAHAN & SUMBER NORMA -->
+        <div class="bg-white rounded-2xl card-shadow p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="bg-purple-100 text-purple-700 p-2 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800">D. Keterangan &amp; Sumber Norma</h3>
+                    <p class="text-gray-400 text-xs">Asal nilai norma dan catatan teknis dari konfigurasi sistem</p>
+                </div>
+            </div>
+            <div id="normaSumberWrap" class="space-y-3"></div>
+            <div class="mt-5">
+                <button type="button" id="normaCaborDetailBtn" onclick="toggleNormaCaborDetail()" class="text-xs font-semibold text-blue-600 hover:text-blue-800 underline">Tampilkan detail norma per cabor &amp; nomor</button>
+                <div id="normaCaborDetailWrap" class="hidden mt-3">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="px-3 py-2.5 text-left font-semibold text-gray-700 rounded-l-xl text-xs">Cabor / Nomor</th>
+                                    <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Item Tes</th>
+                                    <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Mean (≤17)</th>
+                                    <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">SD (≤17)</th>
+                                    <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Mean (&gt;17)</th>
+                                    <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">SD (&gt;17)</th>
+                                    <th class="px-3 py-2.5 text-left font-semibold text-gray-700 rounded-r-xl text-xs">Arah Nilai</th>
+                                </tr>
+                            </thead>
+                            <tbody id="normaCaborDetailBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -2342,6 +2485,17 @@ function navigateTo(view) {
             view = isPelatih() ? 'dashboard' : 'list';
         }
     }
+    if (view === 'norma') {
+        if (!currentUser) {
+            showLoginPage();
+            showLoginError('Silakan login terlebih dahulu (akun KONI/Superadmin) untuk membuka menu Norma Tes.');
+            return;
+        }
+        if (!canManageCabor()) {
+            alert('Menu "Norma Tes" hanya tersedia untuk akun KONI dan Superadmin.');
+            view = isPelatih() ? 'dashboard' : 'list';
+        }
+    }
     document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
     document.querySelectorAll('[id^="tab"]').forEach(function(t) { t.className = t.className.replace('tab-active', 'tab-inactive'); });
     var el = document.getElementById(view + 'View');
@@ -2369,6 +2523,9 @@ function navigateTo(view) {
     }
     if (view === 'code') {
         renderCodeAccessView();
+    }
+    if (view === 'norma') {
+        renderNormaView();
     }
     if (view === 'form') {
         populateCaborDropdown();
@@ -3830,6 +3987,7 @@ function showApp() {
         applyRoleAccess();
         document.getElementById('tabAdmin').classList.toggle('hidden', !canManageCabor());
         document.getElementById('tabCode').classList.toggle('hidden', !canManageCabor());
+        document.getElementById('tabNorma').classList.toggle('hidden', !canManageCabor());
 
         if (isPelatih()) {
             document.getElementById('tabList').classList.add('hidden');
@@ -3840,6 +3998,8 @@ function showApp() {
         }
         // Buka menu admin bila dibuka lewat URL (contoh: /#admin) setelah login.
         if (wantsAdminRoute() && canManageCabor()) navigateTo('admin');
+        // Buka menu Norma Tes bila dibuka lewat URL (contoh: /#norma) setelah login.
+        if (wantsNormaRoute() && canManageCabor()) navigateTo('norma');
     } catch (e) {
         console.error('[Auth] showApp error:', e);
     }
@@ -3866,6 +4026,7 @@ function checkAuth() {
     if (currentUser) {
         showApp();
         if (wantsAdminRoute() && !canManageCabor()) openAdminView();
+        if (wantsNormaRoute() && !canManageCabor()) openNormaView();
     } else {
         document.getElementById('loginPage').classList.remove('active');
         document.getElementById('appContent').classList.remove('active');
@@ -3873,6 +4034,10 @@ function checkAuth() {
         if (wantsAdminRoute()) {
             showLoginPage();
             showLoginError('Silakan login terlebih dahulu untuk membuka menu admin.');
+        }
+        if (wantsNormaRoute()) {
+            showLoginPage();
+            showLoginError('Silakan login terlebih dahulu (akun KONI/Superadmin) untuk membuka menu Norma Tes.');
         }
     }
     // Menu "Daftar Cabor" bisa dibuka lewat URL, contoh: http://localhost/tuban/#daftar-cabor
@@ -3906,8 +4071,30 @@ function openAdminView() {
     return true;
 }
 
+// Dukungan akses langsung via URL untuk menu Norma Tes, contoh: #norma
+function wantsNormaRoute() {
+    var h = (location.hash || '').replace('#', '').toLowerCase();
+    return h === 'norma' || h === 'norma-tes' || h === 'normates';
+}
+
+function openNormaView() {
+    if (!currentUser) {
+        showLoginPage();
+        showLoginError('Silakan login terlebih dahulu (akun KONI/Superadmin) untuk membuka menu Norma Tes.');
+        return false;
+    }
+    if (!canManageCabor()) {
+        alert('Menu "Norma Tes" hanya tersedia untuk akun KONI dan Superadmin.');
+        navigateTo(isPelatih() ? 'dashboard' : 'list');
+        return false;
+    }
+    navigateTo('norma');
+    return true;
+}
+
 window.addEventListener('hashchange', function() {
     if (wantsAdminRoute()) openAdminView();
+    else if (wantsNormaRoute()) openNormaView();
     else if (wantsDaftarCaborRoute()) openDaftarCaborPage();
 });
 
@@ -5957,7 +6144,866 @@ function refreshCurrentView() {
         renderAdminView();
     } else if (document.getElementById('codeView').classList.contains('active')) {
         renderCodeAccessView();
+    } else if (document.getElementById('normaView').classList.contains('active')) {
+        renderNormaView();
     }
+}
+
+// ========== MENU ADMIN: NORMA TES ==========
+// Halaman read-only berisi norma, kategori, dan rumus penilaian yang
+// BENAR-BENAR dipakai sistem. Semua angka dibaca dari sumber yang sama dengan
+// perhitungan hasil tes (caborData, atletikNomor, ITEM_KELAMIN,
+// NORMA_ITEM_KELAMIN, calcItemPct, getPctCategory, getBrockportScore,
+// calcBleepVO2max) sehingga tampilan, CSV, dan XLSX selalu konsisten dengan
+// logika penilaian. Tidak ada angka norma baru di halaman ini: rentang
+// kategori diturunkan dari breakpoint z yang sama dengan calcItemPct
+// (z = 2, 1, 0, -1). Halaman ini tidak menyimpan ataupun mengubah data.
+var normaOpenPanels = {};
+var normaVisibleItems = [];
+var normaCaborDetailLoaded = false;
+
+var NORMA_KATEGORI = ['Baik Sekali', 'Baik', 'Cukup', 'Kurang', 'Kurang Sekali'];
+
+var NORMA_SUMBER_LABEL = {
+    cabor: 'caborData (norma bawaan per cabor)',
+    nomor: 'atletikNomor (norma khusus nomor Atletik)',
+    kelamin: 'NORMA_ITEM_KELAMIN (norma cadangan item berbasis kelamin)'
+};
+
+// Metadata tampilan: komponen fisik yang diukur tiap item. Hanya dipakai untuk
+// tampilan & unduhan di halaman Norma Tes, TIDAK mempengaruhi perhitungan skor.
+var ITEM_KOMPONEN = {
+    'sit & reach': 'Fleksibilitas',
+    'shoulder mobility kanan': 'Fleksibilitas',
+    'shoulder mobility kiri': 'Fleksibilitas',
+    'push up 1 menit': 'Kekuatan',
+    'pull up 1 menit': 'Kekuatan',
+    'hand grip kanan': 'Kekuatan',
+    'hand grip kiri': 'Kekuatan',
+    '1rm squat': 'Kekuatan',
+    'expanding push': 'Kekuatan',
+    'expanding pull': 'Kekuatan',
+    'medicine chest pass 3 kg': 'Daya Ledak',
+    'medicine chest pass 5 kg': 'Daya Ledak',
+    'medicine overhead throw': 'Daya Ledak',
+    'medicine overhead throw 3 kg': 'Daya Ledak',
+    'medicine overhead throw 5 kg': 'Daya Ledak',
+    'hand wall toss test': 'Daya Ledak',
+    'standing broad jump': 'Daya Ledak',
+    'vertical jump': 'Daya Ledak',
+    '3 hop jump kanan': 'Daya Ledak',
+    '3 hop jump kiri': 'Daya Ledak',
+    '10 hop jump kanan': 'Daya Ledak',
+    '10 hop jump kiri': 'Daya Ledak',
+    'back up 1 menit': 'Daya Tahan',
+    'back up 2 menit': 'Daya Tahan',
+    'sit up 1 menit': 'Daya Tahan',
+    'sit up 2 menit': 'Daya Tahan',
+    'plank': 'Daya Tahan',
+    'wall sit': 'Daya Tahan',
+    'core stability 12 level': 'Daya Tahan',
+    'bleep test': 'Daya Tahan Kardiorespirasi',
+    'sprint 20 m': 'Kecepatan',
+    'sprint 30 m': 'Kecepatan',
+    'illinois agility': 'Kelincahan',
+    'zig zag run test': 'Kelincahan',
+    'shuttle run': 'Kelincahan',
+    'stork stand kanan': 'Keseimbangan',
+    'stork stand kiri': 'Keseimbangan',
+    'rast test': 'Daya Anaerob',
+    'rast fatigue index': 'Daya Anaerob',
+    '% performance': 'Ringkasan (override)',
+    'tinggi badan': 'Antropometri',
+    'berat badan': 'Antropometri',
+    'imt': 'Antropometri'
+};
+
+// Item input yang tidak dinilai dengan z-score (lihat computeEvaluation).
+var ITEM_NON_SKOR = {
+    '% performance': 'Override Excel - persentase performa langsung dipakai bila tersedia',
+    'tinggi badan': 'Data antropometri - tidak dinilai',
+    'berat badan': 'Data antropometri - tidak dinilai',
+    'imt': 'Data antropometri (Indeks Massa Tubuh) - tidak dinilai',
+    'rast fatigue index': 'Ditampilkan sebagai informasi - tidak ikut dihitung ke performa'
+};
+
+function normaAccessGuard() {
+    if (!currentUser) {
+        showLoginPage();
+        showLoginError('Silakan login terlebih dahulu (akun KONI/Superadmin) untuk membuka menu Norma Tes.');
+        return false;
+    }
+    if (!canManageCabor()) {
+        alert('Menu "Norma Tes" hanya tersedia untuk akun KONI dan Superadmin.');
+        navigateTo(isPelatih() ? 'dashboard' : 'list');
+        return false;
+    }
+    return true;
+}
+
+function normaSpecialKind(name) {
+    var li = String(name == null ? '' : name).toLowerCase();
+    if (li.indexOf('bleep test') >= 0 || li.indexOf('beep test') >= 0) {
+        return li.indexOf('shuttle') >= 0 ? '' : 'bleep';
+    }
+    if (li.indexOf('shoulder mobility') >= 0) return 'shoulder';
+    if (li.indexOf('rast') >= 0 && (li.indexOf('fatigue') >= 0 || li.indexOf('fatique') >= 0)) return 'fi';
+    if (li.indexOf('rast') >= 0) return 'rast';
+    return '';
+}
+
+function normaKomponenItem(name) {
+    var k = itemKey(name);
+    if (ITEM_KOMPONEN[k]) return ITEM_KOMPONEN[k];
+    if (k.indexOf('handgrip') >= 0 || k.indexOf('hand grip') >= 0) return 'Kekuatan';
+    if (k.indexOf('sprint') >= 0) return 'Kecepatan';
+    if (k.indexOf('agility') >= 0 || k.indexOf('zig zag') >= 0 || k.indexOf('shuttle run') >= 0) return 'Kelincahan';
+    if (k.indexOf('jump') >= 0) return 'Daya Ledak';
+    if (k.indexOf('medicine') >= 0 || k.indexOf('chest pass') >= 0 || k.indexOf('wall toss') >= 0) return 'Daya Ledak';
+    return 'Lainnya';
+}
+
+function normaItemInList(list, key) {
+    var arr = list || [];
+    for (var i = 0; i < arr.length; i++) {
+        if (itemKey(arr[i]) === key) return true;
+    }
+    return false;
+}
+
+function normaFindByName(normaObj, key) {
+    if (!normaObj) return null;
+    var keys = Object.keys(normaObj);
+    for (var i = 0; i < keys.length; i++) {
+        if (itemKey(keys[i]) === key) return normaObj[keys[i]];
+    }
+    return null;
+}
+
+// Arah nilai (higher/lower is better) dibaca dari daftar higherIsBetter tiap
+// cabor, sama seperti yang dipakai computeEvaluation.
+function normaArah(name) {
+    var key = itemKey(name);
+    if (ITEM_KELAMIN[key]) return { label: 'Makin tinggi makin baik (jarak lempar)', higher: true };
+    if (normaSpecialKind(name) === 'shoulder') return { label: 'Makin rendah makin baik (jarak antar tangan)', higher: false };
+    var hi = false, lo = false;
+    function scan(c) {
+        if (!c || !normaItemInList(c.items, key)) return;
+        if (normaItemInList(c.higherIsBetter, key)) hi = true; else lo = true;
+    }
+    Object.keys(caborData).forEach(function(n) { scan(caborData[n]); });
+    Object.keys(atletikNomor).forEach(function(n) { scan(atletikNomor[n]); });
+    if (hi && lo) return { label: 'Tergantung cabor (lihat detail)', higher: true };
+    if (hi) return { label: 'Makin tinggi makin baik', higher: true };
+    if (lo) return { label: 'Makin rendah makin baik', higher: false };
+    return { label: '-', higher: true };
+}
+
+function normaFmtNum(n) {
+    if (n === null || n === undefined || isNaN(n)) return '-';
+    var r = Math.round(Number(n) * 100) / 100;
+    return String(r).replace('.', ',');
+}
+
+// Rentang nilai per kategori, diturunkan dari breakpoint z pada calcItemPct
+// (z = 2, 1, 0, -1) lalu dipetakan ke label getPctCategory. Tidak ada angka
+// baru di sini: hanya aljabar dari mean & sd.
+function normaRentangKategori(mean, sd, higher) {
+    if (mean === null || mean === undefined || isNaN(mean) || !sd || isNaN(sd) || sd <= 0) return null;
+    function v(z) { return mean + z * sd; }
+    var m = normaFmtNum(mean);
+    if (higher) {
+        return [
+            '>= ' + normaFmtNum(v(2)),
+            '>= ' + normaFmtNum(v(1)) + ' dan < ' + normaFmtNum(v(2)),
+            '>= ' + m + ' dan < ' + normaFmtNum(v(1)),
+            '>= ' + normaFmtNum(v(-1)) + ' dan < ' + m,
+            '< ' + normaFmtNum(v(-1))
+        ];
+    }
+    return [
+        '<= ' + normaFmtNum(v(-2)),
+        '> ' + normaFmtNum(v(-2)) + ' dan <= ' + normaFmtNum(v(-1)),
+        '> ' + normaFmtNum(v(-1)) + ' dan <= ' + m,
+        '> ' + m + ' dan <= ' + normaFmtNum(v(1)),
+        '> ' + normaFmtNum(v(1))
+    ];
+}
+
+// Semua baris norma untuk satu item: gabungan seluruh cabor/nomor yang
+// memuat item itu, plus norma cadangan NORMA_ITEM_KELAMIN bila ada.
+function normaRowsForItem(name) {
+    var key = itemKey(name);
+    var higher = normaArah(name).higher;
+    var rows = [], byId = {};
+    function add(group, kelamin, mean, sd, sumber, dipakai) {
+        if (mean === null || mean === undefined || sd === null || sd === undefined) return;
+        var id = group + '|' + (kelamin || '') + '|' + mean + '|' + sd + '|' + sumber;
+        if (!byId[id]) {
+            byId[id] = {
+                group: group, kelamin: kelamin || '', mean: mean, sd: sd, sumber: sumber,
+                ranges: normaRentangKategori(mean, sd, higher), dipakai: []
+            };
+            rows.push(byId[id]);
+        }
+        if (dipakai && byId[id].dipakai.indexOf(dipakai) < 0) byId[id].dipakai.push(dipakai);
+    }
+    Object.keys(caborData).forEach(function(cn) {
+        var c = caborData[cn];
+        if (!normaItemInList(c.items, key)) return;
+        var u = normaFindByName(c.normaUnder17, key);
+        if (u) add('Usia <= 17', '', u.mean, u.sd, 'cabor', cn);
+        var o = normaFindByName(c.normaOver17, key);
+        if (o) add('Usia > 17', '', o.mean, o.sd, 'cabor', cn);
+    });
+    Object.keys(atletikNomor).forEach(function(nn) {
+        var c = atletikNomor[nn];
+        if (!normaItemInList(c.items, key)) return;
+        var label = 'Atletik - ' + nn;
+        var u2 = normaFindByName(c.normaUnder17, key);
+        if (u2) add('Usia <= 17', '', u2.mean, u2.sd, 'nomor', label);
+        var o2 = normaFindByName(c.normaOver17, key);
+        if (o2) add('Usia > 17', '', o2.mean, o2.sd, 'nomor', label);
+    });
+    var wajib = itemKelamin(name);
+    if (wajib) {
+        var ku = NORMA_ITEM_KELAMIN.under17 ? normaFindByName(NORMA_ITEM_KELAMIN.under17, key) : null;
+        if (ku) add('Usia <= 17', wajib, ku.mean, ku.sd, 'kelamin', 'Norma cadangan item berbasis kelamin');
+        var ko = NORMA_ITEM_KELAMIN.over17 ? normaFindByName(NORMA_ITEM_KELAMIN.over17, key) : null;
+        if (ko) add('Usia > 17', wajib, ko.mean, ko.sd, 'kelamin', 'Norma cadangan item berbasis kelamin');
+    }
+    var orderGroup = { 'Usia <= 17': 0, 'Usia > 17': 1 };
+    var orderSumber = { cabor: 0, nomor: 1, kelamin: 2 };
+    rows.sort(function(a, b) {
+        if (orderGroup[a.group] !== orderGroup[b.group]) return orderGroup[a.group] - orderGroup[b.group];
+        if (orderSumber[a.sumber] !== orderSumber[b.sumber]) return orderSumber[a.sumber] - orderSumber[b.sumber];
+        return Number(a.mean) - Number(b.mean);
+    });
+    return rows;
+}
+
+function normaStatusPenilaian(name, rows) {
+    var kind = normaSpecialKind(name);
+    var non = ITEM_NON_SKOR[itemKey(name)];
+    if (non) return non;
+    if (kind === 'shoulder') return 'Dinilai dengan skor Brockport (0-3) yang dikonversi ke persentase';
+    if (kind === 'bleep') return 'Input level.shuttle dikonversi ke VO2max, lalu dinilai dengan z-score';
+    if (kind === 'rast') return 'Nilai = rata-rata daya 6 sprint (watt), dinilai dengan z-score';
+    if (!rows || !rows.length) return 'Tanpa norma - persentase tetap 50% (Kurang)';
+    return 'Dinilai dengan z-score terhadap mean & sd norma';
+}
+
+function normaCatatanBaris(name) {
+    var kind = normaSpecialKind(name);
+    if (kind === 'shoulder') return 'Mean/sd di bawah tersimpan di konfigurasi cabor tetapi TIDAK dipakai perhitungan (penilaian memakai skor Brockport).';
+    if (kind === 'fi') return 'Norma tersedia di konfigurasi, tetapi item ini TIDAK ikut dihitung ke performa.';
+    if (kind === 'bleep') return 'Varian norma untuk nomor Atletik (Lompat Tinggi, 5000m & 3000m, Dasa Lomba, Lempar Lembing) berbeda dari norma umum.';
+    return '';
+}
+
+function normaItems() {
+    var map = {}, list = [];
+    getMasterItems().forEach(function(m) {
+        var k = itemKey(m.name);
+        if (!k || map[k]) return;
+        map[k] = true;
+        list.push({ name: m.name, unit: m.unit || getItemUnit(m.name) || '-' });
+    });
+    [{ name: '% Performance', unit: '%' }, { name: 'Tinggi Badan', unit: 'cm' },
+     { name: 'Berat Badan', unit: 'kg' }, { name: 'IMT', unit: 'kg/m2' }].forEach(function(x) {
+        var k = itemKey(x.name);
+        if (!k || map[k]) return;
+        map[k] = true;
+        list.push(x);
+    });
+    return list;
+}
+
+function buildNormaModel() {
+    var items = normaItems().map(function(it) {
+        var rows = normaRowsForItem(it.name);
+        var arah = normaArah(it.name);
+        var wajib = itemKelamin(it.name);
+        return {
+            name: it.name,
+            key: itemKey(it.name),
+            unit: it.unit,
+            komponen: normaKomponenItem(it.name),
+            arah: arah,
+            kelamin: wajib,
+            status: normaStatusPenilaian(it.name, rows),
+            catatanNorma: normaCatatanBaris(it.name),
+            nonSkor: ITEM_NON_SKOR[itemKey(it.name)] || '',
+            special: normaSpecialKind(it.name),
+            rows: rows
+        };
+    });
+    return {
+        items: items,
+        formulas: normaFormulas(),
+        sumber: normaSumberList()
+    };
+}
+
+function normaFormulas() {
+    return [
+        {
+            judul: '1. Skor z per item',
+            rumus: 'z = (nilai - mean) / sd',
+            penjelasan: 'Nilai mentah atlet dibandingkan dengan mean (rata-rata) dan sd (simpangan baku) norma kelompoknya: usia <= 17 memakai normaUnder17, usia > 17 memakai normaOver17.',
+            contoh: 'Push Up 1 Menit 34 kali, usia 16 (mean 25, sd 9) -> z = (34 - 25) / 9 = 1,00'
+        },
+        {
+            judul: '2. Konversi z ke persentase (item makin tinggi makin baik)',
+            rumus: 'z >= 3 -> 100 | 2 <= z < 3 -> 90 + (z-2)x10 | 1 <= z < 2 -> 75 + (z-1)x15 | 0 <= z < 1 -> 55 + zx20 | -1 <= z < 0 -> 35 + (z+1)x20 | -2 <= z < -1 -> 15 + (z+2)x20 | z < -2 -> maks(0, 5 + (z+3)x10)',
+            penjelasan: 'Nilai persentase dibatasi pada rentang 0-100. Rumus ini persis fungsi calcItemPct dengan higherIsBetter = true.',
+            contoh: 'z = 1,00 -> 75 + (1-1)x15 = 75%'
+        },
+        {
+            judul: '3. Konversi z ke persentase (item makin rendah makin baik)',
+            rumus: 'z <= -3 -> 100 | -3 < z <= -2 -> 90 + (-2-z)x10 | -2 < z <= -1 -> 75 + (-1-z)x15 | -1 < z <= 0 -> 55 + (-z)x20 | 0 < z <= 1 -> 35 + (1-z)x20 | 1 < z <= 2 -> 15 + (2-z)x20 | z > 2 -> maks(0, 5 + (3-z)x10)',
+            penjelasan: 'Dipakai untuk item waktu/jarak seperti Sprint, Illinois Agility, Zig Zag Run, Shuttle Run, dan Shoulder Mobility.',
+            contoh: 'Sprint 20 m 3,4 detik (mean 3,8, sd 0,4) -> z = -1,00 -> 75 + (-1-(-1))x15 = 75%'
+        },
+        {
+            judul: '4. Kategori dari persentase',
+            rumus: '>= 90% Baik Sekali | >= 75% Baik | >= 55% Cukup | >= 35% Kurang | < 35% Kurang Sekali',
+            penjelasan: 'Dipakai untuk kategori per item maupun kategori performa akhir (fungsi getPctCategory).',
+            contoh: 'Persentase 75% -> kategori Baik'
+        },
+        {
+            judul: '5. Rentang nilai per kategori (turunan dari mean & sd)',
+            rumus: 'Batas kategori terjadi pada z = 2, 1, 0, dan -1. Untuk item makin tinggi makin baik: Baik Sekali >= mean+2sd, Baik >= mean+1sd, Cukup >= mean, Kurang >= mean-1sd, Kurang Sekali < mean-1sd. Untuk item makin rendah makin baik, seluruh arah dibalik.',
+            penjelasan: 'Sistem tidak menyimpan tabel rentang nilai; kolom rentang pada tabel norma di halaman ini diturunkan dari mean & sd dengan aturan tersebut sehingga selalu konsisten dengan perhitungan.',
+            contoh: 'Push Up 1 Menit usia <= 17 (mean 25, sd 9) -> Baik Sekali >= 43, Baik >= 34, Cukup >= 25, Kurang >= 16, Kurang Sekali < 16'
+        },
+        {
+            judul: '6. Bleep Test -> VO2max',
+            rumus: 'maksShuttle = bawah(level x 0,4325 + 7,0048) | skor = level + shuttle / maksShuttle | VO2max = 3,46 x skor + 12,2 (ml/kg/min)',
+            penjelasan: 'Input ditulis sebagai level.shuttle (contoh 5.3 = level 5 shuttle 3). Nilai VO2max inilah yang kemudian dinilai dengan z-score terhadap norma Bleep Test.',
+            contoh: 'Level 5, shuttle 3 -> maksShuttle = 9 -> skor = 5 + 3/9 = 5,333 -> VO2max = 3,46 x 5,333 + 12,2 = 30,7 ml/kg/min'
+        },
+        {
+            judul: '7. Shoulder Mobility -> skor Brockport',
+            rumus: '0 cm = 3 | <= 5 cm = 2,5 | <= 10 cm = 2 | <= 15 cm = 1,5 | <= 20 cm = 1 | <= 25 cm = 0,5 | > 25 cm = 0 | persentase = (skor / 3) x 100',
+            penjelasan: 'Jarak antar tangan makin kecil makin baik. Penilaian ini TIDAK memakai z-score, sehingga mean/sd Shoulder Mobility pada konfigurasi cabor tidak dipakai.',
+            contoh: 'Jarak 8 cm -> skor 2 -> persentase = (2/3)x100 = 66,7% -> Cukup'
+        },
+        {
+            judul: '8. RAST Test (daya rata-rata 6 sprint)',
+            rumus: 'P = berat badan (kg) x 35^2 / t^3 (t = waktu sprint dalam detik) | RAST Test = rata-rata P dari 6 sprint (watt)',
+            penjelasan: 'Daya tiap sprint dihitung dari berat badan dan waktu tempuh, lalu dirata-ratakan menjadi nilai RAST Test yang dinilai dengan z-score.',
+            contoh: 'Berat 70 kg, waktu sprint 5,0 detik -> P = 70 x 1225 / 125 = 686 watt'
+        },
+        {
+            judul: '9. RAST Fatigue Index',
+            rumus: 'FI = (daya maks - daya min) / total waktu 6 sprint',
+            penjelasan: 'Indeks kelelahan anaerob. Nilai ini tampil sebagai informasi saja dan TIDAK ikut dihitung ke performa (dilewati pada computeEvaluation).',
+            contoh: 'Daya maks 686 W, daya min 520 W, total waktu 32 detik -> FI = (686-520)/32 = 5,19'
+        },
+        {
+            judul: '10. Skor tetap bila norma tidak tersedia',
+            rumus: 'persentase = 50 (Kurang)',
+            penjelasan: 'Item yang tidak memiliki norma di caborData, atletikNomor, maupun NORMA_ITEM_KELAMIN diberi persentase tetap 50% agar tetap ikut dirata-ratakan.',
+            contoh: 'Item tambahan tanpa norma -> 50% -> Kurang'
+        },
+        {
+            judul: '11. Performa keseluruhan & kategori akhir',
+            rumus: 'performa = (jumlah seluruh persentase item yang dinilai) / (jumlah item x 100) x 100',
+            penjelasan: 'Persentase dibulatkan 1 desimal. Kategori akhir diambil dari persentase tersebut dengan ambang kategori butir 4. Item yang tidak dinilai (antropometri, override, RAST Fatigue Index) tidak ikut dirata-ratakan.',
+            contoh: '2 item bernilai 75% dan 90% -> performa = (165 / 200) x 100 = 82,5% -> Baik'
+        }
+    ];
+}
+
+function normaSumberList() {
+    var list = [
+        {
+            judul: 'Sumber data norma',
+            isi: 'Seluruh nilai norma (mean & sd) dibaca langsung dari konfigurasi penilaian di index.html: caborData (20 cabor bawaan), atletikNomor (4 nomor Atletik), serta NORMA_ITEM_KELAMIN sebagai cadangan untuk 4 item berbasis kelamin. Sumber yang sama dipakai fungsi computeEvaluation saat menilai hasil tes atlet, sehingga halaman ini tidak pernah menyimpang dari logika penilaian.'
+        },
+        {
+            judul: 'Referensi eksternal',
+            isi: 'Di dalam kode sumber tidak tersimpan referensi eksternal maupun tabel norma dari pihak ketiga. Angka yang tampil adalah nilai konfigurasi sistem apa adanya. Untuk mengganti ke tabel norma resmi, cukup perbarui nilai di konfigurasi tersebut.'
+        },
+        {
+            judul: 'Turunan NORMA_ITEM_KELAMIN',
+            isi: 'Medicine Chest Pass 5 Kg (Laki-laki) = norma bawaan yang sudah dipakai 6 cabor (usia <= 17: 5,5 / 1,5; usia > 17: 7 / 1,8) - tidak diubah. Medicine Chest Pass 3 Kg (Perempuan) = norma Chest Pass 5 Kg + 1,0 m (bola 2 kg lebih ringan sehingga jarak rata-rata lebih jauh), sd tetap. Medicine Overhead Throw 5 kg (Laki-laki) = norma "Medicine Overhead Throw" bawaan Lempar Lembing (usia <= 17: 6 / 2; usia > 17: 8 / 2,5). Medicine Overhead Throw 3 Kg (Perempuan) = norma Overhead Throw + 1,0 m, sd tetap. Keempatnya lemparan jarak: makin jauh makin baik.'
+        },
+        {
+            judul: 'Rentang kategori',
+            isi: 'Sistem tidak menyimpan tabel rentang nilai per kategori. Rentang yang ditampilkan di halaman ini diturunkan dari mean & sd dengan breakpoint z = 2, 1, 0, dan -1 yang sama dengan fungsi calcItemPct, lalu dipetakan ke label pada fungsi getPctCategory.'
+        },
+        {
+            judul: 'Kategori penilaian',
+            isi: 'Baik Sekali (>= 90%), Baik (>= 75%), Cukup (>= 55%), Kurang (>= 35%), Kurang Sekali (< 35%). Label "Cukup" adalah label bawaan sistem (bukan "Sedang").'
+        },
+        {
+            judul: 'Item yang tidak dinilai',
+            isi: '% Performance, Tinggi Badan, Berat Badan, dan IMT tidak dihitung dengan z-score (data antropometri / override Excel). RAST Fatigue Index tampil sebagai informasi dan tidak ikut dihitung ke performa.'
+        },
+        {
+            judul: 'Item berbasis jenis kelamin',
+            isi: 'Medicine Chest Pass 3 Kg dan Medicine Overhead Throw 3 Kg hanya untuk Perempuan; Medicine Chest Pass 5 Kg dan Medicine Overhead Throw 5 kg hanya untuk Laki-laki. Nilai pada item yang tidak sesuai jenis kelamin tetap tersimpan tetapi tidak ikut dihitung. Jenis kelamin kosong tidak ditebak.'
+        }
+    ];
+    Object.keys(caborData).forEach(function(cn) {
+        if (caborData[cn].catatan) {
+            list.push({ judul: 'Catatan cabor - ' + cn, isi: String(caborData[cn].catatan) });
+        }
+    });
+    return list;
+}
+
+function normaCaborDetailRows() {
+    var list = [];
+    Object.keys(caborData).forEach(function(cn) {
+        list.push({ label: cn, c: caborData[cn] });
+    });
+    Object.keys(atletikNomor).forEach(function(nn) {
+        list.push({ label: 'Atletik - ' + nn, c: atletikNomor[nn] });
+    });
+    return list;
+}
+
+// ---------- render halaman ----------
+function renderNormaView() {
+    var model = buildNormaModel();
+    renderNormaItemTable(model.items);
+    fillNormaKomponenFilter(model.items);
+    renderNormaAccordion(model.items);
+    renderNormaRumus(model.formulas);
+    renderNormaSumber(model.sumber);
+    if (normaCaborDetailLoaded) renderNormaCaborDetail();
+}
+
+function renderNormaItemTable(items) {
+    var body = document.getElementById('normaItemBody');
+    if (!body) return;
+    if (!items.length) {
+        body.innerHTML = '<tr><td colspan="7" class="px-3 py-4 text-xs text-gray-400">Belum ada item tes.</td></tr>';
+        return;
+    }
+    body.innerHTML = items.map(function(it, i) {
+        return '<tr class="' + (i % 2 ? 'bg-gray-50' : '') + ' border-t border-gray-100 hover:bg-blue-50 transition">' +
+            '<td class="px-3 py-2.5 font-semibold text-gray-500 text-xs">' + (i + 1) + '</td>' +
+            '<td class="px-3 py-2.5 font-semibold text-gray-800 text-xs">' + escHtml(it.name) + '</td>' +
+            '<td class="px-3 py-2.5 text-xs text-gray-600">' + escHtml(it.unit || '-') + '</td>' +
+            '<td class="px-3 py-2.5 text-xs"><span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border text-indigo-700 bg-indigo-50 border-indigo-200">' + escHtml(it.komponen) + '</span></td>' +
+            '<td class="px-3 py-2.5 text-xs text-gray-600">' + escHtml(it.arah.label) + '</td>' +
+            '<td class="px-3 py-2.5 text-xs text-gray-600">' + escHtml(it.kelamin || 'Semua atlet') + '</td>' +
+            '<td class="px-3 py-2.5 text-xs text-gray-600">' + escHtml(it.status) + '</td>' +
+            '</tr>';
+    }).join('');
+}
+
+function fillNormaKomponenFilter(items) {
+    var sel = document.getElementById('normaKomponenFilter');
+    if (!sel) return;
+    var current = sel.value;
+    var seen = {}, opts = [];
+    items.forEach(function(it) {
+        if (seen[it.komponen]) return;
+        seen[it.komponen] = true;
+        opts.push(it.komponen);
+    });
+    opts.sort();
+    sel.innerHTML = '<option value="">Semua Komponen Fisik</option>' + opts.map(function(o) {
+        return '<option value="' + escHtml(o) + '"' + (o === current ? ' selected' : '') + '>' + escHtml(o) + '</option>';
+    }).join('');
+    if (current && !seen[current]) sel.value = '';
+}
+
+function filterNormaItems() {
+    var model = buildNormaModel();
+    var clearBtn = document.getElementById('normaSearchClear');
+    var q = (document.getElementById('normaSearch').value || '').trim();
+    if (clearBtn) clearBtn.classList.toggle('hidden', !q);
+    renderNormaAccordion(model.items);
+}
+
+function clearNormaSearch() {
+    var el = document.getElementById('normaSearch');
+    if (!el) return;
+    el.value = '';
+    filterNormaItems();
+    el.focus();
+}
+
+function renderNormaAccordion(items) {
+    var wrap = document.getElementById('normaAccordion');
+    if (!wrap) return;
+    var q = ((document.getElementById('normaSearch') || {}).value || '').toLowerCase().trim();
+    var comp = (document.getElementById('normaKomponenFilter') || {}).value || '';
+    var visible = items.filter(function(it) {
+        if (comp && it.komponen !== comp) return false;
+        if (!q) return true;
+        return (it.name + ' ' + it.unit + ' ' + it.komponen + ' ' + it.arah.label + ' ' + it.status).toLowerCase().indexOf(q) >= 0;
+    });
+    normaVisibleItems = visible;
+    var info = document.getElementById('normaSearchInfo');
+    if (info) info.textContent = 'Menampilkan ' + visible.length + ' dari ' + items.length + ' item tes. Klik baris item untuk membuka detail norma.';
+    var noRes = document.getElementById('normaNoResult');
+    if (noRes) noRes.classList.toggle('hidden', visible.length > 0);
+    wrap.innerHTML = visible.map(function(it, i) {
+        var key = it.key;
+        var open = !!normaOpenPanels[key];
+        return '<div class="border border-gray-200 rounded-xl overflow-hidden">' +
+            '<button type="button" onclick="toggleNormaPanel(' + i + ')" class="w-full flex items-center justify-between gap-3 px-4 py-3 bg-gray-50 hover:bg-blue-50 transition text-left">' +
+            '<div class="min-w-0">' +
+            '<p class="font-semibold text-gray-800 text-sm truncate">' + escHtml(it.name) + '</p>' +
+            '<p class="text-[11px] text-gray-400">' + escHtml(it.unit || '-') + ' &middot; ' + escHtml(it.komponen) + ' &middot; ' + escHtml(it.arah.label) + (it.kelamin ? ' &middot; Khusus ' + escHtml(it.kelamin) : '') + '</p>' +
+            '</div>' +
+            '<svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform" style="transform:rotate(' + (open ? '180' : '0') + 'deg)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
+            '</button>' +
+            '<div id="normaPanel' + i + '" class="' + (open ? '' : 'hidden') + ' px-4 py-4 border-t border-gray-100">' + normaPanelHtml(it) + '</div>' +
+            '</div>';
+    }).join('');
+}
+
+function normaPanelHtml(it) {
+    var html = '';
+    if (it.special === 'bleep') {
+        html += '<div class="bg-blue-50 border border-blue-200 text-blue-800 text-xs rounded-xl p-3 mb-3"><b>Konversi Bleep Test:</b> input ditulis sebagai <b>level.shuttle</b> (contoh 5.3 = level 5 shuttle 3). Maks shuttle = bawah(level x 0,4325 + 7,0048), skor = level + shuttle / maks shuttle, VO2max = 3,46 x skor + 12,2 ml/kg/min. Nilai VO2max inilah yang dibandingkan dengan norma di bawah.</div>';
+    }
+    if (it.special === 'shoulder') {
+        html += '<div class="bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl p-3 mb-3"><b>Penilaian Shoulder Mobility memakai skor Brockport</b> (bukan z-score): 0 cm = 3, 5 cm = 2,5, 10 cm = 2, 15 cm = 1,5, 20 cm = 1, 25 cm = 0,5, di atas 25 cm = 0. Persentase = (skor / 3) x 100.</div>';
+    }
+    if (it.special === 'rast') {
+        html += '<div class="bg-indigo-50 border border-indigo-200 text-indigo-800 text-xs rounded-xl p-3 mb-3"><b>RAST Test</b> = rata-rata daya 6 sprint: P = berat badan (kg) x 35^2 / t^3 (t = waktu sprint, detik).</div>';
+    }
+    if (it.nonSkor) {
+        html += '<div class="bg-gray-50 border border-gray-200 text-gray-600 text-xs rounded-xl p-3 mb-3">' + escHtml(it.nonSkor) + '</div>';
+    } else if (!it.rows.length) {
+        html += '<div class="bg-gray-50 border border-gray-200 text-gray-600 text-xs rounded-xl p-3 mb-3">Item ini belum memiliki norma di konfigurasi mana pun, sehingga sistem memberi <b>persentase tetap 50% (Kurang)</b>.</div>';
+    }
+    if (it.catatanNorma) {
+        html += '<div class="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl p-3 mb-3">' + escHtml(it.catatanNorma) + '</div>';
+    }
+    if (!it.rows.length) return html;
+    html += '<div class="overflow-x-auto"><table class="w-full text-sm">' +
+        '<thead><tr class="bg-gray-100">' +
+        '<th class="px-2 py-2 text-left font-semibold text-gray-700 rounded-l-lg text-[11px]">Kelompok</th>' +
+        '<th class="px-2 py-2 text-left font-semibold text-gray-700 text-[11px]">Jenis Kelamin</th>' +
+        '<th class="px-2 py-2 text-left font-semibold text-gray-700 text-[11px]">Mean</th>' +
+        '<th class="px-2 py-2 text-left font-semibold text-gray-700 text-[11px]">SD</th>' +
+        '<th class="px-2 py-2 text-left font-semibold text-gray-700 text-[11px]">Baik Sekali</th>' +
+        '<th class="px-2 py-2 text-left font-semibold text-gray-700 text-[11px]">Baik</th>' +
+        '<th class="px-2 py-2 text-left font-semibold text-gray-700 text-[11px]">Cukup</th>' +
+        '<th class="px-2 py-2 text-left font-semibold text-gray-700 text-[11px]">Kurang</th>' +
+        '<th class="px-2 py-2 text-left font-semibold text-gray-700 text-[11px]">Kurang Sekali</th>' +
+        '<th class="px-2 py-2 text-left font-semibold text-gray-700 rounded-r-lg text-[11px]">Sumber &amp; Dipakai Oleh</th>' +
+        '</tr></thead><tbody>' +
+        it.rows.map(function(r, i) {
+            var rg = r.ranges || [];
+            return '<tr class="' + (i % 2 ? 'bg-gray-50' : '') + ' border-t border-gray-100">' +
+                '<td class="px-2 py-2 text-xs font-semibold text-gray-800">' + escHtml(r.group) + '</td>' +
+                '<td class="px-2 py-2 text-xs text-gray-600">' + escHtml(r.kelamin || 'Semua') + '</td>' +
+                '<td class="px-2 py-2 text-xs font-mono text-gray-800">' + escHtml(normaFmtNum(r.mean)) + '</td>' +
+                '<td class="px-2 py-2 text-xs font-mono text-gray-800">' + escHtml(normaFmtNum(r.sd)) + '</td>' +
+                '<td class="px-2 py-2 text-xs text-gray-700">' + escHtml(rg[0] || '-') + '</td>' +
+                '<td class="px-2 py-2 text-xs text-gray-700">' + escHtml(rg[1] || '-') + '</td>' +
+                '<td class="px-2 py-2 text-xs text-gray-700">' + escHtml(rg[2] || '-') + '</td>' +
+                '<td class="px-2 py-2 text-xs text-gray-700">' + escHtml(rg[3] || '-') + '</td>' +
+                '<td class="px-2 py-2 text-xs text-gray-700">' + escHtml(rg[4] || '-') + '</td>' +
+                '<td class="px-2 py-2 text-[10px] text-gray-500">' + escHtml(NORMA_SUMBER_LABEL[r.sumber] || r.sumber) + (r.dipakai.length ? '<br><b>Dipakai:</b> ' + escHtml(r.dipakai.join(', ')) : '') + '</td>' +
+                '</tr>';
+        }).join('') +
+        '</tbody></table></div>';
+    return html;
+}
+
+function toggleNormaPanel(i) {
+    var it = normaVisibleItems[i];
+    if (!it) return;
+    var key = it.key;
+    normaOpenPanels[key] = !normaOpenPanels[key];
+    var panel = document.getElementById('normaPanel' + i);
+    if (panel) panel.classList.toggle('hidden', !normaOpenPanels[key]);
+    renderNormaAccordion(buildNormaModel().items);
+}
+
+function renderNormaRumus(formulas) {
+    var wrap = document.getElementById('normaRumusWrap');
+    if (!wrap) return;
+    wrap.innerHTML = formulas.map(function(f) {
+        return '<div class="border border-gray-200 rounded-xl p-4">' +
+            '<p class="font-semibold text-gray-800 text-sm mb-2">' + escHtml(f.judul) + '</p>' +
+            '<p class="text-xs font-mono bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-800 leading-relaxed">' + escHtml(f.rumus) + '</p>' +
+            '<p class="text-xs text-gray-500 mt-2 leading-relaxed">' + escHtml(f.penjelasan) + '</p>' +
+            '<p class="text-xs text-blue-700 mt-1"><b>Contoh:</b> ' + escHtml(f.contoh) + '</p>' +
+            '</div>';
+    }).join('');
+}
+
+function renderNormaSumber(list) {
+    var wrap = document.getElementById('normaSumberWrap');
+    if (!wrap) return;
+    wrap.innerHTML = list.map(function(s) {
+        return '<div class="border border-gray-200 rounded-xl p-4">' +
+            '<p class="font-semibold text-gray-800 text-xs uppercase tracking-wide mb-1">' + escHtml(s.judul) + '</p>' +
+            '<p class="text-xs text-gray-600 leading-relaxed">' + escHtml(s.isi) + '</p>' +
+            '</div>';
+    }).join('');
+}
+
+function toggleNormaCaborDetail() {
+    var wrap = document.getElementById('normaCaborDetailWrap');
+    var btn = document.getElementById('normaCaborDetailBtn');
+    if (!wrap) return;
+    var show = wrap.classList.contains('hidden');
+    if (show && !normaCaborDetailLoaded) {
+        renderNormaCaborDetail();
+        normaCaborDetailLoaded = true;
+    }
+    wrap.classList.toggle('hidden', !show);
+    if (btn) btn.textContent = show ? 'Sembunyikan detail norma per cabor & nomor' : 'Tampilkan detail norma per cabor & nomor';
+}
+
+function renderNormaCaborDetail() {
+    var body = document.getElementById('normaCaborDetailBody');
+    if (!body) return;
+    var rows = [];
+    normaCaborDetailRows().forEach(function(entry) {
+        (entry.c.items || []).forEach(function(n) {
+            var key = itemKey(n);
+            var u = normaFindByName(entry.c.normaUnder17, key);
+            var o = normaFindByName(entry.c.normaOver17, key);
+            var higher = normaItemInList(entry.c.higherIsBetter, key);
+            var special = normaSpecialKind(n);
+            var arah = ITEM_KELAMIN[key] ? 'Makin tinggi' : (special === 'shoulder' ? 'Makin rendah' : (higher ? 'Makin tinggi' : 'Makin rendah'));
+            rows.push({
+                label: entry.label,
+                name: n,
+                umean: u ? u.mean : '-', usd: u ? u.sd : '-',
+                omean: o ? o.mean : '-', osd: o ? o.sd : '-',
+                arah: arah
+            });
+        });
+    });
+    body.innerHTML = rows.map(function(r, i) {
+        return '<tr class="' + (i % 2 ? 'bg-gray-50' : '') + ' border-t border-gray-100 hover:bg-blue-50 transition">' +
+            '<td class="px-3 py-2 text-xs font-semibold text-gray-800">' + escHtml(r.label) + '</td>' +
+            '<td class="px-3 py-2 text-xs text-gray-700">' + escHtml(r.name) + '</td>' +
+            '<td class="px-3 py-2 text-xs font-mono">' + escHtml(normaFmtNum(r.umean)) + '</td>' +
+            '<td class="px-3 py-2 text-xs font-mono">' + escHtml(normaFmtNum(r.usd)) + '</td>' +
+            '<td class="px-3 py-2 text-xs font-mono">' + escHtml(normaFmtNum(r.omean)) + '</td>' +
+            '<td class="px-3 py-2 text-xs font-mono">' + escHtml(normaFmtNum(r.osd)) + '</td>' +
+            '<td class="px-3 py-2 text-xs text-gray-600">' + escHtml(r.arah) + '</td>' +
+            '</tr>';
+    }).join('');
+}
+
+// ---------- download CSV & XLSX ----------
+function normaTanggalFile() {
+    var d = new Date();
+    var m = d.getMonth() + 1, day = d.getDate();
+    return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+}
+
+function setNormaMsg(msg, ok) {
+    var el = document.getElementById('normaMsg');
+    if (!el) return;
+    if (!msg) {
+        el.classList.add('hidden');
+        el.textContent = '';
+        return;
+    }
+    el.classList.remove('hidden');
+    el.className = 'mt-4 text-sm rounded-xl px-4 py-3 ' + (ok === false
+        ? 'bg-red-50 border border-red-200 text-red-600'
+        : (ok === true ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' : 'bg-blue-50 border border-blue-200 text-blue-700'));
+    el.textContent = msg;
+}
+
+function normaSetBusy(busy) {
+    ['normaBtnCsv', 'normaBtnXlsx'].forEach(function(id) {
+        var b = document.getElementById(id);
+        if (!b) return;
+        b.disabled = !!busy;
+        b.style.opacity = busy ? '0.6' : '';
+    });
+}
+
+function normaExportMetaRows() {
+    return [
+        ['Norma Tes Fisik - KONI Kabupaten Tuban'],
+        ['Tanggal unduh', normaTanggalFile()],
+        ['Sumber data', 'Konfigurasi penilaian di index.html (caborData, atletikNomor, ITEM_KELAMIN, NORMA_ITEM_KELAMIN) - sama dengan logika perhitungan hasil tes'],
+        ['Kategori penilaian', NORMA_KATEGORI.join(' | ')],
+        ['Catatan', 'Halaman read-only. Tidak ada angka norma baru; rentang kategori diturunkan dari mean & sd dengan breakpoint z = 2, 1, 0, -1.']
+    ];
+}
+
+function normaExportItemRows(items) {
+    var rows = [['No', 'Nama Item Tes', 'Satuan', 'Komponen Fisik', 'Arah Nilai', 'Berlaku Untuk', 'Status Penilaian']];
+    items.forEach(function(it, i) {
+        rows.push([i + 1, it.name, it.unit || '-', it.komponen, it.arah.label, it.kelamin || 'Semua atlet', it.status]);
+    });
+    return rows;
+}
+
+function normaExportNormRows(items) {
+    var rows = [['Item Tes', 'Kelompok', 'Jenis Kelamin', 'Mean', 'SD', 'Baik Sekali', 'Baik', 'Cukup', 'Kurang', 'Kurang Sekali', 'Sumber Norma', 'Dipakai Oleh / Catatan']];
+    items.forEach(function(it) {
+        if (!it.rows.length) {
+            rows.push([it.name, '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', it.status + (it.catatanNorma ? ' | ' + it.catatanNorma : '')]);
+            return;
+        }
+        it.rows.forEach(function(r) {
+            var rg = r.ranges || [];
+            rows.push([
+                it.name, r.group, r.kelamin || 'Semua',
+                normaFmtNum(r.mean), normaFmtNum(r.sd),
+                rg[0] || '-', rg[1] || '-', rg[2] || '-', rg[3] || '-', rg[4] || '-',
+                NORMA_SUMBER_LABEL[r.sumber] || r.sumber,
+                (r.dipakai.length ? 'Dipakai: ' + r.dipakai.join(', ') : '') + (it.catatanNorma ? ' | ' + it.catatanNorma : '')
+            ]);
+        });
+    });
+    return rows;
+}
+
+function normaExportRumusRows(formulas) {
+    var rows = [['No', 'Judul', 'Rumus', 'Penjelasan', 'Contoh Perhitungan']];
+    formulas.forEach(function(f, i) {
+        rows.push([i + 1, f.judul, f.rumus, f.penjelasan, f.contoh]);
+    });
+    return rows;
+}
+
+function normaExportSumberRows(list) {
+    var rows = [['No', 'Judul', 'Keterangan']];
+    list.forEach(function(s, i) {
+        rows.push([i + 1, s.judul, s.isi]);
+    });
+    return rows;
+}
+
+// Isi sheet "Sumber" pada file XLSX: metadata unduhan + keterangan & sumber norma.
+function normaExportSumberSheetRows(model) {
+    var rows = [['Judul', 'Keterangan']];
+    rows.push(['Norma Tes Fisik - KONI Kabupaten Tuban', '']);
+    normaExportMetaRows().slice(1).forEach(function(r) {
+        rows.push([r[0], r.length > 1 ? r[1] : '']);
+    });
+    rows.push(['', '']);
+    model.sumber.forEach(function(s) { rows.push([s.judul, s.isi]); });
+    return rows;
+}
+
+function normaRowsToCsv(rows) {
+    return rows.map(function(r) {
+        return r.map(function(cell) {
+            var s = String(cell === null || cell === undefined ? '' : cell);
+            return '"' + s.replace(/"/g, '""') + '"';
+        }).join(',');
+    }).join('\r\n');
+}
+
+function downloadNormaCSV() {
+    if (!normaAccessGuard()) return;
+    setNormaMsg('Menyiapkan file CSV...', null);
+    normaSetBusy(true);
+    try {
+        var model = buildNormaModel();
+        var all = []
+            .concat(normaExportMetaRows(), [[]])
+            .concat([['DAFTAR ITEM TES']], normaExportItemRows(model.items), [[]])
+            .concat([['NORMA & KATEGORI']], normaExportNormRows(model.items), [[]])
+            .concat([['RUMUS PERHITUNGAN']], normaExportRumusRows(model.formulas), [[]])
+            .concat([['KETERANGAN & SUMBER NORMA']], normaExportSumberRows(model.sumber));
+        // BOM UTF-8 agar Excel membaca karakter Indonesia dengan benar.
+        var blob = new Blob(['\uFEFF' + normaRowsToCsv(all)], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'Norma_Tes_KONI_Tuban_' + normaTanggalFile() + '.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        setNormaMsg('File CSV berhasil diunduh: ' + link.download, true);
+    } catch (e) {
+        setNormaMsg('Gagal membuat file CSV: ' + (e && e.message ? e.message : e), false);
+    }
+    normaSetBusy(false);
+}
+
+function normaAutoCols(rows) {
+    var cols = [];
+    rows.forEach(function(r) {
+        r.forEach(function(cell, i) {
+            var len = String(cell === null || cell === undefined ? '' : cell).length;
+            var w = Math.min(Math.max(len + 2, 10), 60);
+            if (!cols[i] || cols[i].wch < w) cols[i] = { wch: w };
+        });
+    });
+    return cols;
+}
+
+function normaStyleHeader(ws, colCount) {
+    for (var c = 0; c < colCount; c++) {
+        var addr = XLSX.utils.encode_cell({ r: 0, c: c });
+        if (!ws[addr]) continue;
+        ws[addr].s = {
+            font: { bold: true, color: { rgb: '1F2937' } },
+            fill: { fgColor: { rgb: 'E5E7EB' } },
+            alignment: { vertical: 'center', wrapText: true }
+        };
+    }
+}
+
+// Susun workbook Excel (dipisah dari proses unduh supaya bisa diuji).
+function normaBuildWorkbook(model) {
+    var sheets = [
+        { name: 'Item Tes', rows: normaExportItemRows(model.items) },
+        { name: 'Norma', rows: normaExportNormRows(model.items) },
+        { name: 'Rumus', rows: normaExportRumusRows(model.formulas) },
+        { name: 'Sumber', rows: normaExportSumberSheetRows(model) }
+    ];
+    var wb = XLSX.utils.book_new();
+    sheets.forEach(function(s) {
+        var ws = XLSX.utils.aoa_to_sheet(s.rows);
+        ws['!cols'] = normaAutoCols(s.rows);
+        normaStyleHeader(ws, (s.rows[0] || []).length);
+        XLSX.utils.book_append_sheet(wb, ws, s.name);
+    });
+    return wb;
+}
+
+function downloadNormaXLSX() {
+    if (!normaAccessGuard()) return;
+    if (typeof XLSX === 'undefined') {
+        setNormaMsg('Library Excel gagal dimuat. Periksa koneksi internet lalu muat ulang halaman, atau gunakan Download CSV.', false);
+        return;
+    }
+    setNormaMsg('Menyiapkan file Excel...', null);
+    normaSetBusy(true);
+    try {
+        var model = buildNormaModel();
+        var wb = normaBuildWorkbook(model);
+        // type 'array' lalu Blob: pola unduh yang berjalan di browser (writeFile
+        // hanya untuk Node karena membutuhkan akses filesystem). Hasilnya bisa
+        // Uint8Array atau ArrayBuffer tergantung lingkungan; keduanya diterima
+        // Blob, dinormalkan ke Uint8Array supaya konsisten.
+        var out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        if (out && typeof out.byteLength === 'number' && typeof out.length !== 'number') out = new Uint8Array(out);
+        var blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        var fname = 'Norma_Tes_KONI_Tuban_' + normaTanggalFile() + '.xlsx';
+        link.download = fname;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        setNormaMsg('File Excel berhasil diunduh: ' + fname, true);
+    } catch (e) {
+        setNormaMsg('Gagal membuat file Excel: ' + (e && e.message ? e.message : e), false);
+    }
+    normaSetBusy(false);
 }
 
 loadAdminConfig();
