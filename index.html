@@ -1099,35 +1099,6 @@
             <div id="normaMsg" class="hidden mt-4 text-sm rounded-xl px-4 py-3"></div>
         </div>
 
-        <!-- A. DAFTAR ITEM TES -->
-        <div class="bg-white rounded-2xl card-shadow p-6">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="bg-blue-100 text-blue-700 p-2 rounded-lg">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800">A. Daftar Item Tes</h3>
-                    <p class="text-gray-400 text-xs">Nama tes, satuan, komponen fisik yang diukur, dan arah penilaian</p>
-                </div>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="bg-gray-100">
-                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 rounded-l-xl text-xs w-10">No</th>
-                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Nama Item Tes</th>
-                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Satuan</th>
-                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Komponen Fisik</th>
-                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Arah Nilai</th>
-                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 text-xs">Berlaku Untuk</th>
-                            <th class="px-3 py-2.5 text-left font-semibold text-gray-700 rounded-r-xl text-xs">Status Penilaian</th>
-                        </tr>
-                    </thead>
-                    <tbody id="normaItemBody"></tbody>
-                </table>
-            </div>
-        </div>
-
         <!-- B. TABEL NORMA & KATEGORI -->
         <div class="bg-white rounded-2xl card-shadow p-6">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
@@ -6569,32 +6540,11 @@ function normaCaborDetailRows() {
 // ---------- render halaman ----------
 function renderNormaView() {
     var model = buildNormaModel();
-    renderNormaItemTable(model.items);
     fillNormaKomponenFilter(model.items);
     renderNormaAccordion(model.items);
     renderNormaRumus(model.formulas);
     renderNormaSumber(model.sumber);
     if (normaCaborDetailLoaded) renderNormaCaborDetail();
-}
-
-function renderNormaItemTable(items) {
-    var body = document.getElementById('normaItemBody');
-    if (!body) return;
-    if (!items.length) {
-        body.innerHTML = '<tr><td colspan="7" class="px-3 py-4 text-xs text-gray-400">Belum ada item tes.</td></tr>';
-        return;
-    }
-    body.innerHTML = items.map(function(it, i) {
-        return '<tr class="' + (i % 2 ? 'bg-gray-50' : '') + ' border-t border-gray-100 hover:bg-blue-50 transition">' +
-            '<td class="px-3 py-2.5 font-semibold text-gray-500 text-xs">' + (i + 1) + '</td>' +
-            '<td class="px-3 py-2.5 font-semibold text-gray-800 text-xs">' + escHtml(it.name) + '</td>' +
-            '<td class="px-3 py-2.5 text-xs text-gray-600">' + escHtml(it.unit || '-') + '</td>' +
-            '<td class="px-3 py-2.5 text-xs"><span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border text-indigo-700 bg-indigo-50 border-indigo-200">' + escHtml(it.komponen) + '</span></td>' +
-            '<td class="px-3 py-2.5 text-xs text-gray-600">' + escHtml(it.arah.label) + '</td>' +
-            '<td class="px-3 py-2.5 text-xs text-gray-600">' + escHtml(it.kelamin || 'Semua atlet') + '</td>' +
-            '<td class="px-3 py-2.5 text-xs text-gray-600">' + escHtml(it.status) + '</td>' +
-            '</tr>';
-    }).join('');
 }
 
 function fillNormaKomponenFilter(items) {
