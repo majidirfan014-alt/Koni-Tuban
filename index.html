@@ -488,10 +488,21 @@
             <h2 id="formTitle" class="text-xl font-bold text-gray-800">Tambah Atlet Baru</h2>
         </div>
 
+        <div id="fNamaModeBox" class="flex flex-wrap items-center gap-3 mb-5">
+            <span class="text-sm font-semibold text-gray-700">Mode Nama Atlet</span>
+            <div class="inline-flex gap-1 bg-gray-100 rounded-xl p-1">
+                <button type="button" id="modeExistingBtn" onclick="setNamaMode('existing')" class="px-4 py-2 rounded-lg text-sm transition tab-active">Atlet sudah pernah tes</button>
+                <button type="button" id="modeNewBtn" onclick="setNamaMode('new')" class="px-4 py-2 rounded-lg text-sm transition tab-inactive">+ Atlet baru (input manual)</button>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Atlet</label>
-                <input type="text" id="fNama" placeholder="Nama lengkap" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition">
+                <div id="fNamaSelectWrap" class="relative">
+                    <input type="text" id="fNama" placeholder="Ketik untuk mencari atlet..." autocomplete="off" spellcheck="false" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition" onfocus="openNamaDropdown()" oninput="onNamaSearchInput()" onkeydown="onNamaSearchKey(event)" onblur="closeNamaDropdown()">
+                    <div id="fNamaOptions" class="absolute left-0 right-0 top-full mt-1 z-30 max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg hidden"></div>
+                </div>
             </div>
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Tempat Lahir</label>
@@ -2503,6 +2514,9 @@ function navigateTo(view) {
         if (!editingId) {
             document.getElementById('formTitle').textContent = 'Tambah Atlet Baru';
             document.getElementById('fTanggal').value = new Date().toISOString().split('T')[0];
+            syncNamaModeUI();
+        } else {
+            hideNamaModeUI();
         }
     }
     if (view === 'detail' && currentId) {
@@ -2563,6 +2577,7 @@ function editCurrentAtlet() {
 }
 
 function populateEditForm(a) {
+    hideNamaModeUI();
     document.getElementById('formTitle').textContent = 'Edit Atlet: ' + a.nama;
     document.getElementById('fNama').value = a.nama;
     document.getElementById('fTempatLahir').value = a.tempatLahir || '';
@@ -2916,6 +2931,231 @@ document.getElementById('fKelamin').addEventListener('change', function() {
     });
     checkFormReady();
 });
+
+// ========== MODE NAMA ATLET (form Tambah Atlet Baru) ==========
+// Dua mode: 'existing' = pilih atlet yang sudah pernah tes (data diri terisi
+// otomatis, hasil simpan menjadi sesi tes baru pada atlet yang sama),
+// 'new' = input manual untuk atlet baru yang belum pernah tes.
+var namaMode = '';
+var namaSelectedKey = '';
+var namaSelectedNama = '';
+var namaActiveIndex = -1;
+
+function defaultNamaMode() {
+    return getUniqueAtletOptions().length ? 'existing' : 'new';
+}
+
+// Daftar atlet unik (satu atlet tampil satu kali walau punya banyak sesi tes),
+// diambil dari sesi terbarunya sebagai sumber data diri.
+function getUniqueAtletOptions() {
+    var byKey = {};
+    dashboardAthletes.forEach(function(a) {
+        if (!a || !a.nama) return;
+        if (isPelatih() && a.cabor !== getUserCabor()) return;
+        var key = buildAthleteKey(a);
+        (byKey[key] = byKey[key] || []).push(a);
+    });
+    return Object.keys(byKey).map(function(k) {
+        var sesi = sortSessionsDesc(byKey[k]);
+        return { key: k, atlet: sesi[0], jumlahTes: sesi.length };
+    }).sort(function(x, y) {
+        return String(x.atlet.nama || '').localeCompare(String(y.atlet.nama || ''), 'id');
+    });
+}
+
+// ID atlet yang sudah ada (dipakai agar sesi tes baru terikat pada atlet yang
+// sama, bukan membuat atlet ganda).
+function getStableAtletId(key) {
+    var sesi = dashboardAthletes.filter(function(x) { return x && buildAthleteKey(x) === key; });
+    if (!sesi.length) return '';
+    var palingAwal = sesi.slice().sort(function(x, y) {
+        return String(x.createdAt || '').localeCompare(String(y.createdAt || ''));
+    })[0];
+    return palingAwal.idAtlet || palingAwal.id || '';
+}
+
+function setNamaMode(mode, skipResetFields) {
+    namaMode = (mode === 'new') ? 'new' : 'existing';
+    var box = document.getElementById('fNamaModeBox');
+    if (box) box.classList.remove('hidden');
+    var input = document.getElementById('fNama');
+    var btnExisting = document.getElementById('modeExistingBtn');
+    var btnNew = document.getElementById('modeNewBtn');
+    if (namaMode === 'existing') {
+        if (input) input.placeholder = 'Ketik untuk mencari atlet...';
+        if (btnExisting) btnExisting.className = 'px-4 py-2 rounded-lg text-sm transition tab-active';
+        if (btnNew) btnNew.className = 'px-4 py-2 rounded-lg text-sm transition tab-inactive';
+    } else {
+        if (input) input.placeholder = 'Nama lengkap';
+        if (btnExisting) btnExisting.className = 'px-4 py-2 rounded-lg text-sm transition tab-inactive';
+        if (btnNew) btnNew.className = 'px-4 py-2 rounded-lg text-sm transition tab-active';
+        closeNamaDropdown();
+    }
+    if (!skipResetFields) resetNamaModeFields();
+    if (!skipResetFields && namaMode === 'new' && input) input.focus();
+    checkFormReady();
+}
+
+// Mode disembunyikan saat form dipakai untuk Edit Atlet (bukan Tambah Atlet Baru).
+function hideNamaModeUI() {
+    var box = document.getElementById('fNamaModeBox');
+    if (box) box.classList.add('hidden');
+    var input = document.getElementById('fNama');
+    if (input) input.placeholder = 'Nama lengkap';
+    closeNamaDropdown();
+}
+
+function syncNamaModeUI() {
+    if (!namaMode) namaMode = defaultNamaMode();
+    setNamaMode(namaMode, true);
+}
+
+// Ganti mode = mulai dari kondisi bersih (nama & data diri dikosongkan).
+function resetNamaModeFields() {
+    namaSelectedKey = '';
+    namaSelectedNama = '';
+    document.getElementById('fNama').value = '';
+    document.getElementById('fTempatLahir').value = '';
+    document.getElementById('fTglLahir').value = '';
+    document.getElementById('fUsia').value = '';
+    document.getElementById('fKelamin').value = '';
+    document.getElementById('fCabor').value = '';
+    document.getElementById('fNomorBox').classList.add('hidden');
+    document.getElementById('fNomor').value = '';
+    document.getElementById('fTanggal').value = new Date().toISOString().split('T')[0];
+    document.getElementById('testFieldsBox').classList.add('hidden');
+    document.getElementById('testFields').innerHTML = '';
+    document.getElementById('catatanBox').classList.add('hidden');
+    document.getElementById('fCatatanCedera').value = '';
+    document.getElementById('btnSave').disabled = true;
+}
+
+function openNamaDropdown() {
+    if (namaMode !== 'existing' || editingId) return;
+    renderNamaOptions();
+}
+
+function closeNamaDropdown() {
+    var dd = document.getElementById('fNamaOptions');
+    if (dd) dd.classList.add('hidden');
+    namaActiveIndex = -1;
+}
+
+function renderNamaOptions() {
+    var dd = document.getElementById('fNamaOptions');
+    if (!dd) return;
+    if (namaMode !== 'existing' || editingId) { dd.classList.add('hidden'); return; }
+    var q = (document.getElementById('fNama').value || '').trim().toLowerCase();
+    var caborTerpilih = document.getElementById('fCabor').value;
+    var options = getUniqueAtletOptions().filter(function(o) {
+        var a = o.atlet;
+        // Filter cabor hanya saat atlet belum dipilih (cabor dipilih lebih dulu).
+        if (!namaSelectedKey && caborTerpilih && a.cabor !== caborTerpilih) return false;
+        if (!q) return true;
+        return String(a.nama || '').toLowerCase().indexOf(q) >= 0 || String(a.cabor || '').toLowerCase().indexOf(q) >= 0;
+    });
+    namaActiveIndex = -1;
+    dd.innerHTML = '';
+    options.forEach(function(o) {
+        var a = o.atlet;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('data-nama-opt', '1');
+        btn.className = 'w-full text-left px-4 py-2.5 hover:bg-blue-50 transition border-b border-gray-100 last:border-0';
+        btn.innerHTML = '<span class="block font-semibold text-gray-800 text-sm">' + escHtml(a.nama) + '</span>' +
+            '<span class="block text-blue-600 text-xs font-semibold">' + escHtml(a.cabor || '-') + (a.nomor ? ' - ' + escHtml(a.nomor) : '') + '</span>' +
+            '<span class="block text-gray-400 text-xs">' + escHtml(a.tempatLahir || '-') + (a.tanggalLahir ? ', ' + formatTanggal(a.tanggalLahir) : '') + (a.usia ? ' • ' + a.usia + ' th' : '') + ' • ' + o.jumlahTes + 'x tes</span>';
+        btn.onmousedown = function(e) { e.preventDefault(); };
+        btn.onclick = function() { pilihAtletDariDaftar(o.key); };
+        dd.appendChild(btn);
+    });
+    if (!options.length) {
+        var kosong = document.createElement('div');
+        kosong.className = 'px-4 py-2 text-xs text-gray-400';
+        kosong.textContent = (caborTerpilih && !namaSelectedKey) ? 'Belum ada atlet pada cabor ini.' : 'Tidak ada atlet yang cocok.';
+        dd.appendChild(kosong);
+    }
+    var manual = document.createElement('button');
+    manual.type = 'button';
+    manual.className = 'w-full text-left px-4 py-2.5 bg-gray-50 hover:bg-blue-50 text-blue-600 text-sm font-semibold transition rounded-b-xl';
+    manual.innerHTML = '+ Atlet baru (input manual)';
+    manual.onmousedown = function(e) { e.preventDefault(); };
+    manual.onclick = function() { setNamaMode('new'); };
+    dd.appendChild(manual);
+    dd.classList.remove('hidden');
+}
+
+function pilihAtletDariDaftar(key) {
+    var atlet = null;
+    getUniqueAtletOptions().forEach(function(o) { if (o.key === key) atlet = o.atlet; });
+    if (!atlet) return;
+    namaSelectedKey = key;
+    namaSelectedNama = atlet.nama;
+    document.getElementById('fNama').value = atlet.nama;
+    closeNamaDropdown();
+    document.getElementById('fTempatLahir').value = atlet.tempatLahir || '';
+    document.getElementById('fTglLahir').value = atlet.tanggalLahir || '';
+    hitungUsia();
+    document.getElementById('fKelamin').value = atlet.kelamin || '';
+    document.getElementById('fCabor').value = atlet.cabor || '';
+    var nomorBox = document.getElementById('fNomorBox');
+    var nomorSel = document.getElementById('fNomor');
+    if (atlet.cabor === 'Atletik') {
+        nomorBox.classList.remove('hidden');
+        nomorSel.innerHTML = '<option value="">-- Pilih Nomor --</option>';
+        Object.keys(atletikNomor).sort().forEach(function(n) {
+            var o = document.createElement('option');
+            o.value = n;
+            o.textContent = n;
+            nomorSel.appendChild(o);
+        });
+        if (atlet.nomor) nomorSel.value = atlet.nomor;
+    } else {
+        nomorBox.classList.add('hidden');
+        nomorSel.value = '';
+    }
+    document.getElementById('fCatatanCedera').value = atlet.catatanCedera || '';
+    // Tanggal Tes = sesi baru: default hari ini (bukan tanggal tes lamanya).
+    if (!document.getElementById('fTanggal').value) {
+        document.getElementById('fTanggal').value = new Date().toISOString().split('T')[0];
+    }
+    buildTestFields(atlet.cabor);
+    checkFormReady();
+}
+
+function onNamaSearchInput() {
+    if (namaSelectedKey && (document.getElementById('fNama').value || '').trim() !== namaSelectedNama) {
+        namaSelectedKey = '';
+        namaSelectedNama = '';
+    }
+    checkFormReady();
+    renderNamaOptions();
+}
+
+function onNamaSearchKey(e) {
+    if (e.key === 'Escape') { closeNamaDropdown(); return; }
+    var dd = document.getElementById('fNamaOptions');
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (dd.classList.contains('hidden')) renderNamaOptions();
+        var items = dd.querySelectorAll('button[data-nama-opt]');
+        if (!items.length) return;
+        namaActiveIndex += (e.key === 'ArrowDown') ? 1 : -1;
+        if (namaActiveIndex < 0) namaActiveIndex = items.length - 1;
+        if (namaActiveIndex >= items.length) namaActiveIndex = 0;
+        items.forEach(function(el, i) {
+            if (i === namaActiveIndex) el.classList.add('bg-blue-50');
+            else el.classList.remove('bg-blue-50');
+        });
+        items[namaActiveIndex].scrollIntoView({ block: 'nearest' });
+        return;
+    }
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        var items2 = dd.querySelectorAll('button[data-nama-opt]');
+        if (namaActiveIndex >= 0 && items2[namaActiveIndex]) items2[namaActiveIndex].click();
+    }
+}
 
 function computeEvaluation(a) {
     if (a.nilai && a.nilai['% Performance'] !== undefined && a.nilai['% Performance'] !== null) {
@@ -3454,6 +3694,10 @@ function saveAtlet() {
             dashboardAthletes[didx] = newAtlet;
         }
     } else {
+        if (namaMode === 'existing' && namaSelectedKey && buildAthleteKey(newAtlet) === namaSelectedKey) {
+            var idAtletLama = getStableAtletId(namaSelectedKey);
+            if (idAtletLama) newAtlet.idAtlet = idAtletLama;
+        }
         dashboardAthletes.push(newAtlet);
     }
     saveDashboardData().then(function() {
@@ -3480,6 +3724,10 @@ function resetForm() {
     document.getElementById('catatanBox').classList.add('hidden');
     document.getElementById('fCatatanCedera').value = '';
     document.getElementById('btnSave').disabled = true;
+    namaSelectedKey = '';
+    namaSelectedNama = '';
+    namaMode = defaultNamaMode();
+    setNamaMode(namaMode, true);
 }
 
 function deleteCurrentAtlet() {
