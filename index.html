@@ -243,12 +243,40 @@
         <div id="dcEmpty" class="hidden mt-6 text-center bg-gray-50 border border-dashed border-gray-200 rounded-2xl py-10">
             <p class="text-sm text-gray-400 font-semibold">Cabor tidak ditemukan</p>
         </div>
+
+        <div id="dcMoreWrap" class="mt-7 text-center hidden">
+            <button type="button" id="dcMoreBtn" onclick="toggleDaftarCabor()" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-7 py-3 rounded-xl transition shadow-lg shadow-blue-200 text-sm">
+                <svg id="dcMoreIcon" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+                <span id="dcMoreLabel">Lihat Semua Cabor</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- ===== SECTION LOGO PENUTUP (KONI Tuban & USC) ===== -->
+    <section class="relative z-10 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-12">
+            <div class="bg-gray-50 border border-gray-100 rounded-3xl px-6 py-10 sm:py-12">
+                <p class="text-center text-[11px] sm:text-xs font-semibold text-gray-400 uppercase tracking-[0.2em]">Dikembangkan oleh &amp; bekerja sama dengan</p>
+                <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-12">
+                    <div class="flex flex-col items-center gap-3 group">
+                        <img src="logo%20koni%20tuban.png" alt="Logo KONI Tuban" class="h-16 sm:h-[72px] w-auto max-w-[220px] object-contain transition duration-300 group-hover:-translate-y-1 group-hover:opacity-80">
+                        <span class="text-[11px] font-semibold text-gray-400 tracking-wide">KONI Kabupaten Tuban</span>
+                    </div>
+                    <div class="w-14 h-px bg-gray-200 sm:w-px sm:h-14" aria-hidden="true"></div>
+                    <div class="flex flex-col items-center gap-3 group">
+                        <img src="logo%20usc.png" alt="Logo USC" class="h-16 sm:h-[72px] w-auto max-w-[220px] object-contain transition duration-300 group-hover:-translate-y-1 group-hover:opacity-80">
+                        <span class="text-[11px] font-semibold text-gray-400 tracking-wide">Unesa Science Center</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <footer class="border-t border-gray-100 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
             <p>&copy; 2026 KONI Kabupaten Tuban</p>
-            <p>By.Majid</p>
         </div>
     </footer>
 </div>
@@ -453,21 +481,44 @@
 <!-- ========== VIEW: DAFTAR ATLET ========== -->
 <div id="listView" class="view active">
     <div class="bg-white rounded-2xl card-shadow p-6">
-        <div class="flex items-center justify-end gap-3 mb-6">
-            <button onclick="navigateTo('form')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition flex items-center gap-2 text-sm shadow-lg shadow-blue-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5">
+            <div class="flex flex-col sm:flex-row gap-3 flex-1 min-w-0">
+                <div class="relative flex-1 max-w-md min-w-[200px]">
+                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                    <input type="text" id="alSearch" oninput="onAlSearchInput()" placeholder="Cari nama atlet atau cabor..." autocomplete="off" class="w-full pl-9 pr-9 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm bg-white">
+                    <button type="button" id="alSearchClear" onclick="clearAlSearch()" aria-label="Kosongkan pencarian" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <select id="alFilterCabor" onchange="renderAthleteList()" class="sm:w-52 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white text-gray-700">
+                    <option value="">Semua Cabor</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="navigateTo('form')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition flex items-center gap-2 text-sm shadow-lg shadow-blue-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Tambah Atlet
+                </button>
+                <button onclick="hapusSemuaData()" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2.5 rounded-xl transition flex items-center gap-2 text-sm shadow-lg shadow-red-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Hapus Semua
+                </button>
+            </div>
+        </div>
+        <p id="alCount" class="hidden text-xs text-gray-400 font-semibold mb-4"></p>
+        <div id="athleteList" class="space-y-3"></div>
+        <div id="alMoreWrap" class="mt-6 text-center hidden">
+            <button type="button" id="alMoreBtn" onclick="toggleAtletList()" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-7 py-3 rounded-xl transition shadow-lg shadow-blue-200 text-sm">
+                <svg id="alMoreIcon" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
-                Tambah Atlet
-            </button>
-            <button onclick="hapusSemuaData()" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2.5 rounded-xl transition flex items-center gap-2 text-sm shadow-lg shadow-red-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
-                Hapus Semua
+                <span id="alMoreLabel">Lihat Semua Atlet</span>
             </button>
         </div>
-        <div id="athleteList" class="space-y-3"></div>
     </div>
 </div>
 
@@ -1345,14 +1396,13 @@
     <img src="logo%20koni%20tuban.png" alt="" class="w-24 h-24 object-contain">
 </div>
 
-<div class="fixed bottom-2 left-3 text-xs text-gray-500 select-none z-50">By.Majid</div>
 
 <script>
 var caborData = {
     "Angkat Berat": {
         items: ["Shoulder Mobility Kanan", "Shoulder Mobility Kiri", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Sprint 20 m", "Bleep Test"],
-        normaUnder17: { "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Sprint 20 m": { mean: 3.8, sd: 0.4 }, "Bleep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Sprint 20 m": { mean: 3.2, sd: 0.3 }, "Bleep Test": { mean: 50, sd: 8 } },
+        normaUnder17: { "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 90, sd: 25 }, "Sprint 20 m": { mean: 3.8, sd: 0.4 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 110, sd: 35 }, "Sprint 20 m": { mean: 3.2, sd: 0.3 }, "Bleep Test": { mean: 50, sd: 8 } },
         higherIsBetter: ["Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Bleep Test"],
         catatan: "Fokus pada kekuatan dan power. Sprint 20m diukur dalam detik (lebih rendah lebih baik). Shoulder Mobility: hasil semakin kecil/pendek jarak antar tangan semakin bagus."
     },
@@ -1365,22 +1415,22 @@ var caborData = {
     },
     "Judo": {
         items: ["Sit & Reach", "Push Up 1 Menit", "Medicine Chest Pass 5 Kg", "Medicine Chest Pass 3 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Expanding Push", "Expanding Pull", "Core Stability 12 Level", "1RM Squat", "RAST Test", "RAST Fatigue Index", "Illinois Agility", "Bleep Test"],
-        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Expanding Push": { mean: 22, sd: 7 }, "Expanding Pull": { mean: 22, sd: 7 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "RAST Test": { mean: 7, sd: 2 }, "RAST Fatigue Index": { mean: 1.5, sd: 0.8 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Bleep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Expanding Push": { mean: 30, sd: 8 }, "Expanding Pull": { mean: 30, sd: 8 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "RAST Test": { mean: 9, sd: 2.5 }, "RAST Fatigue Index": { mean: 1.8, sd: 0.9 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Bleep Test": { mean: 50, sd: 8 } },
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Medicine Chest Pass 5 Kg": { mean: 5.5, sd: 1.5 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Expanding Push": { mean: 22, sd: 7 }, "Expanding Pull": { mean: 22, sd: 7 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 90, sd: 25 }, "RAST Test": { mean: 7, sd: 2 }, "RAST Fatigue Index": { mean: 1.5, sd: 0.8 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Medicine Chest Pass 5 Kg": { mean: 7, sd: 1.8 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Expanding Push": { mean: 30, sd: 8 }, "Expanding Pull": { mean: 30, sd: 8 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 110, sd: 35 }, "RAST Test": { mean: 9, sd: 2.5 }, "RAST Fatigue Index": { mean: 1.8, sd: 0.9 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Bleep Test": { mean: 50, sd: 8 } },
         higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Medicine Chest Pass 5 Kg", "Medicine Chest Pass 3 Kg", "Hand Grip Kanan", "Hand Grip Kiri", "Expanding Push", "Expanding Pull", "Core Stability 12 Level", "1RM Squat", "RAST Test", "Bleep Test"],
         catatan: "Kombinasi kekuatan, daya tahan, dan kelincahan. RAST Test menggunakan kalkulator otomatis. Expanding Push dan Pull diukur terpisah."
     },
     "Gulat": {
         items: ["Sit & Reach", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Stork Stand Kanan", "Stork Stand Kiri", "Shoulder Mobility Kanan", "Shoulder Mobility Kiri", "RAST Test", "RAST Fatigue Index", "Illinois Agility", "Bleep Test"],
-        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Stork Stand Kanan": { mean: 25, sd: 10 }, "Stork Stand Kiri": { mean: 25, sd: 10 }, "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "RAST Test": { mean: 7, sd: 2 }, "RAST Fatigue Index": { mean: 1.5, sd: 0.8 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Bleep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Stork Stand Kanan": { mean: 40, sd: 12 }, "Stork Stand Kiri": { mean: 40, sd: 12 }, "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "RAST Test": { mean: 9, sd: 2.5 }, "RAST Fatigue Index": { mean: 1.8, sd: 0.9 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Bleep Test": { mean: 50, sd: 8 } },
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 90, sd: 25 }, "Stork Stand Kanan": { mean: 25, sd: 10 }, "Stork Stand Kiri": { mean: 25, sd: 10 }, "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "RAST Test": { mean: 7, sd: 2 }, "RAST Fatigue Index": { mean: 1.5, sd: 0.8 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 110, sd: 35 }, "Stork Stand Kanan": { mean: 40, sd: 12 }, "Stork Stand Kiri": { mean: 40, sd: 12 }, "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "RAST Test": { mean: 9, sd: 2.5 }, "RAST Fatigue Index": { mean: 1.8, sd: 0.9 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Bleep Test": { mean: 50, sd: 8 } },
         higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Stork Stand Kanan", "Stork Stand Kiri", "RAST Test", "Bleep Test"],
         catatan: "Tes keseimbangan (Stork Stand Kanan & Kiri) diukur dalam menit:detik. Illinois Agility mengukur kelincahan. Shoulder Mobility: hasil semakin kecil semakin bagus."
     },
     "Sambo": {
         items: ["Sit & Reach", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Hand Grip Kanan", "Hand Grip Kiri", "Core Stability 12 Level", "1RM Squat", "RAST Test", "RAST Fatigue Index", "Illinois Agility", "Stork Stand Kanan", "Stork Stand Kiri", "Bleep Test"],
-        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "RAST Test": { mean: 7, sd: 2 }, "RAST Fatigue Index": { mean: 1.5, sd: 0.8 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Stork Stand Kanan": { mean: 25, sd: 10 }, "Stork Stand Kiri": { mean: 25, sd: 10 }, "Bleep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "RAST Test": { mean: 9, sd: 2.5 }, "RAST Fatigue Index": { mean: 1.8, sd: 0.9 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Stork Stand Kanan": { mean: 40, sd: 12 }, "Stork Stand Kiri": { mean: 40, sd: 12 }, "Bleep Test": { mean: 50, sd: 8 } },
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 90, sd: 25 }, "RAST Test": { mean: 7, sd: 2 }, "RAST Fatigue Index": { mean: 1.5, sd: 0.8 }, "Illinois Agility": { mean: 19, sd: 2.5 }, "Stork Stand Kanan": { mean: 25, sd: 10 }, "Stork Stand Kiri": { mean: 25, sd: 10 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 110, sd: 35 }, "RAST Test": { mean: 9, sd: 2.5 }, "RAST Fatigue Index": { mean: 1.8, sd: 0.9 }, "Illinois Agility": { mean: 16, sd: 2.2 }, "Stork Stand Kanan": { mean: 40, sd: 12 }, "Stork Stand Kiri": { mean: 40, sd: 12 }, "Bleep Test": { mean: 50, sd: 8 } },
         higherIsBetter: ["Sit & Reach", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Hand Grip Kanan", "Hand Grip Kiri", "Core Stability 12 Level", "1RM Squat", "RAST Test", "Stork Stand Kanan", "Stork Stand Kiri", "Bleep Test"],
         catatan: "Mirip dengan Gulat dan Judo. Hand Grip diukur dalam kg per tangan."
     },
@@ -1393,8 +1443,8 @@ var caborData = {
     },
     "Tinju": {
         items: ["Sit & Reach", "Pull Up 1 Menit", "Sit Up 1 Menit", "Back Up 1 Menit", "Hand Grip Kanan", "Hand Grip Kiri", "Core Stability 12 Level", "1RM Squat", "Sprint 20 m", "Zig Zag Run Test", "Bleep Test"],
-        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Sit Up 1 Menit": { mean: 30, sd: 10 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Sprint 20 m": { mean: 3.8, sd: 0.4 }, "Zig Zag Run Test": { mean: 12, sd: 2 }, "Bleep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Sit Up 1 Menit": { mean: 40, sd: 12 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Sprint 20 m": { mean: 3.2, sd: 0.3 }, "Zig Zag Run Test": { mean: 10, sd: 1.5 }, "Bleep Test": { mean: 50, sd: 8 } },
+        normaUnder17: { "Sit & Reach": { mean: 28, sd: 6 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Sit Up 1 Menit": { mean: 30, sd: 10 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Hand Grip Kanan": { mean: 32, sd: 9 }, "Hand Grip Kiri": { mean: 29, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 90, sd: 25 }, "Sprint 20 m": { mean: 3.8, sd: 0.4 }, "Zig Zag Run Test": { mean: 12, sd: 2 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Sit & Reach": { mean: 32, sd: 6 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Sit Up 1 Menit": { mean: 40, sd: 12 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Hand Grip Kanan": { mean: 42, sd: 11 }, "Hand Grip Kiri": { mean: 38, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 110, sd: 35 }, "Sprint 20 m": { mean: 3.2, sd: 0.3 }, "Zig Zag Run Test": { mean: 10, sd: 1.5 }, "Bleep Test": { mean: 50, sd: 8 } },
         higherIsBetter: ["Sit & Reach", "Pull Up 1 Menit", "Sit Up 1 Menit", "Back Up 1 Menit", "Hand Grip Kanan", "Hand Grip Kiri", "Core Stability 12 Level", "1RM Squat", "Bleep Test"],
         catatan: "Power dan kelincahan sangat penting. Zig Zag Run diukur dalam detik."
     },
@@ -1407,8 +1457,8 @@ var caborData = {
     },
     "Angkat Besi": {
         items: ["Shoulder Mobility Kanan", "Shoulder Mobility Kiri", "Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Stork Stand Kanan", "Stork Stand Kiri", "Bleep Test"],
-        normaUnder17: { "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 1.3, sd: 0.3 }, "Stork Stand Kanan": { mean: 25, sd: 10 }, "Stork Stand Kiri": { mean: 25, sd: 10 }, "Bleep Test": { mean: 42, sd: 7 } },
-        normaOver17: { "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 1.6, sd: 0.35 }, "Stork Stand Kanan": { mean: 40, sd: 12 }, "Stork Stand Kiri": { mean: 40, sd: 12 }, "Bleep Test": { mean: 50, sd: 8 } },
+        normaUnder17: { "Shoulder Mobility Kanan": { mean: 28, sd: 6 }, "Shoulder Mobility Kiri": { mean: 28, sd: 6 }, "Push Up 1 Menit": { mean: 25, sd: 9 }, "Pull Up 1 Menit": { mean: 8, sd: 4 }, "Back Up 1 Menit": { mean: 23, sd: 8 }, "Core Stability 12 Level": { mean: 6, sd: 2.5 }, "1RM Squat": { mean: 90, sd: 25 }, "Stork Stand Kanan": { mean: 25, sd: 10 }, "Stork Stand Kiri": { mean: 25, sd: 10 }, "Bleep Test": { mean: 42, sd: 7 } },
+        normaOver17: { "Shoulder Mobility Kanan": { mean: 33, sd: 6 }, "Shoulder Mobility Kiri": { mean: 33, sd: 6 }, "Push Up 1 Menit": { mean: 35, sd: 11 }, "Pull Up 1 Menit": { mean: 14, sd: 5 }, "Back Up 1 Menit": { mean: 32, sd: 10 }, "Core Stability 12 Level": { mean: 8, sd: 2.5 }, "1RM Squat": { mean: 110, sd: 35 }, "Stork Stand Kanan": { mean: 40, sd: 12 }, "Stork Stand Kiri": { mean: 40, sd: 12 }, "Bleep Test": { mean: 50, sd: 8 } },
         higherIsBetter: ["Push Up 1 Menit", "Pull Up 1 Menit", "Back Up 1 Menit", "Core Stability 12 Level", "1RM Squat", "Stork Stand Kanan", "Stork Stand Kiri", "Bleep Test"],
         catatan: "Kekuatan tubuh bagian atas dan core sangat dominan. 1RM Squat diukur dalam rasio berat badan. Shoulder Mobility: hasil semakin kecil semakin bagus."
     },
@@ -1543,7 +1593,7 @@ var atletikNomor = {
             "Push Up 1 Menit": { mean: 25, sd: 9 },
             "Sit Up 1 Menit": { mean: 30, sd: 10 },
             "Standing Broad Jump": { mean: 2.0, sd: 0.35 },
-            "1RM Squat": { mean: 1.3, sd: 0.3 },
+            "1RM Squat": { mean: 90, sd: 25 },
             "Core Stability 12 Level": { mean: 6, sd: 2.5 },
             "Sprint 30 m": { mean: 5.0, sd: 0.5 },
             "Stork Stand Kanan": { mean: 25, sd: 10 }, "Stork Stand Kiri": { mean: 25, sd: 10 },
@@ -1554,7 +1604,7 @@ var atletikNomor = {
             "Push Up 1 Menit": { mean: 35, sd: 11 },
             "Sit Up 1 Menit": { mean: 40, sd: 12 },
             "Standing Broad Jump": { mean: 2.4, sd: 0.35 },
-            "1RM Squat": { mean: 1.6, sd: 0.35 },
+            "1RM Squat": { mean: 110, sd: 35 },
             "Core Stability 12 Level": { mean: 8, sd: 2.5 },
             "Sprint 30 m": { mean: 4.3, sd: 0.4 },
             "Stork Stand Kanan": { mean: 40, sd: 12 }, "Stork Stand Kiri": { mean: 40, sd: 12 },
@@ -1636,11 +1686,19 @@ function itemKelamin(name) {
     return ITEM_KELAMIN[itemKey(name)] || '';
 }
 
+// Penentuan kelompok usia norma yang KONSISTEN di semua fungsi perhitungan:
+// usia kosong/tidak valid dianggap kelompok dewasa (> 17).
+function isUsiaMuda(usia) {
+    if (usia == null || usia === '') return false;
+    var n = parseFloat(usia);
+    return !isNaN(n) && n <= 17;
+}
+
 // Norma item berbasis kelamin sesuai usia atlet (null bila bukan item tsb).
 function normaItemKelamin(name, usia) {
     var k = itemKey(name);
     if (!k || !ITEM_KELAMIN[k]) return null;
-    var set = (usia != null && usia <= 17) ? NORMA_ITEM_KELAMIN.under17 : NORMA_ITEM_KELAMIN.over17;
+    var set = isUsiaMuda(usia) ? NORMA_ITEM_KELAMIN.under17 : NORMA_ITEM_KELAMIN.over17;
     return set[k] || null;
 }
 
@@ -2207,6 +2265,10 @@ function createEmptyCabor(items) {
 // Terapkan konfigurasi admin ke caborData sehingga semua dropdown (Daftar Atlet,
 // filter statistik) dan landing page "Total Cabor Terdaftar" ikut terupdate.
 function applyAdminConfig() {
+    // Konfigurasi bisa mengubah nama/daftar item, jadi index norma global
+    // harus dibangun ulang.
+    globalNormaIndex = null;
+    arahGlobalCache = {};
     (adminConfig.extraCabor || []).forEach(function(name) {
         if (name && !caborData[name]) caborData[name] = createEmptyCabor();
     });
@@ -2525,17 +2587,109 @@ function navigateTo(view) {
     }
 }
 
+// ----- Pencarian, filter cabor & "Lihat Semua Atlet" (menu Daftar Atlet) -----
+var alShowAll = false;
+var alLimit = 10;
+var alSearchTimer = null;
+
+function populateAlFilterCabor() {
+    var sel = document.getElementById('alFilterCabor');
+    if (!sel) return;
+    var current = sel.value;
+    sel.innerHTML = '<option value="">Semua Cabor</option>';
+    if (isPelatih()) {
+        var opt = document.createElement('option');
+        opt.value = getUserCabor();
+        opt.textContent = getUserCabor();
+        sel.appendChild(opt);
+        sel.value = getUserCabor();
+        sel.disabled = true;
+        return;
+    }
+    sel.disabled = false;
+    var cabors = {};
+    dashboardAthletes.forEach(function(a) { if (a && a.cabor) cabors[a.cabor] = true; });
+    Object.keys(caborData).forEach(function(n) { cabors[n] = true; });
+    Object.keys(cabors).sort().forEach(function(n) {
+        var o = document.createElement('option');
+        o.value = n;
+        o.textContent = n;
+        sel.appendChild(o);
+    });
+    if (current) sel.value = current;
+}
+
+function onAlSearchInput() {
+    clearTimeout(alSearchTimer);
+    alSearchTimer = setTimeout(function() { renderAthleteList(); }, 250);
+    var clearBtn = document.getElementById('alSearchClear');
+    var searchEl = document.getElementById('alSearch');
+    if (clearBtn && searchEl) clearBtn.classList.toggle('hidden', !searchEl.value);
+}
+
+function clearAlSearch() {
+    var el = document.getElementById('alSearch');
+    if (el) { el.value = ''; el.focus(); }
+    renderAthleteList();
+}
+
+function resetAlPencarian() {
+    var el = document.getElementById('alSearch');
+    if (el) el.value = '';
+    var sel = document.getElementById('alFilterCabor');
+    if (sel && !sel.disabled) sel.value = '';
+    alShowAll = false;
+    renderAthleteList();
+}
+
+function toggleAtletList() {
+    alShowAll = !alShowAll;
+    renderAthleteList();
+    if (!alShowAll) {
+        var box = document.getElementById('listView');
+        if (box && box.scrollIntoView) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
 function renderAthleteList() {
     var list = document.getElementById('athleteList');
+    populateAlFilterCabor();
+    var searchEl = document.getElementById('alSearch');
+    var query = searchEl ? searchEl.value.trim().toLowerCase() : '';
+    var filterSel = document.getElementById('alFilterCabor');
+    var filterCabor = filterSel ? filterSel.value : '';
+    var clearBtn = document.getElementById('alSearchClear');
+    if (clearBtn) clearBtn.classList.toggle('hidden', !query);
     var data = dashboardAthletes;
     if (isPelatih()) {
         data = data.filter(function(a) { return a.cabor === getUserCabor(); });
     }
-    if (!data.length) {
-        list.innerHTML = '<div class="text-center py-10"><svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg><p class="text-gray-400 font-semibold">Belum ada data atlet</p><p class="text-gray-300 text-sm mt-1">Klik "Tambah Atlet" untuk menambah data</p></div>';
-        return;
+    var totalAtlet = data.length;
+    // Pencarian satu kolom: mencocokkan nama atlet ATAU nama cabor.
+    var filtered = data.filter(function(a) {
+        if (filterCabor && a.cabor !== filterCabor) return false;
+        if (!query) return true;
+        return String(a.nama || '').toLowerCase().indexOf(query) >= 0
+            || String(a.cabor || '').toLowerCase().indexOf(query) >= 0;
+    });
+    var limit = alLimit;
+    var tampil = alShowAll ? filtered : filtered.slice(0, limit);
+    var countEl = document.getElementById('alCount');
+    if (countEl) {
+        if (totalAtlet) {
+            countEl.textContent = 'Menampilkan ' + tampil.length + ' dari ' + totalAtlet + ' atlet' +
+                (filtered.length !== totalAtlet ? ' (' + filtered.length + ' cocok dengan pencarian/filter)' : '');
+            countEl.classList.remove('hidden');
+        } else {
+            countEl.classList.add('hidden');
+        }
     }
-    list.innerHTML = data.map(function(a, i) {
+    if (!totalAtlet) {
+        list.innerHTML = '<div class="text-center py-10"><svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg><p class="text-gray-400 font-semibold">Belum ada data atlet</p><p class="text-gray-300 text-sm mt-1">Klik "Tambah Atlet" untuk menambah data</p></div>';
+    } else if (!filtered.length) {
+        list.innerHTML = '<div class="text-center py-10"><svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg><p class="text-gray-500 font-semibold">Atlet tidak ditemukan</p><p class="text-gray-400 text-sm mt-1">Coba ubah kata kunci pencarian atau filter cabor</p><button type="button" onclick="resetAlPencarian()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition text-sm">Reset pencarian</button></div>';
+    } else {
+    list.innerHTML = tampil.map(function(a, i) {
         var ev = computeEvaluation(a);
         var cat = getCategory(ev.performa);
         return '<div class="flex items-center justify-between bg-gray-50 hover:bg-blue-50 border border-gray-200 rounded-xl px-4 py-3 transition fade-in">' +
@@ -2559,6 +2713,21 @@ function renderAthleteList() {
             '</div>' +
         '</div>';
     }).join('');
+    }
+
+    var moreWrap = document.getElementById('alMoreWrap');
+    var moreLabel = document.getElementById('alMoreLabel');
+    var moreIcon = document.getElementById('alMoreIcon');
+    if (moreWrap) {
+        if (filtered.length > limit) {
+            moreWrap.classList.remove('hidden');
+            if (moreLabel) moreLabel.textContent = alShowAll ? 'Tampilkan Lebih Sedikit' : 'Lihat Semua Atlet (' + filtered.length + ')';
+            if (moreIcon) moreIcon.style.transform = alShowAll ? 'rotate(180deg)' : '';
+        } else {
+            moreWrap.classList.add('hidden');
+            if (moreIcon) moreIcon.style.transform = '';
+        }
+    }
 }
 
 function viewDetail(id) {
@@ -2843,7 +3012,7 @@ function combineStorkStand(itemName) {
 
 function getItemUnit(name) {
     var li = name.toLowerCase();
-    if (li.indexOf('sprint') >= 0 || li.indexOf('t test') >= 0 || li.indexOf('stork stand') >= 0 || li.indexOf('zig zag') >= 0 || li.indexOf('shuttle run') >= 0 || li.indexOf('plank') >= 0 || li.indexOf('illinois') >= 0) return 'detik';
+    if (li.indexOf('sprint') >= 0 || (li.indexOf('t test') >= 0 && li.indexOf('rast') < 0) || li.indexOf('stork stand') >= 0 || li.indexOf('zig zag') >= 0 || li.indexOf('shuttle run') >= 0 || li.indexOf('plank') >= 0 || li.indexOf('illinois') >= 0) return 'detik';
     if (li.indexOf('push up') >= 0 || li.indexOf('sit up') >= 0 || li.indexOf('pull up') >= 0 || li.indexOf('back up') >= 0) return 'kali';
     if (li.indexOf('bleep test') >= 0 || li.indexOf('beep test') >= 0) return 'ml/kg/min';
     if (li.indexOf('vertical jump') >= 0) return 'cm';
@@ -3157,6 +3326,82 @@ function onNamaSearchKey(e) {
     }
 }
 
+// ========== NORMA GLOBAL PER ITEM TES ==========
+// Norma tiap item tes bersifat per ITEM (nilai yang sama dipakai di semua cabor
+// bawaan). Index global ini dibangun dari semua norma bawaan (caborData &
+// atletikNomor) dan norma cadangan NORMA_ITEM_KELAMIN, sehingga cabor baru yang
+// memilih item tes yang sama otomatis memakai norma yang sama persis dengan
+// cabor-cabor sebelumnya tanpa perlu input ulang.
+var globalNormaIndex = null;
+var arahGlobalCache = {};
+
+function buildGlobalNormaIndex() {
+    var idx = { u17: {}, o17: {} };
+    function catat(obj, grup) {
+        if (!obj) return;
+        Object.keys(obj).forEach(function(nm) {
+            var k = itemKey(nm);
+            var v = obj[nm];
+            if (!k || !v || idx[grup][k]) return;
+            if (isNaN(parseFloat(v.mean)) || isNaN(parseFloat(v.sd))) return;
+            idx[grup][k] = { mean: parseFloat(v.mean), sd: parseFloat(v.sd) };
+        });
+    }
+    // Prioritas 1: norma bawaan per cabor (nilainya identik antar cabor)
+    Object.keys(caborData).forEach(function(cn) {
+        catat(caborData[cn].normaUnder17, 'u17');
+        catat(caborData[cn].normaOver17, 'o17');
+    });
+    // Prioritas 2: norma khusus nomor Atletik (hanya mengisi yang belum ada)
+    Object.keys(atletikNomor).forEach(function(nn) {
+        catat(atletikNomor[nn].normaUnder17, 'u17');
+        catat(atletikNomor[nn].normaOver17, 'o17');
+    });
+    // Prioritas 3: norma cadangan empat item berbasis kelamin
+    catat(NORMA_ITEM_KELAMIN.under17, 'u17');
+    catat(NORMA_ITEM_KELAMIN.over17, 'o17');
+    return idx;
+}
+
+// Norma global sebuah item tes sesuai kelompok usia atlet (null bila benar-benar
+// belum ada norma di konfigurasi mana pun).
+function getGlobalItemNorma(name, usia) {
+    if (!globalNormaIndex) globalNormaIndex = buildGlobalNormaIndex();
+    var grup = isUsiaMuda(usia) ? globalNormaIndex.u17 : globalNormaIndex.o17;
+    return grup[itemKey(name)] || null;
+}
+
+// Arah nilai (makin tinggi / makin rendah makin baik) untuk item pada cabor yang
+// belum punya daftar higherIsBetter (cabor baru): diambil dari pemakaian item
+// yang sama di cabor/nomor lain, plus aturan khusus (lempar jarak = makin jauh
+// makin baik, Shoulder Mobility = makin rapat makin baik). Cabor tanpa daftar
+// higherIsBetter tidak memberi sinyal, supaya tidak menjerumuskan arah nilai.
+function resolveArahGlobal(name) {
+    var k = itemKey(name);
+    if (!k) return true;
+    if (arahGlobalCache[k] === undefined) {
+        if (ITEM_KELAMIN[k]) {
+            arahGlobalCache[k] = true;
+        } else if (normaSpecialKind(name) === 'shoulder') {
+            arahGlobalCache[k] = false;
+        } else {
+            var hi = false, lo = false;
+            function scan(c) {
+                if (!c || !normaItemInList(c.items, k)) return;
+                var daftar = c.higherIsBetter || [];
+                if (!daftar.length) return;
+                if (normaItemInList(daftar, k)) hi = true; else lo = true;
+            }
+            Object.keys(caborData).forEach(function(n) { scan(caborData[n]); });
+            Object.keys(atletikNomor).forEach(function(n) { scan(atletikNomor[n]); });
+            if (hi && !lo) arahGlobalCache[k] = true;
+            else if (lo && !hi) arahGlobalCache[k] = false;
+            else arahGlobalCache[k] = !(k.indexOf('sprint') >= 0 || k.indexOf('agility') >= 0 || k.indexOf('zig zag') >= 0 || k.indexOf('shuttle run') >= 0);
+        }
+    }
+    return arahGlobalCache[k];
+}
+
 function computeEvaluation(a) {
     if (a.nilai && a.nilai['% Performance'] !== undefined && a.nilai['% Performance'] !== null) {
         var perfFromExcel = parseFloat(a.nilai['% Performance']);
@@ -3171,12 +3416,12 @@ function computeEvaluation(a) {
     }
     var c = caborData[a.cabor];
     if (!c) return { items: [], performa: 0, kategori: 'Kurang Sekali', jumlahItem: 0, catatanKelamin: [], itemTidakSesuai: [] };
-    var norma = a.usia <= 17 ? c.normaUnder17 : c.normaOver17;
+    var norma = isUsiaMuda(a.usia) ? c.normaUnder17 : c.normaOver17;
     var higherIsBetter = c.higherIsBetter;
     var evalItems = c.items;
     if (a.cabor === 'Atletik' && a.nomor && atletikNomor[a.nomor]) {
         var nomorData = atletikNomor[a.nomor];
-        norma = a.usia <= 17 ? nomorData.normaUnder17 : nomorData.normaOver17;
+        norma = isUsiaMuda(a.usia) ? nomorData.normaUnder17 : nomorData.normaOver17;
         higherIsBetter = nomorData.higherIsBetter;
         evalItems = nomorData.items;
     }
@@ -3221,20 +3466,27 @@ function computeEvaluation(a) {
             cnt++;
             return;
         }
-        var s = norma[name];
-        // Empat item berbasis kelamin: norma per cabor bisa kosong (cabor yang
-        // itemnya ditambahkan admin), jadi dipakai norma cadangan NORMA_ITEM_KELAMIN.
+        // Urutan pencarian norma: norma milik cabor/nomor sendiri -> norma global
+        // per item tes (dipakai cabor baru agar sama dengan cabor sebelumnya) ->
+        // norma cadangan empat item berbasis kelamin (NORMA_ITEM_KELAMIN).
+        var s = normaFindByName(norma, itemKey(name));
+        if (!s) s = getGlobalItemNorma(name, a.usia);
         if (!s) s = normaItemKelamin(name, a.usia);
-        if (!s) {
-            items.push({ name: name, raw: raw, threshold: 0, mean: 0, sd: 1, pct: 50, cat: getPctCategory(50) });
-            total += 50;
-            cnt++;
+        if (!s || isNaN(parseFloat(s.mean)) || !(parseFloat(s.sd) > 0)) {
+            // Norma benar-benar belum tersedia: JANGAN beri persentase palsu 50%
+            // dan JANGAN ikut dihitung ke rata-rata/total performa.
+            items.push({ name: name, raw: raw, tanpaNorma: true, pct: null, cat: null });
             return;
         }
         // Item lempar jarak (chest pass / overhead throw) selalu dianggap
-        // "makin jauh makin baik", termasuk untuk cabor yang higherIsBetter-nya
-        // belum diisi.
-        var higher = higherIsBetter.indexOf(name) >= 0 || !!wajib;
+        // "makin jauh makin baik". Untuk cabor baru yang higherIsBetter-nya masih
+        // kosong, arah nilai diambil dari pemakaian item yang sama di cabor lain.
+        var higher;
+        if (higherIsBetter && higherIsBetter.length) {
+            higher = normaItemInList(higherIsBetter, itemKey(name)) || !!wajib;
+        } else {
+            higher = resolveArahGlobal(name) || !!wajib;
+        }
         var pct = calcItemPct(name, raw, s.mean, s.sd, higher);
         pct = +pct.toFixed(1);
         var cat = getPctCategory(pct);
@@ -3297,11 +3549,25 @@ function getBrockportScore(distanceCm) {
     return 0;
 }
 
+// ===== SATU KONFIGURASI PUSAT ATURAN KATEGORI =====
+// Semua batas kategori (persentase maupun z-score) diambil dari sini saja:
+// getPctCategory (label & warna), normaRentangKategori (batas nilai mentah),
+// dan teks dokumentasi menu Norma Tes. Mengubah array ini mengubah seluruh
+// sistem secara konsisten. minZ = breakpoint z-score, minPct = persentase pada
+// z tersebut (dihitung dari kurva calcItemPct: z=2 -> 90, z=0.25 -> 60,
+// z=-0.75 -> 40, z=-1.75 -> 20).
+var PCT_KATEGORI = [
+    { minPct: 90, minZ: 2, label: 'Baik Sekali', color: 'emerald' },
+    { minPct: 60, minZ: 0.25, label: 'Baik', color: 'blue' },
+    { minPct: 40, minZ: -0.75, label: 'Cukup', color: 'amber' },
+    { minPct: 20, minZ: -1.75, label: 'Kurang', color: 'orange' },
+    { minPct: -Infinity, minZ: -Infinity, label: 'Kurang Sekali', color: 'red' }
+];
+
 function getPctCategory(pct) {
-    if (pct >= 90) return { label: 'Baik Sekali', color: 'emerald' };
-    if (pct >= 75) return { label: 'Baik', color: 'blue' };
-    if (pct >= 55) return { label: 'Cukup', color: 'amber' };
-    if (pct >= 35) return { label: 'Kurang', color: 'orange' };
+    for (var i = 0; i < PCT_KATEGORI.length; i++) {
+        if (pct >= PCT_KATEGORI[i].minPct) return { label: PCT_KATEGORI[i].label, color: PCT_KATEGORI[i].color };
+    }
     return { label: 'Kurang Sekali', color: 'red' };
 }
 
@@ -3386,8 +3652,6 @@ function buildAthleteResultRowsHtml(ev) {
         return '<tr><td colspan="5" class="px-3 py-4 text-xs text-gray-400">Belum ada hasil tes tersimpan untuk sesi ini.</td></tr>';
     }
     return items.map(function(it, i) {
-        var gc = getCategory(it.pct);
-        var barW = Math.min(it.pct, 100);
         var unit = getItemUnit(it.name);
         var li = it.name.toLowerCase();
         var isShoulderMobility = li.indexOf('shoulder mobility') >= 0;
@@ -3398,25 +3662,35 @@ function buildAthleteResultRowsHtml(ev) {
             rawDisplay = it.raw + (unit ? ' ' + unit : '');
         }
         var refInfo = '';
-        if (it.mean !== undefined && it.mean !== 0) {
+        if (it.tanpaNorma) {
+            refInfo = '<p class="text-[10px] text-amber-600 mt-0.5">Norma belum diatur - tidak ikut dihitung ke performa</p>';
+        } else if (it.mean !== undefined && it.mean !== 0) {
             refInfo = '<p class="text-[10px] text-gray-400 mt-0.5">Rata-rata: ' + it.mean + (unit ? ' ' + unit : '') + '</p>';
         }
         if (isShoulderMobility) {
             refInfo = '<p class="text-[10px] text-gray-400 mt-0.5">0cm=Sempurna, 5cm=Baik, 10cm=Cukup, 20cm=Perlu Perbaikan</p>';
         }
+        var pctCell, catCell;
+        if (it.tanpaNorma) {
+            pctCell = '<span class="font-semibold text-xs text-gray-400">Norma belum diatur</span>';
+            catCell = '<span class="text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full font-semibold text-[11px]">-</span>';
+        } else {
+            var gc = getCategory(it.pct);
+            var barW = Math.min(it.pct, 100);
+            pctCell = '<div class="flex items-center gap-2">' +
+                '<div class="flex-1 bg-gray-200 rounded-full h-2.5 overflow-hidden">' +
+                    '<div class="bg-' + gc.color + '-500 h-full rounded-full transition-all" style="width:' + barW + '%"></div>' +
+                '</div>' +
+                '<span class="font-bold text-xs text-' + gc.color + '-600 w-10 text-right">' + it.pct.toFixed(0) + '%</span>' +
+            '</div>';
+            catCell = '<span class="text-' + gc.color + '-700 bg-' + gc.color + '-100 px-2 py-0.5 rounded-full font-semibold text-[11px]">' + gc.label + '</span>';
+        }
         return '<tr class="' + (i % 2 ? 'bg-gray-50' : '') + ' border-t border-gray-100 hover:bg-blue-50 transition">' +
             '<td class="px-3 py-2.5 font-semibold text-gray-500 text-xs">' + (i + 1) + '</td>' +
             '<td class="px-3 py-2.5 font-semibold text-gray-800 text-xs">' + it.name + refInfo + '</td>' +
             '<td class="px-3 py-2.5 text-xs"><span class="font-mono font-bold text-gray-900">' + rawDisplay + '</span></td>' +
-            '<td class="px-3 py-2.5 text-xs min-w-[180px]">' +
-                '<div class="flex items-center gap-2">' +
-                    '<div class="flex-1 bg-gray-200 rounded-full h-2.5 overflow-hidden">' +
-                        '<div class="bg-' + gc.color + '-500 h-full rounded-full transition-all" style="width:' + barW + '%"></div>' +
-                    '</div>' +
-                    '<span class="font-bold text-xs text-' + gc.color + '-600 w-10 text-right">' + it.pct.toFixed(0) + '%</span>' +
-                '</div>' +
-            '</td>' +
-            '<td class="px-3 py-2.5 text-xs"><span class="text-' + gc.color + '-700 bg-' + gc.color + '-100 px-2 py-0.5 rounded-full font-semibold text-[11px]">' + gc.label + '</span></td>' +
+            '<td class="px-3 py-2.5 text-xs min-w-[180px]">' + pctCell + '</td>' +
+            '<td class="px-3 py-2.5 text-xs">' + catCell + '</td>' +
             '</tr>';
     }).join('');
 }
@@ -3521,6 +3795,8 @@ function renderDetail(a) {
 function drawSpider(items) {
     var svg = document.getElementById('spiderChart');
     svg.innerHTML = '';
+    // Item tanpa norma tidak punya skor, jadi tidak digambar ke grafik.
+    items = (items || []).filter(function(it) { return it && !it.tanpaNorma && it.pct != null; });
     if (!items.length) {
         svg.innerHTML = '<text x="250" y="250" text-anchor="middle" fill="#999" font-size="14">Tidak ada data</text>';
         return;
@@ -4016,12 +4292,14 @@ function renderComparison() {
         var deltaHtml = '<span class="text-gray-300 text-xs font-semibold">—</span>';
         if (prevEv) {
             var delta = +(ev.performa - prevEv.performa).toFixed(1);
+            var perubahanRelatif = prevEv.performa > 0 ? ((ev.performa - prevEv.performa) / prevEv.performa * 100) : null;
+            var infoPerubahan = perubahanRelatif === null ? ' <span class="text-gray-400 font-semibold">(n/a)</span>' : ' <span class="text-gray-400 font-semibold">(' + (perubahanRelatif > 0 ? '+' : '') + perubahanRelatif.toFixed(1) + '%)</span>';
             if (delta > 0) {
-                deltaHtml = '<span class="text-emerald-600 font-bold text-xs">▲ +' + delta.toFixed(1) + '% (naik)</span>';
+                deltaHtml = '<span class="text-emerald-600 font-bold text-xs">▲ +' + delta.toFixed(1) + '% (naik)</span>' + infoPerubahan;
             } else if (delta < 0) {
-                deltaHtml = '<span class="text-red-500 font-bold text-xs">▼ ' + delta.toFixed(1) + '% (turun)</span>';
+                deltaHtml = '<span class="text-red-500 font-bold text-xs">▼ ' + delta.toFixed(1) + '% (turun)</span>' + infoPerubahan;
             } else {
-                deltaHtml = '<span class="text-gray-500 font-bold text-xs">— 0% (tetap)</span>';
+                deltaHtml = '<span class="text-gray-500 font-bold text-xs">— 0% (tetap)</span>' + infoPerubahan;
             }
         }
         rowsHtml += '<tr class="border-b border-gray-100 fade-in">' +
@@ -4058,6 +4336,8 @@ function renderComparison() {
         lastCatEl.className = 'inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-' + catLast.color + '-100 text-' + catLast.color + '-700';
 
         var delta = +(evLast.performa - evPrev.performa).toFixed(1);
+        var perubahanRelatifKartu = evPrev.performa > 0 ? ((evLast.performa - evPrev.performa) / evPrev.performa * 100) : null;
+        document.getElementById('cmpDeltaDate').textContent = 'vs sesi sebelumnya · perubahan relatif ' + (perubahanRelatifKartu === null ? 'n/a (nilai awal 0%)' : (perubahanRelatifKartu > 0 ? '+' : '') + perubahanRelatifKartu.toFixed(1) + '%');
         document.getElementById('cmpDeltaScore').textContent = (delta > 0 ? '+' : '') + delta.toFixed(1) + '%';
         var deltaBadge = document.getElementById('cmpDeltaBadge');
         if (delta > 0) {
@@ -4326,9 +4606,20 @@ document.getElementById('loginUsername').addEventListener('keypress', function(e
 
 function hapusSemuaData() {
     if (isPelatih()) { alert('Anda tidak memiliki akses untuk menghapus data.'); return; }
-    if (!confirm('Yakin ingin menghapus SEMUA data atlet?\nTindakan ini tidak dapat dibatalkan.')) return;
+    var searchEl = document.getElementById('alSearch');
+    var filterSel = document.getElementById('alFilterCabor');
+    var adaFilter = !!(searchEl && searchEl.value.trim()) || !!(filterSel && filterSel.value);
+    var pesan = 'Yakin ingin menghapus SEMUA data atlet?\nTindakan ini tidak dapat dibatalkan.';
+    if (adaFilter) {
+        pesan = 'PERHATIAN: Pencarian / filter cabor SEDANG AKTIF.\n\n' +
+            'Tombol ini menghapus SEMUA data atlet (' + dashboardAthletes.length + ' data) di seluruh cabor,\n' +
+            'BUKAN hanya hasil pencarian yang sedang tampil.\n\n' +
+            'Yakin ingin menghapus SEMUA data atlet?\nTindakan ini tidak dapat dibatalkan.';
+    }
+    if (!confirm(pesan)) return;
     dashboardAthletes = [];
     saveDashboardData();
+    alShowAll = false;
     renderAthleteList();
     alert('Semua data berhasil dihapus.');
 }
@@ -5467,6 +5758,36 @@ function clearCaborSearch() {
     renderDaftarCabor();
 }
 
+// ----- "Lihat Semua Cabor" (landing page) -----
+// Awalnya hanya 2 baris kartu sesuai grid aktif (desktop 4 kolom = 8 kartu,
+// tablet 3/2 kolom = 6/4 kartu, HP 1 kolom = 2 kartu). Pencarian selalu
+// menampilkan seluruh hasil yang cocok tanpa terpotong batas ini.
+var dcShowAll = false;
+
+function getDaftarCaborLimit() {
+    var w = window.innerWidth || 1280;
+    var perBaris = w >= 1280 ? 4 : (w >= 1024 ? 3 : (w >= 640 ? 2 : 1));
+    return perBaris * 2;
+}
+
+function toggleDaftarCabor() {
+    dcShowAll = !dcShowAll;
+    renderDaftarCabor();
+    if (!dcShowAll) {
+        var sec = document.getElementById('daftar-cabor');
+        if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+var dcResizeTimer = null;
+window.addEventListener('resize', function() {
+    clearTimeout(dcResizeTimer);
+    dcResizeTimer = setTimeout(function() {
+        var lp = document.getElementById('landingPage');
+        if (lp && lp.classList.contains('active')) renderDaftarCabor();
+    }, 200);
+});
+
 function renderDaftarCabor() {
     var grid = document.getElementById('dcGrid');
     if (!grid) return;
@@ -5492,7 +5813,12 @@ function renderDaftarCabor() {
     var unlocked = getUnlockedCabors();
     var superadmin = canManageCabor();
 
-    grid.innerHTML = filtered.map(function(name) {
+    // Batasi tampilan awal ke 2 baris; "Lihat Semua" / pencarian membuka semua.
+    var limit = getDaftarCaborLimit();
+    var pakaiBatas = !dcShowAll && !query;
+    var tampil = pakaiBatas ? filtered.slice(0, limit) : filtered;
+
+    grid.innerHTML = tampil.map(function(name) {
         var isOpen = superadmin || unlocked.indexOf(name) >= 0;
         var cnt = counts[name] || 0;
         return '<button type="button" onclick="requestCaborAccess(\'' + jsStr(name) + '\')" class="text-left bg-white border border-gray-200 rounded-2xl p-4 hover:border-blue-400 hover:shadow-lg hover:-translate-y-0.5 transition fade-in">' +
@@ -5520,6 +5846,20 @@ function renderDaftarCabor() {
             if (msg) msg.textContent = names.length ? 'Cabor tidak ditemukan' : 'Belum ada cabor terdaftar';
         } else {
             emptyBox.classList.add('hidden');
+        }
+    }
+
+    var moreWrap = document.getElementById('dcMoreWrap');
+    var moreLabel = document.getElementById('dcMoreLabel');
+    var moreIcon = document.getElementById('dcMoreIcon');
+    if (moreWrap) {
+        if (!query && filtered.length > limit) {
+            moreWrap.classList.remove('hidden');
+            if (moreLabel) moreLabel.textContent = dcShowAll ? 'Tampilkan Lebih Sedikit' : 'Lihat Semua Cabor (' + filtered.length + ')';
+            if (moreIcon) moreIcon.style.transform = dcShowAll ? 'rotate(180deg)' : '';
+        } else {
+            moreWrap.classList.add('hidden');
+            if (moreIcon) moreIcon.style.transform = '';
         }
     }
 }
@@ -6530,22 +6870,23 @@ function normaFmtNum(n) {
 function normaRentangKategori(mean, sd, higher) {
     if (mean === null || mean === undefined || isNaN(mean) || !sd || isNaN(sd) || sd <= 0) return null;
     function v(z) { return mean + z * sd; }
-    var m = normaFmtNum(mean);
+    var z = [];
+    for (var i = 0; i < 4; i++) z.push(PCT_KATEGORI[i].minZ);
     if (higher) {
         return [
-            '>= ' + normaFmtNum(v(2)),
-            '>= ' + normaFmtNum(v(1)) + ' dan < ' + normaFmtNum(v(2)),
-            '>= ' + m + ' dan < ' + normaFmtNum(v(1)),
-            '>= ' + normaFmtNum(v(-1)) + ' dan < ' + m,
-            '< ' + normaFmtNum(v(-1))
+            '>= ' + normaFmtNum(v(z[0])),
+            '>= ' + normaFmtNum(v(z[1])) + ' dan < ' + normaFmtNum(v(z[0])),
+            '>= ' + normaFmtNum(v(z[2])) + ' dan < ' + normaFmtNum(v(z[1])),
+            '>= ' + normaFmtNum(v(z[3])) + ' dan < ' + normaFmtNum(v(z[2])),
+            '< ' + normaFmtNum(v(z[3]))
         ];
     }
     return [
-        '<= ' + normaFmtNum(v(-2)),
-        '> ' + normaFmtNum(v(-2)) + ' dan <= ' + normaFmtNum(v(-1)),
-        '> ' + normaFmtNum(v(-1)) + ' dan <= ' + m,
-        '> ' + m + ' dan <= ' + normaFmtNum(v(1)),
-        '> ' + normaFmtNum(v(1))
+        '<= ' + normaFmtNum(v(-z[0])),
+        '> ' + normaFmtNum(v(-z[0])) + ' dan <= ' + normaFmtNum(v(-z[1])),
+        '> ' + normaFmtNum(v(-z[1])) + ' dan <= ' + normaFmtNum(v(-z[2])),
+        '> ' + normaFmtNum(v(-z[2])) + ' dan <= ' + normaFmtNum(v(-z[3])),
+        '> ' + normaFmtNum(v(-z[3]))
     ];
 }
 
@@ -6608,7 +6949,7 @@ function normaStatusPenilaian(name, rows) {
     if (kind === 'shoulder') return 'Dinilai dengan skor Brockport (0-3) yang dikonversi ke persentase';
     if (kind === 'bleep') return 'Input level.shuttle dikonversi ke VO2max, lalu dinilai dengan z-score';
     if (kind === 'rast') return 'Nilai = rata-rata daya 6 sprint (watt), dinilai dengan z-score';
-    if (!rows || !rows.length) return 'Tanpa norma - persentase tetap 50% (Kurang)';
+    if (!rows || !rows.length) return 'Tanpa norma - tampil "Norma belum diatur" dan tidak ikut dihitung ke performa';
     return 'Dinilai dengan z-score terhadap mean & sd norma';
 }
 
@@ -6686,15 +7027,15 @@ function normaFormulas() {
         },
         {
             judul: '4. Kategori dari persentase',
-            rumus: '>= 90% Baik Sekali | >= 75% Baik | >= 55% Cukup | >= 35% Kurang | < 35% Kurang Sekali',
-            penjelasan: 'Dipakai untuk kategori per item maupun kategori performa akhir (fungsi getPctCategory).',
-            contoh: 'Persentase 75% -> kategori Baik'
+            rumus: '>= 90% Baik Sekali | >= 60% Baik | >= 40% Cukup | >= 20% Kurang | < 20% Kurang Sekali',
+            penjelasan: 'Dipakai untuk kategori per item maupun kategori performa akhir (fungsi getPctCategory). Ambang berasal dari konfigurasi pusat PCT_KATEGORI.',
+            contoh: 'Persentase 60% -> kategori Baik'
         },
         {
             judul: '5. Rentang nilai per kategori (turunan dari mean & sd)',
-            rumus: 'Batas kategori terjadi pada z = 2, 1, 0, dan -1. Untuk item makin tinggi makin baik: Baik Sekali >= mean+2sd, Baik >= mean+1sd, Cukup >= mean, Kurang >= mean-1sd, Kurang Sekali < mean-1sd. Untuk item makin rendah makin baik, seluruh arah dibalik.',
-            penjelasan: 'Sistem tidak menyimpan tabel rentang nilai; kolom rentang pada tabel norma di halaman ini diturunkan dari mean & sd dengan aturan tersebut sehingga selalu konsisten dengan perhitungan.',
-            contoh: 'Push Up 1 Menit usia <= 17 (mean 25, sd 9) -> Baik Sekali >= 43, Baik >= 34, Cukup >= 25, Kurang >= 16, Kurang Sekali < 16'
+            rumus: 'Batas kategori terjadi pada z = 2, 0,25, -0,75, dan -1,75. Untuk item makin tinggi makin baik: Baik Sekali >= mean+2sd, Baik >= mean+0,25sd, Cukup >= mean-0,75sd, Kurang >= mean-1,75sd, Kurang Sekali < mean-1,75sd. Untuk item makin rendah makin baik, seluruh arah dibalik.',
+            penjelasan: 'Sistem tidak menyimpan tabel rentang nilai; kolom rentang pada tabel norma di halaman ini diturunkan dari mean & sd dengan breakpoint z dari konfigurasi pusat PCT_KATEGORI sehingga selalu konsisten dengan perhitungan.',
+            contoh: 'Push Up 1 Menit usia <= 17 (mean 25, sd 9) -> Baik Sekali >= 43, Baik >= 27,25, Cukup >= 18,25, Kurang >= 9,25, Kurang Sekali < 9,25'
         },
         {
             judul: '6. Bleep Test -> VO2max',
@@ -6751,11 +7092,11 @@ function normaSumberList() {
         },
         {
             judul: 'Rentang kategori',
-            isi: 'Sistem tidak menyimpan tabel rentang nilai per kategori. Rentang yang ditampilkan di halaman ini diturunkan dari mean & sd dengan breakpoint z = 2, 1, 0, dan -1 yang sama dengan fungsi calcItemPct, lalu dipetakan ke label pada fungsi getPctCategory.'
+            isi: 'Sistem tidak menyimpan tabel rentang nilai per kategori. Rentang yang ditampilkan di halaman ini diturunkan dari mean & sd dengan breakpoint z = 2, 0,25, -0,75, dan -1,75 dari konfigurasi pusat PCT_KATEGORI, lalu dipetakan ke label pada fungsi getPctCategory.'
         },
         {
             judul: 'Kategori penilaian',
-            isi: 'Baik Sekali (>= 90%), Baik (>= 75%), Cukup (>= 55%), Kurang (>= 35%), Kurang Sekali (< 35%). Label "Cukup" adalah label bawaan sistem (bukan "Sedang").'
+            isi: 'Baik Sekali (>= 90%), Baik (>= 60%), Cukup (>= 40%), Kurang (>= 20%), Kurang Sekali (< 20%). Label "Cukup" adalah label bawaan sistem (bukan "Sedang"). Seluruh ambang berasal dari konfigurasi pusat PCT_KATEGORI.'
         },
         {
             judul: 'Item yang tidak dinilai',
@@ -6873,7 +7214,7 @@ function normaPanelHtml(it) {
     if (it.nonSkor) {
         html += '<div class="bg-gray-50 border border-gray-200 text-gray-600 text-xs rounded-xl p-3 mb-3">' + escHtml(it.nonSkor) + '</div>';
     } else if (!it.rows.length) {
-        html += '<div class="bg-gray-50 border border-gray-200 text-gray-600 text-xs rounded-xl p-3 mb-3">Item ini belum memiliki norma di konfigurasi mana pun, sehingga sistem memberi <b>persentase tetap 50% (Kurang)</b>.</div>';
+        html += '<div class="bg-gray-50 border border-gray-200 text-gray-600 text-xs rounded-xl p-3 mb-3">Item ini belum memiliki norma di konfigurasi mana pun, sehingga sistem menampilkan <b>"Norma belum diatur"</b> dan item ini <b>tidak ikut dihitung</b> ke rata-rata/total performa.</div>';
     }
     if (it.catatanNorma) {
         html += '<div class="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl p-3 mb-3">' + escHtml(it.catatanNorma) + '</div>';
