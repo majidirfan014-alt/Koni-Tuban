@@ -79,7 +79,7 @@
             <div class="lp-menu hidden md:flex items-center gap-7 text-sm font-semibold text-gray-600">
                 <a href="#beranda" class="hover:text-blue-600">Beranda</a>
                 <a href="#statistik" class="hover:text-blue-600">Statistik</a>
-                <a href="#tentang" class="hover:text-blue-600">Tentang Sistem</a>
+                <a href="#hasil-tes" class="hover:text-blue-600">Hasil Tes Fisik</a>
                 <a href="#daftar-cabor" class="hover:text-blue-600">Daftar Cabor</a>
             </div>
             <button onclick="showLoginPage()" class="lp-cta shrink-0 font-bold px-5 sm:px-6 py-2.5 rounded-full transition text-sm flex items-center gap-1.5">
@@ -187,37 +187,31 @@
         </div>
     </section>
 
-    <section id="tentang" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 scroll-mt-24">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-1">
-                <p class="text-xs font-bold text-blue-600 uppercase tracking-wider">Tentang Sistem</p>
-                <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2 leading-snug">Evaluasi tes fisik yang rapi, terukur, dan privat</h2>
-                <p class="text-sm text-gray-500 mt-3 leading-relaxed">
-                    Landing page ini hanya menampilkan angka ringkasan. Detail atlet dan hasil tes hanya dapat diakses setelah login.
-                </p>
+    <section id="hasil-tes" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 scroll-mt-24">
+        <div class="max-w-3xl">
+            <p class="text-xs font-bold text-blue-600 uppercase tracking-wider">Hasil Tes Fisik</p>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2 leading-snug">Ringkasan performa atlet binaan KONI Tuban</h2>
+            <p class="text-sm text-gray-500 mt-3 leading-relaxed">
+                Angka dihitung dari seluruh hasil tes yang tercatat dan diperbarui otomatis. Hanya data agregat yang ditampilkan — identitas atlet tetap dirahasiakan.
+            </p>
+        </div>
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
+            <div class="bg-white rounded-2xl card-shadow p-5 sm:p-6 flex flex-col justify-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-100 text-indigo-700 p-2.5 rounded-xl">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    </div>
+                    <p class="text-xs text-gray-400 font-semibold">Rata-rata Performa</p>
+                </div>
+                <p id="hasilAvgPerforma" class="text-4xl sm:text-5xl font-extrabold text-gray-800 mt-4">0%</p>
+                <p id="hasilAvgNote" class="text-xs text-gray-400 mt-2 leading-relaxed">Dihitung dari seluruh hasil tes yang tercatat.</p>
             </div>
-            <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-gray-50 border border-gray-100 rounded-3xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition">
-                    <div class="w-11 h-11 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center mb-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                    </div>
-                    <h3 class="font-bold text-gray-900 text-sm">Data Aman</h3>
-                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">Identitas atlet tidak tampil di halaman publik.</p>
-                </div>
-                <div class="bg-gray-50 border border-gray-100 rounded-3xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition">
-                    <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 2 0 01.707.293l5.414 5.414a1 2 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    </div>
-                    <h3 class="font-bold text-gray-900 text-sm">Statistik Real-time</h3>
-                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">Jumlah atlet, cabor, dan sesi tes diperbarui otomatis.</p>
-                </div>
-                <div class="bg-gray-50 border border-gray-100 rounded-3xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition">
-                    <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mb-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    </div>
-                    <h3 class="font-bold text-gray-900 text-sm">Fokus Cabor</h3>
-                    <p class="text-xs text-gray-500 mt-1.5 leading-relaxed">Mendukung berbagai cabang olahraga binaan KONI Tuban.</p>
-                </div>
+            <div class="bg-white rounded-2xl card-shadow p-5 sm:p-6 lg:col-span-2">
+                <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/></svg>
+                    Distribusi Kategori Performa
+                </h3>
+                <div id="hasilKategoriBar" class="space-y-3"></div>
             </div>
         </div>
     </section>
@@ -4117,6 +4111,7 @@ function showLandingPage() {
     document.getElementById('landingPage').classList.add('active');
     renderLandingStats();
     renderDaftarCabor();
+    renderLandingHasil();
 }
 
 function renderLandingStats() {
@@ -4653,6 +4648,85 @@ function exportCSV() {
     URL.revokeObjectURL(url);
 }
 
+// ===== KOMPONEN BERSAMA: DASHBOARD HASIL TES FISIK (aplikasi & landing) =====
+// Perhitungan agregat & render bar kategori dipakai bersama oleh Dashboard
+// Hasil Tes Fisik di dalam aplikasi (renderDashboard) dan oleh section
+// "Hasil Tes Fisik" di landing page (renderLandingHasil), supaya angka
+// selalu identik. Landing hanya menampilkan angka agregat publik.
+function computeDashStats(filtered) {
+    var totalAtlet = filtered.length;
+    var cabors = {};
+    filtered.forEach(function(a) { cabors[a.cabor] = true; });
+    var totalCabor = Object.keys(cabors).length;
+    var totalPerforma = 0;
+    var kategoriCount = { 'Baik Sekali': 0, 'Baik': 0, 'Cukup': 0, 'Kurang': 0, 'Kurang Sekali': 0 };
+    filtered.forEach(function(a) {
+        var ev = computeEvaluation(a);
+        totalPerforma += ev.performa;
+        kategoriCount[ev.kategori] = (kategoriCount[ev.kategori] || 0) + 1;
+    });
+    var avgPerforma = totalAtlet ? (totalPerforma / totalAtlet) : 0;
+    var maxKat = '-';
+    var maxCount = 0;
+    if (totalAtlet) {
+        maxKat = 'Kurang Sekali';
+        Object.keys(kategoriCount).forEach(function(k) {
+            if (kategoriCount[k] > maxCount) { maxCount = kategoriCount[k]; maxKat = k; }
+        });
+    }
+    return {
+        totalAtlet: totalAtlet,
+        totalCabor: totalCabor,
+        avgPerforma: avgPerforma,
+        kategoriCount: kategoriCount,
+        maxKat: maxKat,
+        maxCount: maxCount
+    };
+}
+
+function renderKategoriBars(katBar, kategoriCount, totalAtlet) {
+    if (!katBar) return;
+    if (!totalAtlet) {
+        katBar.innerHTML = '<p class="text-gray-400 text-sm text-center py-6">Belum ada data tes</p>';
+        return;
+    }
+    var katColors = { 'Baik Sekali': 'emerald', 'Baik': 'blue', 'Cukup': 'amber', 'Kurang': 'orange', 'Kurang Sekali': 'red' };
+    katBar.innerHTML = Object.keys(kategoriCount).map(function(k) {
+        var pct = totalAtlet ? ((kategoriCount[k] / totalAtlet) * 100) : 0;
+        var c = katColors[k];
+        return '<div class="flex items-center gap-3">' +
+            '<span class="text-xs font-semibold text-gray-600 w-28">' + k + '</span>' +
+            '<div class="flex-1 bg-gray-200 rounded-full h-5 overflow-hidden">' +
+                '<div class="bg-' + c + '-500 h-full rounded-full transition-all flex items-center justify-end pr-2" style="width:' + Math.max(pct, 3) + '%">' +
+                    (pct > 8 ? '<span class="text-[10px] font-bold text-white">' + kategoriCount[k] + '</span>' : '') +
+                '</div>' +
+            '</div>' +
+            '<span class="text-xs font-bold text-gray-500 w-12 text-right">' + pct.toFixed(0) + '%</span>' +
+        '</div>';
+    }).join('');
+}
+
+function renderLandingHasil() {
+    var avgEl = document.getElementById('hasilAvgPerforma');
+    var noteEl = document.getElementById('hasilAvgNote');
+    var katBar = document.getElementById('hasilKategoriBar');
+    if (!avgEl || !katBar) return;
+    var stats = computeDashStats(dashboardAthletes);
+    if (!stats.totalAtlet) {
+        avgEl.textContent = '-';
+        avgEl.classList.add('text-gray-300');
+        if (noteEl) noteEl.textContent = 'Belum ada data tes';
+    } else {
+        avgEl.textContent = stats.avgPerforma.toFixed(1) + '%';
+        avgEl.classList.remove('text-gray-300');
+        if (noteEl) {
+            var gc = getCategory(stats.avgPerforma);
+            noteEl.innerHTML = 'Kategori rata-rata: <span class="font-semibold text-' + gc.color + '-700">' + gc.label + '</span>';
+        }
+    }
+    renderKategoriBars(katBar, stats.kategoriCount, stats.totalAtlet);
+}
+
 function renderDashboard() {
     populateDashFilterCabor();
     var filterCabor = document.getElementById('dashFilterCabor').value;
@@ -4674,47 +4748,15 @@ function renderDashboard() {
         return true;
     });
 
-    var totalAtlet = filtered.length;
-    var cabors = {};
-    filtered.forEach(function(a) { cabors[a.cabor] = true; });
-    var totalCabor = Object.keys(cabors).length;
-
-    var totalPerforma = 0;
-    var kategoriCount = { 'Baik Sekali': 0, 'Baik': 0, 'Cukup': 0, 'Kurang': 0, 'Kurang Sekali': 0 };
-    filtered.forEach(function(a) {
-        var ev = computeEvaluation(a);
-        totalPerforma += ev.performa;
-        kategoriCount[ev.kategori] = (kategoriCount[ev.kategori] || 0) + 1;
-    });
-    var avgPerforma = totalAtlet ? (totalPerforma / totalAtlet) : 0;
-
-    var maxKat = 'Kurang Sekali';
-    var maxCount = 0;
-    Object.keys(kategoriCount).forEach(function(k) {
-        if (kategoriCount[k] > maxCount) { maxCount = kategoriCount[k]; maxKat = k; }
-    });
-
-    document.getElementById('dashTotalAtlet').textContent = totalAtlet;
-    document.getElementById('dashTotalCabor').textContent = totalCabor;
-    document.getElementById('dashAvgPerforma').textContent = avgPerforma.toFixed(1) + '%';
-    var gc = getCategory(avgPerforma);
-    document.getElementById('dashKategoriDominan').innerHTML = '<span class="text-' + gc.color + '-700">' + maxKat + '</span> <span class="text-gray-400 text-sm">(' + maxCount + ')</span>';
-
-    var katBar = document.getElementById('dashKategoriBar');
-    var katColors = { 'Baik Sekali': 'emerald', 'Baik': 'blue', 'Cukup': 'amber', 'Kurang': 'orange', 'Kurang Sekali': 'red' };
-    katBar.innerHTML = Object.keys(kategoriCount).map(function(k) {
-        var pct = totalAtlet ? ((kategoriCount[k] / totalAtlet) * 100) : 0;
-        var c = katColors[k];
-        return '<div class="flex items-center gap-3">' +
-            '<span class="text-xs font-semibold text-gray-600 w-28">' + k + '</span>' +
-            '<div class="flex-1 bg-gray-200 rounded-full h-5 overflow-hidden">' +
-                '<div class="bg-' + c + '-500 h-full rounded-full transition-all flex items-center justify-end pr-2" style="width:' + Math.max(pct, 3) + '%">' +
-                    (pct > 8 ? '<span class="text-[10px] font-bold text-white">' + kategoriCount[k] + '</span>' : '') +
-                '</div>' +
-            '</div>' +
-            '<span class="text-xs font-bold text-gray-500 w-12 text-right">' + pct.toFixed(0) + '%</span>' +
-        '</div>';
-    }).join('');
+    var stats = computeDashStats(filtered);
+    document.getElementById('dashTotalAtlet').textContent = stats.totalAtlet;
+    document.getElementById('dashTotalCabor').textContent = stats.totalCabor;
+    document.getElementById('dashAvgPerforma').textContent = stats.avgPerforma.toFixed(1) + '%';
+    var gc = getCategory(stats.avgPerforma);
+    document.getElementById('dashKategoriDominan').innerHTML = stats.totalAtlet
+        ? '<span class="text-' + gc.color + '-700">' + stats.maxKat + '</span> <span class="text-gray-400 text-sm">(' + stats.maxCount + ')</span>'
+        : '-';
+    renderKategoriBars(document.getElementById('dashKategoriBar'), stats.kategoriCount, stats.totalAtlet);
 
     var tbody = document.getElementById('dashTableBody');
     var empty = document.getElementById('dashEmpty');
@@ -6686,6 +6728,7 @@ function refreshCurrentView() {
     if (document.getElementById('landingPage').classList.contains('active')) {
         renderLandingStats();
         renderDaftarCabor();
+        renderLandingHasil();
         return;
     }
     if (document.getElementById('caborPage').classList.contains('active')) {
